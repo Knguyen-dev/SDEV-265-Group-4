@@ -10,25 +10,24 @@ import datetime
 
 ctk.set_appearance_mode("Light")  # Modes: "System" (standard), "Dark", "Light"
 
-
-class NavigationBar(ctk.CTkFrame):
+# Header class that has a navbar
+class Header(ctk.CTkFrame):
 	def __init__(self, master, openPageCallback):
-		super().__init__(master, fg_color="black", corner_radius=0)
+		super().__init__(master, fg_color="#f9a8d4", corner_radius=0)
 		self.master = master
-		self.openPageCallback = openPageCallback
+		self.openPageCallback = openPageCallback # keep the openPage so we can get it in other class methods
+		
+		# Create the navbar
+		navbar = ctk.CTkFrame(self, fg_color="transparent")
+		navbar.pack(expand=True)
 
 		# Create header message 
-		welcomeLabel = ctk.CTkLabel(self, text="Welcome to BookSmart.AI!", text_color="white", font=("Helvetica", 32))
-		welcomeLabel.grid(row=0, column=0, columnspan=5)
-		# Create container for buttons and then the nav buttons
-		navBtnFrame = ctk.CTkFrame(self, fg_color="black")
-		navBtnFrame.grid(row=1, column=0, pady=20, columnspan=5)
+		welcomeLabel = ctk.CTkLabel(navbar, text="Welcome to BookSmart.AI!", text_color="black", font=("Helvetica", 32))
 		
-		
-		# List for all nav buttons
-		self.navBtns = []
-		# Create nav buttons with iteration
-		self.navBtnMap = {
+		# Create frame for nav buttons
+		navBtnFrame = ctk.CTkFrame(navbar, fg_color="transparent")
+		self.navBtns = [] # List for all nav buttons
+		self.navBtnMap = { # Create nav buttons with iteration
 			"Home": "homePage",
 			"AI Settings": "aiSettingsPage",
 			"Library": "storyLibraryPage",
@@ -42,21 +41,21 @@ class NavigationBar(ctk.CTkFrame):
 			colCount += 1
 			self.navBtns.append(navBtn)
 
-		# Call function to make sure certain nav buttons direct users to the right places
-		# based on their login state 
-		self.updateNavButtons()
+		# Structure remaining elements
+		welcomeLabel.grid(row=0, column=0)
+		navBtnFrame.grid(row=1, column=0, pady=20)
 
+		# Call function to make sure certain nav buttons direct users to the right places 
+		# self.updateNavButtons()
 
 	'''
-	- Update the nav buttons based on the login state of the user. If the user 
-	isn't logged in, and they're trying to access pages that need an account logged in, 
-	then we redirect them to the login page. Else we maintain our regular button links
+	- Update the nav buttons based on the login state of the user.
 	1. Get buttons that direct you to the library and account page
 	2. If: The user is logged in, then those buttons lead to their respective places
 	3. Else: Both buttons lead to the login page 
 	'''
 	def updateNavButtons(self):
-		if self.master.loggedInUser:
+		if self.master.loggedInUser: #type: ignore
 			self.navBtns[2].configure(command=lambda: self.openPageCallback(self.navBtnMap["Library"]))
 			self.navBtns[4].configure(command=lambda: self.openPageCallback(self.navBtnMap["Account"]))
 		else:
@@ -66,9 +65,9 @@ class NavigationBar(ctk.CTkFrame):
 
 class Footer(ctk.CTkFrame):
 	def __init__(self, master):
-		super().__init__(master, fg_color="black", corner_radius=0)
+		super().__init__(master, fg_color="#f9a8d4", corner_radius=0)
 		currentYear = datetime.datetime.now().year
-		footerLabel = ctk.CTkLabel(self, text=f"BookSmart {currentYear}", text_color="white",	font=("Helvetica", 16))
+		footerLabel = ctk.CTkLabel(self, text=f"BookSmart {currentYear}", text_color="black",	font=("Helvetica", 16))
 		footerLabel.pack()
 
 class App(ctk.CTk):
@@ -88,14 +87,18 @@ class App(ctk.CTk):
 		self.cursor = self.conn.cursor()
 		
 		# Call function to create navbar
-		self.navBar = NavigationBar(self, self.openPage)
-		self.navBar.pack(fill="x", side="top")		
+		self.header = Header(self, self.openPage)
+		self.header.pack(side="top", fill="x")
 
 		footer = Footer(self)
-		footer.pack(side="bottom", fill="x")
+		footer.pack(fill="x", side="bottom")
 
 		# Open the page you want, probably the home page, which would be the ai story, which is a good 
 		# candidate for being the homePage
+
+		self.openPage("userLoginPage")
+
+
 
 	def loadPage(self, pageName):
 		try:
