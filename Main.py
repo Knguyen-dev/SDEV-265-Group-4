@@ -12,10 +12,9 @@ ctk.set_appearance_mode("Light")  # Modes: "System" (standard), "Dark", "Light"
 
 # Header class that has a navbar
 class Header(ctk.CTkFrame):
-	def __init__(self, master, openPageCallback):
+	def __init__(self, master):
 		super().__init__(master, fg_color="#f9a8d4", corner_radius=0)
 		self.master = master
-		self.openPageCallback = openPageCallback # keep the openPage so we can get it in other class methods
 		
 		# Create the navbar
 		navbar = ctk.CTkFrame(self, fg_color="transparent")
@@ -32,11 +31,10 @@ class Header(ctk.CTkFrame):
 			"AI Settings": "aiSettingsPage",
 			"Library": "storyLibraryPage",
 			"Login": "userLoginPage",
-			"Account": "userAccountPage",
 		}
 		colCount = 0
 		for key in self.navBtnMap:
-			navBtn = ctk.CTkButton(navBtnFrame, corner_radius=0, text=f"{key}", command=lambda k=key:self.openPageCallback(self.navBtnMap[k]))
+			navBtn = ctk.CTkButton(navBtnFrame, corner_radius=0, text=f"{key}", command=lambda k=key:self.master.openPage(self.navBtnMap[k])) #type: ignore
 			navBtn.grid(row=0, column=colCount, padx=10)
 			colCount += 1
 			self.navBtns.append(navBtn)
@@ -45,22 +43,24 @@ class Header(ctk.CTkFrame):
 		welcomeLabel.grid(row=0, column=0)
 		navBtnFrame.grid(row=1, column=0, pady=20)
 
-		# Call function to make sure certain nav buttons direct users to the right places 
-		# self.updateNavButtons()
+		# Adjust nav button links depending on user login state
+		self.updateNavButtons()
 
 	'''
 	- Update the nav buttons based on the login state of the user.
-	1. Get buttons that direct you to the library and account page
-	2. If: The user is logged in, then those buttons lead to their respective places
-	3. Else: Both buttons lead to the login page 
+	1. Get buttons that direct you to the library and either the account or login page
+	2. If: The user is logged in, the library button leads user to library page, and the latter button leads to the account page,
+		and has text 'User'
+	3. Else: Both buttons lead to the login page, and the latter button has text saying 'Login' 
 	'''
 	def updateNavButtons(self):
 		if self.master.loggedInUser: #type: ignore
-			self.navBtns[2].configure(command=lambda: self.openPageCallback(self.navBtnMap["Library"]))
-			self.navBtns[4].configure(command=lambda: self.openPageCallback(self.navBtnMap["Account"]))
+			self.navBtns[2].configure(command=lambda: self.master.openPage(self.navBtnMap["Library"])) #type: ignore
+			self.navBtns[3].configure(text="User", command=lambda: self.master.openPage(self.navBtnMap["Account"])) #type: ignore
 		else:
-			self.navBtns[2].configure(command=lambda: self.openPageCallback(self.navBtnMap["Login"]))
-			self.navBtns[4].configure(command=lambda: self.openPageCallback(self.navBtnMap["Login"]))
+			self.navBtns[2].configure(command=lambda: self.master.openPage("userLoginPage")) #type: ignore
+			self.navBtns[3].configure(text="Login", command=lambda: self.master.openPage("userLoginPage")) #type: ignore
+
 
 
 class Footer(ctk.CTkFrame):
@@ -87,7 +87,7 @@ class App(ctk.CTk):
 		self.cursor = self.conn.cursor()
 		
 		# Call function to create navbar
-		self.header = Header(self, self.openPage)
+		self.header = Header(self)
 		self.header.pack(side="top", fill="x")
 
 		footer = Footer(self)
@@ -96,7 +96,7 @@ class App(ctk.CTk):
 		# Open the page you want, probably the home page, which would be the ai story, which is a good 
 		# candidate for being the homePage
 
-		self.openPage("userLoginPage")
+		self.openPage("userAccountPage")
 
 
 

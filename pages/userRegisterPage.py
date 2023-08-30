@@ -66,12 +66,3 @@ class userRegisterPage(ctk.CTkFrame):
 		formBtnsSection.grid(row=2, column=0, pady=10)
 		openLoginBtn.grid(row=0, column=0, padx=10, pady=10)
 		confirmRegisterBtn.grid(row=0, column=1, padx=10, pady=10)
-
-
-
-
-		
-
-
-
-
