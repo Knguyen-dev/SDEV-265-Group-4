@@ -1,14 +1,13 @@
-import sys
-sys.path.append("..") # easy way to go up one directory, allowing us to import more easily
+# import sys # Makes it easier to access appropriate files and modules
+# sys.path.append("..")
+# from classes.Database import Session # Connection to database
+# from classes.models import User # User class that's mapped in the database
 
-from classes.user import User
-myUser = User(
-    username="john_doe",
-    email="john@example.com",
-    firstName="John",
-    lastName="Doe",
-    passwordHash="hashed_password",
-    avatar="avatar_url"
-)
-
-print(myUser.username)
+# username = "JohnPaulJones"
+# session = Session()
+# retrievedUser = session.query(User).filter_by(username=username).first()
+	
+# if retrievedUser:
+#     print("Yeah we found one")
+# else:
+#     print("No nothing was found")
