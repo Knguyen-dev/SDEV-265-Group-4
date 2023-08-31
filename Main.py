@@ -59,16 +59,14 @@ class Header(ctk.CTkFrame):
 	'''
 	- Update the nav buttons based on the login state of the user
 	1. If user is logged in, nav buttons lead to their respective places
-	2. Else: Make all nav buttons lead to login page, ensuring that the user must log in before accessing the application
+	2. Else: All nav buttons are disabled, preventing user from traversing to other pages until they log in
 	'''
 	def updateNavButtons(self):
-		i = 0
-		for key in self.navBtnMap:
+		for button in self.navBtns:
 			if (self.master.loggedInUser): #type: ignore
-				self.navBtns[i].configure(command=lambda:self.master.openPage(self.navBtnMap[key])) #type: ignore
+				button.configure(state="standard")
 			else:
-				self.navBtns[i].configure(command=lambda:self.master.openPage("userLoginPage")) #type: ignore
-			i += 1
+				button.configure(state="disabled")
 			
 # Footer frame
 class Footer(ctk.CTkFrame):
@@ -89,14 +87,15 @@ class App(ctk.CTk):
 
 		# Attribute to keep track of the current page
 		self.currentPage = None
-		self.loggedInUser = None		
+
+		# If user is logged in, this will be a User class instance, representing 
+		# the User that is currently logged into the application
+		self.loggedInUser = None 
 
 		# Engine and session constructor that we're going to use 
-		self.engine = create_engine("sqlite:///assets/PyProject.db", echo=True)
+		self.engine = create_engine("sqlite:///assets/PyProject.db")
 		self.Session = sessionmaker(bind=self.engine)
-
-
-
+		
 		# Call function to create navbar
 		self.header = Header(self)
 		self.header.pack(side="top", fill="x")
@@ -104,9 +103,8 @@ class App(ctk.CTk):
 		footer = Footer(self)
 		footer.pack(fill="x", side="bottom")
 
-		# Open the page you want, probably the home page, which would be the ai story, which is a good 
-		# candidate for being the homePage
-		self.openPage("userRegisterPage")
+		# Open the account page for test purposes
+		self.openPage("userLoginPage")
 
 
 	def loadPage(self, pageName):

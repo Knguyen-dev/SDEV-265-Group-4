@@ -140,3 +140,6 @@ class userRegisterPage(ctk.CTkFrame):
 		session.add(newUser)
 		session.commit()
 		session.close()
+
+		# Redirect user to login screen after they've successfully registered
+		self.master.openPage("userLoginPage") #type: ignore

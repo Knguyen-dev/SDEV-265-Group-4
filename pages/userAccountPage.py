@@ -1,73 +1,9 @@
 import tkinter as tk
 import customtkinter as ctk
-import sys
-
 # For images
 from PIL import Image, ImageTk
-from urllib.request import urlopen
-import io
+import os			
 
-
-# Section that contains the user's profile picture 
-class userImageFrame(tk.Canvas):
-	def __init__(self, container, master):
-		super().__init__(container, highlightbackground="#eee", highlightthickness=1)
-		self.master = master
-
-		# Get image source, related to the user; note this is just a mock
-		userImageSource = "https://st3.depositphotos.com/1767687/16607/v/600/depositphotos_166074422-stock-illustration-default-avatar-profile-icon-grey.jpg"
-
-		# Open url, do an http request, to the website that hosts the image
-		response = urlopen(userImageSource)
-		# Read image data, which gets us a binary object (blob), that represents image
-		imageData = response.read()
-		# Create PIL image object from binary image data
-		image = Image.open(io.BytesIO(imageData)).resize((325, 325))
-		
-		# Turn PIL image into Tkinter image object
-		image = ImageTk.PhotoImage(image=image)
-
-		# Put tkinter image object in a label to display image; need image attribute twice to keep it displayed
-		imageLabel = tk.Label(self, image=image)
-		imageLabel.image = image #type: ignore
-		imageLabel.grid(row=0, column=0)
-
-# Section that contains buttons for interacting with a user's account, editing account, logging out, etc.
-class userAccountPanel(ctk.CTkFrame):
-	def __init__(self, container, master):
-		super().__init__(container, fg_color="transparent")
-		self.master = master
-		openEditAvatarBtn = ctk.CTkButton(self, text="Change Avatar")
-		openEditAccountBtn = ctk.CTkButton(self, text="Edit Account", command=lambda: self.master.openPage("editAccountPage")) #type: ignore
-		confirmLogOutBtn = ctk.CTkButton(self, text="Log Out")
-		openEditAvatarBtn.grid(row=0, column=0, pady=5)
-		openEditAccountBtn.grid(row=1, column=0, pady=5)
-		confirmLogOutBtn.grid(row=2, column=0, pady=5)
-
-# A section that contains public user information such as username, email, first/last name, etc.
-class userInfoPanel(ctk.CTkFrame):
-	def __init__(self, container, master):
-		super().__init__(container, fg_color="transparent")
-		self.master = master
-		userInfoFields = [
-			{
-				"text": "Username",
-				"value": "SomeUserName"
-			},
-			{
-				"text": "Email",
-				"value": "SomeUserName@gmail.com"
-			},
-			{
-				"text": "Name",
-				"value": "SomeFirstName SomeLastName"
-			}
-		]
-		for x in range(len(userInfoFields)):
-			label = ctk.CTkLabel(self, text=f"{userInfoFields[x].get('text')}: {userInfoFields[x].get('value')}", font=("Helvetica", 24))
-			label.grid(row=x, column=0, sticky="W", pady=10)
-			
-		
 class userAccountPage(ctk.CTkFrame):
 	def __init__(self, master):
 		super().__init__(master)
@@ -76,13 +12,55 @@ class userAccountPage(ctk.CTkFrame):
 		# This extra frame just allows stuff to be centered onto the userAccountPage frame
 		innerPageFrame = ctk.CTkFrame(self, fg_color="transparent")
 		innerPageFrame.pack(expand=True)
+		
+		# Create section to store the user's profile picture
+		userImageSection = tk.Canvas(innerPageFrame, highlightbackground="#eee", highlightthickness=1)
+		fileDir = os.path.dirname(os.path.abspath(__file__))
+		avatarSourcePath = os.path.join(fileDir, f"../assets/images/{self.master.loggedInUser.avatar}")
+		image = Image.open(avatarSourcePath).resize((350, 350))
+		imageWidget = ImageTk.PhotoImage(image=image)
+		imageLabel = tk.Label(userImageSection, image=imageWidget)
+		imageLabel.image = imageWidget #type: ignore
+		imageLabel.grid(row=0, column=0)
 
-		# Pass in innerPageFrame and let it be the parent widget, then
-		# pass in master so that we can access 'App' class, our main application
-		userImageSection = userImageFrame(innerPageFrame, master)
-		userBtnSection = userAccountPanel(innerPageFrame, master)
-		userInfoSection = userInfoPanel(innerPageFrame, master)
+		# Create section to store buttons on the user page
+		userBtnsSection = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
+		openEditAccountBtn = ctk.CTkButton(userBtnsSection, text="Edit Account", command=lambda: self.master.openPage("editAccountPage")) #type: ignore
+		confirmLogOutBtn = ctk.CTkButton(userBtnsSection, text="Log Out", command=self.logoutUser)
+		openEditAccountBtn.grid(row=0, column=0, pady=5)
+		confirmLogOutBtn.grid(row=1, column=0, pady=5)
 
+		# Create section to display user information
+		# Get user information, and iteratively create labels to show that user information
+		userInfoSection = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
+		userInfoFields = [
+			{
+				"text": "Username",
+				"value": self.master.loggedInUser.username
+			},
+			{
+				"text": "Email",
+				"value": self.master.loggedInUser.email
+			},
+			{
+				"text": "Name",
+				"value": f"{self.master.loggedInUser.firstName} {self.master.loggedInUser.lastName}"
+			}
+		]
+		for x in range(len(userInfoFields)):
+			label = ctk.CTkLabel(userInfoSection, text=f"{userInfoFields[x].get('text')}: {userInfoFields[x].get('value')}", font=("Helvetica", 24))
+			label.grid(row=x, column=0, sticky="W", pady=10)
+
+		# Structure the 3 main sections of the user account page
 		userImageSection.grid(row=0, column=0, padx=30, pady=10)
-		userBtnSection.grid(row=1, padx=30, column=0)
+		userBtnsSection.grid(row=1, padx=30, column=0)
 		userInfoSection.grid(row=0, column=1, padx=30)
+
+	# Log the current user out of the application
+	def logoutUser(self):
+		# loggedInUser is none because the user is logging out 
+		self.master.loggedInUser = None #type: ignore
+		# Redirect the user to the login page
+		self.master.openPage("userLoginPage") #type: ignore
+		# Update nav buttons so that user can't access the pages associated with them
+		self.master.header.updateNavButtons() #type: ignore
