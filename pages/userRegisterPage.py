@@ -80,12 +80,6 @@ class userRegisterPage(ctk.CTkFrame):
 		openLoginBtn.grid(row=0, column=1, padx=10, pady=10)
 		confirmRegisterBtn.grid(row=0, column=2, padx=10, pady=10)
 
-
-	def isExistingUser(self, username):
-		retrievedUser = self.master.session.query(User).filter_by(username=username).first() #type: ignore
-		return retrievedUser is not None
-
-
 	# Registers a user in the database
 	def registerUser(self):
 		# Check if any fields are empty before moving on
