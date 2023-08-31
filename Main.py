@@ -96,7 +96,7 @@ class App(ctk.CTk):
 		# Open the page you want, probably the home page, which would be the ai story, which is a good 
 		# candidate for being the homePage
 
-		self.openPage("userAccountPage")
+		self.openPage("deleteAccountPage")
 
 
 
