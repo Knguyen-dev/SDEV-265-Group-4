@@ -1,5 +1,6 @@
 import tkinter as tk
 import customtkinter as ctk
+import sys
 
 # For images
 from PIL import Image, ImageTk
@@ -36,7 +37,7 @@ class userAccountPanel(ctk.CTkFrame):
 	def __init__(self, container, master):
 		super().__init__(container, fg_color="transparent")
 		self.master = master
-		openEditAvatarBtn = ctk.CTkButton(self, text="Change Avatar", command=lambda: self.master.openPage("editAvatarPage")) #type: ignore
+		openEditAvatarBtn = ctk.CTkButton(self, text="Change Avatar")
 		openEditAccountBtn = ctk.CTkButton(self, text="Edit Account", command=lambda: self.master.openPage("editAccountPage")) #type: ignore
 		confirmLogOutBtn = ctk.CTkButton(self, text="Log Out")
 		openEditAvatarBtn.grid(row=0, column=0, pady=5)

@@ -1,7 +1,10 @@
-import customtkinter as ctk
-import sys
+import customtkinter as ctk # Custom tkinter
+import hashlib # Hashing passwords
+import sys # Makes it easier to access appropriate files and modules
 sys.path.append("..")
-from classes.utilities import *
+from classes.utilities import * # Input validation functions and form clearing
+from classes.models import User
+
 
 
 class userRegisterPage(ctk.CTkFrame):
@@ -62,7 +65,7 @@ class userRegisterPage(ctk.CTkFrame):
 		# Create section to have form buttons/actions
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
 		openLoginBtn = ctk.CTkButton(formBtnsSection, text="Log into an existing account", command=lambda: self.master.openPage("userLoginPage")) #type: ignore
-		confirmRegisterBtn = ctk.CTkButton(formBtnsSection, text="Confirm Registration")
+		confirmRegisterBtn = ctk.CTkButton(formBtnsSection, text="Confirm Registration", command=self.registerUser)
 		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", command=lambda: clearEntryWidgets(self.formEntryList))
 
 		# Structure the remaining elements of the page
@@ -76,3 +79,70 @@ class userRegisterPage(ctk.CTkFrame):
 		clearFormBtn.grid(row=0, column=0, padx=10, pady=10)
 		openLoginBtn.grid(row=0, column=1, padx=10, pady=10)
 		confirmRegisterBtn.grid(row=0, column=2, padx=10, pady=10)
+
+
+	def isExistingUser(self, username):
+		retrievedUser = self.master.session.query(User).filter_by(username=username).first() #type: ignore
+		return retrievedUser is not None
+
+
+	# Registers a user in the database
+	def registerUser(self):
+		# Check if any fields are empty before moving on
+		if isEmptyEntryWidgets(self.formEntryList):
+			self.formErrorMessage.configure(text="Some fields are empty!")
+			return
+
+		# Get input field values
+		email = self.formEntryList[0].get()
+		username = self.formEntryList[1].get()
+		firstName = self.formEntryList[2].get()
+		lastName = self.formEntryList[3].get()
+		password = self.formEntryList[4].get()
+		confirmPassword = self.formEntryList[5].get()
+
+		# Check if it's a valid email form
+		if not isValidEmail(email):
+			self.formErrorMessage.configure(text="Email isn't in valid form!")
+			return
+		
+		# Check if username is valid
+		if not isValidUsername(username):
+			self.formErrorMessage.configure(text="Username length is 6-20 characters, and can only have numbers, letters, and underscores!")
+			return
+		
+		# Check if password is valid
+		if not isValidPassword(password):
+			self.formErrorMessage.configure(text="Password can only be 6-20 characters with only numbers, letters, and symbols: !@#$%^&*(){}[]<>,+~-._")
+			return
+		
+		# Check if password and the retryped password match
+		if password != confirmPassword:
+			self.formErrorMessage.configure(text="Passwords must match!")
+			return
+		
+		# Create a session that we can use
+		session = self.master.Session() #type: ignore
+
+		# Check if there are any users with the inputted username
+		retrievedUser = session.query(User).filter_by(username=username).first()
+		if retrievedUser:
+			self.formErrorMessage.configure(text="Usename already taken!")
+			return
+		
+		# Create a new user based on the form information
+		newUser = User(
+			email=email,
+			username=username,
+			firstName=firstName,
+			lastName=lastName,
+			# For right now do a simple md5 hash, but later
+			# we should use that api idea
+			passwordHash=hashlib.md5(password.encode("utf-8")).hexdigest(),
+			avatar="default_user.jpg"
+		)
+
+		# Add new user to the database
+		session.add(newUser)
+		session.commit()
+		session.close()
