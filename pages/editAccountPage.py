@@ -42,13 +42,17 @@ class editAccountPage(ctk.CTkFrame):
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
 		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", command=lambda: clearEntryWidgets(self.formEntryList))
 		confirmEditsBtn = ctk.CTkButton(formBtnsSection, text="Confirm Edits")
+		openChangePasswordBtn = ctk.CTkButton(formBtnsSection, text="Change Password", command=lambda: self.master.openPage("changePasswordPage"))
+		openDeleteAccountBtn = ctk.CTkButton(formBtnsSection, text="Account Deletion", command=lambda: self.master.openPage("deleteAccountPage")) #type: ignore
 
-		formHeader.grid(row=0, column=0, pady=10)
+		# Structure the remaining page elements accordingly
+		formHeader.grid(row=0, column=0, padx=70, pady=10)
 		formHeading.grid(row=0, column=0)
 		self.formErrorMessage.grid(row=1, column=0)
 		formFieldsSection.grid(row=1, column=0, pady=10, ipadx=10)
 		formBtnsSection.grid(row=2, column=0, pady=10)
-		clearFormBtn.grid(row=0, column=0, padx=10, pady=10)
-		confirmEditsBtn.grid(row=0, column=1, padx=10, pady=10)
-
+		confirmEditsBtn.grid(row=0, column=0, padx=10, pady=10)
+		clearFormBtn.grid(row=1, column=0, padx=10, pady=10)
+		openChangePasswordBtn.grid(row=2, column=0, padx=10, pady=10)
+		openDeleteAccountBtn.grid(row=3, column=0, padx=10, pady=10)
 

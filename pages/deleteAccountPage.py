@@ -43,7 +43,7 @@ class deleteAccountPage(ctk.CTkFrame):
 			if (formFields[x].get("toggleHidden")):
 				checkVar = ctk.StringVar(value="off")
 				visibilityCheckBox = ctk.CTkCheckBox(formFieldsSection, variable=checkVar, command=lambda entry=entry, var=checkVar: toggleHidden(entry, var),  text="Hide", onvalue="on", offvalue="off")
-				visibilityCheckBox.grid(row=x, column=3, padx=4, pady=10)
+				visibilityCheckBox.grid(row=x, column=2, padx=4, pady=10)
 
 			formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
 			clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", command=lambda: clearEntryWidgets(self.formEntryList))

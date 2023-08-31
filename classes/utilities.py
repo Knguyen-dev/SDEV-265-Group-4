@@ -8,8 +8,6 @@ def clearEntryWidgets(entryWidgets):
         entry.delete(0, END)
 
 
-
-
 ## Toggles whether or not an entry widget's input is hidden, accepts a checkbox
 # Useful for hiding password input field and whatnot
 def toggleHidden(entryWidget, checkVar):

@@ -47,7 +47,7 @@ class Header(ctk.CTkFrame):
 		self.updateNavButtons()
 
 	'''
-	- Update the nav buttons based on the login state of the user.
+	- Update the nav buttons based on the login state of the user; Should be used in conjunction with the functions for logging in and out.
 	1. Get buttons that direct you to the library and either the account or login page
 	2. If: The user is logged in, the library button leads user to library page, and the latter button leads to the account page,
 		and has text 'User'
@@ -95,8 +95,7 @@ class App(ctk.CTk):
 
 		# Open the page you want, probably the home page, which would be the ai story, which is a good 
 		# candidate for being the homePage
-
-		self.openPage("deleteAccountPage")
+		self.openPage("userAccountPage")
 
 
 

@@ -1,5 +1,8 @@
-import tkinter as tk
 import customtkinter as ctk
+import sys
+sys.path.append("..")
+from classes.utilities import *
+
 
 class userRegisterPage(ctk.CTkFrame):
 	def __init__(self, master):
@@ -19,42 +22,48 @@ class userRegisterPage(ctk.CTkFrame):
 		formFieldsSection = ctk.CTkFrame(form)
 		formFields = [
 			{
-				"labelText": "Email",
+				"text": "Email",
 			},
 			{
-				"labelText": "Username",
+				"text": "Username",
 			},
 			{
-				"labelText": "First Name",
+				"text": "First Name",
 			},
 			{
-				"labelText": "Last Name",
+				"text": "Last Name",
 			},
 			{
-				"labelText": "Password",
-				"isHidden": True	
+				"text": "Password",
+				"toggleHidden": True	
 			},
 			{
-				"labelText": "Confirm Password",
-				"isHidden": True
+				"text": "Confirm Password",
+				"toggleHidden": True
 			},
 		]		
 		# Create list of form entries to get input later
 		self.formEntryList = []
+
+		# Iterate through object to create fields
 		for x in range(len(formFields)):
-			label = ctk.CTkLabel(formFieldsSection, text=formFields[x]["labelText"])
+			label = ctk.CTkLabel(formFieldsSection, text=formFields[x]["text"])
 			entry = ctk.CTkEntry(formFieldsSection)
-			# If it's the password field, hide the input
-			if (formFields[x].get("isHidden")):
-				entry.configure(show="*")
-			label.grid(row=x, column=0, pady=10, ipadx=10)
-			entry.grid(row=x, column=1, pady=10, ipadx=10)
 			self.formEntryList.append(entry)
+			label.grid(row=x, column=0, padx=10, pady=10)
+			entry.grid(row=x, column=1, padx=10, pady=10)
+			# If there's a 'toggleHidden' attribute, add a checkbox
+			# so that we can toggle visibility on the field
+			if (formFields[x].get("toggleHidden")):
+				checkVar = ctk.StringVar(value="off")
+				visibilityCheckBox = ctk.CTkCheckBox(formFieldsSection, variable=checkVar, command=lambda entry=entry, var=checkVar: toggleHidden(entry, var),  text="Hide", onvalue="on", offvalue="off")
+				visibilityCheckBox.grid(row=x, column=2, padx=4, pady=10)
 			
 		# Create section to have form buttons/actions
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
 		openLoginBtn = ctk.CTkButton(formBtnsSection, text="Log into an existing account", command=lambda: self.master.openPage("userLoginPage")) #type: ignore
 		confirmRegisterBtn = ctk.CTkButton(formBtnsSection, text="Confirm Registration")
+		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", command=lambda: clearEntryWidgets(self.formEntryList))
 
 		# Structure the remaining elements of the page
 		formHeader.grid(row=0, column=0, pady=10)
@@ -64,5 +73,6 @@ class userRegisterPage(ctk.CTkFrame):
 		formFieldsSection.grid(row=1, column=0, pady=10, ipadx=10)
 
 		formBtnsSection.grid(row=2, column=0, pady=10)
-		openLoginBtn.grid(row=0, column=0, padx=10, pady=10)
-		confirmRegisterBtn.grid(row=0, column=1, padx=10, pady=10)
+		clearFormBtn.grid(row=0, column=0, padx=10, pady=10)
+		openLoginBtn.grid(row=0, column=1, padx=10, pady=10)
+		confirmRegisterBtn.grid(row=0, column=2, padx=10, pady=10)
