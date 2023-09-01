@@ -30,10 +30,77 @@ ctk.set_appearance_mode("Light")  # Modes: "System" (standard), "Dark", "Light"
 # 		super().__init__(master)
 # 		self.master = master
 
-# class storyLibraryPage(ctk.CTkFrame):
-# 	def __init__(self, master):
-# 		super().__init__(master)
-# 		self.master = master
+class storyLibraryPage(ctk.CTkFrame):
+	def __init__(self, master):
+		super().__init__(master)
+		self.master = master
+
+		# Inner page frame for centering content at center of storyLibraryPage frame
+		innerPageFrame = ctk.CTkFrame(self, fg_color="transparent")
+		innerPageFrame.pack(expand=True)
+
+		# Get the saved stories, from the logged in user, if there are any
+		savedStories = self.master.loggedInUser.stories
+
+		# If there aren't any stories saved, then just show a message, and stop it early
+		if not savedStories:
+			label = ctk.CTkLabel(innerPageFrame, text="No stories have been saved yet!")
+			label.pack()
+			return
+
+		rowIndex = 0
+		columnIndex = 0
+		# At this point, there are stories, so iteratively create 'cards' or containers that display
+		# their information
+		for story in savedStories:
+			storyCard = ctk.CTkFrame(innerPageFrame, fg_color="#7dd3fc", width=200)
+
+			# Two story cards per row
+			# if true, then two story cards have already been placed, so reset
+			# the column index, and move on to a new row
+			if (columnIndex == 2):
+				columnIndex = 0
+				rowIndex += 1
+
+			cardHeader = ctk.CTkFrame(storyCard)
+			cardTitle = ctk.CTkLabel(cardHeader, fg_color="#7dd3fc", text=f"Title: {story.storyTitle}", wraplength=200)
+			cardBody = ctk.CTkFrame(storyCard, fg_color="#7dd3fc")
+			continueStoryBtn = ctk.CTkButton(cardBody, text="Continue", command=lambda story=story: self.continueStory(story))
+			deleteStoryBtn = ctk.CTkButton(cardBody, text="Delete", command=lambda story=story: self.deleteStory(story))
+			
+			# Structure the storyCard and its widgets
+			storyCard.grid(row=rowIndex, column=columnIndex, padx=10, pady=10, ipady=5)
+			cardHeader.grid(row=0, column=0, pady=10)
+			cardTitle.grid(row=0, column=0)
+			
+			cardBody.grid(row=1, column=0)
+			continueStoryBtn.grid(row=0, column=0, padx=10)
+			deleteStoryBtn.grid(row=0, column=1, padx=10)
+
+			# Increment column count
+			columnIndex += 1
+		
+	'''
+	- Directs a user to the ai chat page, and passes 
+	
+	'''
+	def continueStory(self, story):
+		print("Continuing: ", story)
+	
+	
+	'''
+	+ Deletes a story from the user's library
+	'''
+	def deleteStory(self, story):
+		# Delete story from database
+		self.master.session.delete(story) #type: ignore
+		self.master.session.commit() #type: ignore
+		# Reload the story library page
+		self.master.openPage("storyLibraryPage") #type: ignore	
+
+
+
+
 
 ##### Page for changing passwords #####
 class changePasswordPage(ctk.CTkFrame):
@@ -109,8 +176,7 @@ class changePasswordPage(ctk.CTkFrame):
 		
 		# User can only delete the account they're currently signed in to.
 		# So query in the user's table for a matching username, and a matching password hash
-		session = self.master.Session() 
-		retrievedUser = session.query(User).filter_by(username=self.master.loggedInUser.username, passwordHash=oldPasswordHash).first()
+		retrievedUser = self.master.session.query(User).filter_by(username=self.master.loggedInUser.username, passwordHash=oldPasswordHash).first() #type: ignore
 		
 		# If we didn't find a user with the current usernmae and password hash to current password, then they had to have gotten the password input wrong
 		if not retrievedUser:
@@ -119,11 +185,11 @@ class changePasswordPage(ctk.CTkFrame):
 		
 		# Save new password to user
 		retrievedUser.passwordHash = hashlib.md5(newPassword.encode("utf-8")).hexdigest()
-		session.commit()
-		session.close()
+		self.master.session.commit() #type: ignore
+		self.master.session.close() #type: ignore
 
 		# After a password is changed we take them to the login page
-		self.master.openPage("userLoginPage")
+		self.master.openPage("userLoginPage") #type: ignore
 			
 
 ##### Delete Account Page #####
@@ -182,6 +248,11 @@ class deleteAccountPage(ctk.CTkFrame):
 		deleteAccountBtn.grid(row=0,column=1, padx=10, pady=10)
 
 
+	def deleteAccount(self):
+		pass
+
+
+
 
 ###### The page for editting accounts #####
 class editAccountPage(ctk.CTkFrame):
@@ -221,7 +292,7 @@ class editAccountPage(ctk.CTkFrame):
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
 		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", command=lambda: clearEntryWidgets(self.formEntryList))
 		confirmEditsBtn = ctk.CTkButton(formBtnsSection, text="Confirm Edits")
-		openChangePasswordBtn = ctk.CTkButton(formBtnsSection, text="Change Password", command=lambda: self.master.openPage("changePasswordPage"))
+		openChangePasswordBtn = ctk.CTkButton(formBtnsSection, text="Change Password", command=lambda: self.master.openPage("changePasswordPage")) #type: ignore
 		openDeleteAccountBtn = ctk.CTkButton(formBtnsSection, text="Account Deletion", command=lambda: self.master.openPage("deleteAccountPage")) #type: ignore
 
 		# Structure the remaining page elements accordingly
@@ -249,7 +320,7 @@ class userAccountPage(ctk.CTkFrame):
 		userImageSection = tk.Canvas(innerPageFrame, highlightbackground="#eee", highlightthickness=1)
 		
 		avatarSourcePath = f"./assets/images/{self.master.loggedInUser.avatar}"
-		image = Image.open(avatarSourcePath).resize((500, 500))
+		image = Image.open(avatarSourcePath).resize((300, 300))
 		imageWidget = ImageTk.PhotoImage(image=image)
 		imageLabel = tk.Label(userImageSection, image=imageWidget)
 		imageLabel.image = imageWidget #type: ignore
@@ -405,11 +476,9 @@ class userRegisterPage(ctk.CTkFrame):
 			self.formErrorMessage.configure(text="Passwords must match!")
 			return
 		
-		# Create a session that we can use
-		session = self.master.Session() #type: ignore
-
+		
 		# Check if there are any users with the inputted username
-		retrievedUser = session.query(User).filter_by(username=username).first()
+		retrievedUser = self.master.session.query(User).filter_by(username=username).first() #type: ignore
 		if retrievedUser:
 			self.formErrorMessage.configure(text="Usename already taken!")
 			return
@@ -427,9 +496,9 @@ class userRegisterPage(ctk.CTkFrame):
 		)
 
 		# Add new user to the database
-		session.add(newUser)
-		session.commit()
-		session.close()
+		self.master.session.add(newUser) #type: ignore
+		self.master.session.commit() #type: ignore
+		self.master.session.close() #type: ignore
 		# Redirect user to login screen after they've successfully registered
 		self.master.openPage("userLoginPage") #type: ignore
 
@@ -504,8 +573,7 @@ class userLoginPage(ctk.CTkFrame):
 		passwordHash = hashlib.md5(password.encode("utf-8")).hexdigest()
 
 		# Now check if the inputted username and password hash matches a record from the User table 
-		session = self.master.Session() #type: ignore
-		retrievedUser = session.query(User).filter_by(username=username, passwordHash=passwordHash).first()
+		retrievedUser = self.master.session.query(User).filter_by(username=username, passwordHash=passwordHash).first() #type: ignore
 		if not retrievedUser:
 			self.formErrorMessage.configure(text="Username or password is incorrect!")
 			return
@@ -605,11 +673,15 @@ class App(ctk.CTk):
 			"editAccountPage": editAccountPage,
 			"deleteAccountPage": deleteAccountPage,
 			"changePasswordPage": changePasswordPage,
+			"storyLibraryPage": storyLibraryPage,
 		}
 
 		# Engine and session constructor that we're going to use 
 		self.engine = create_engine("sqlite:///assets/PyProject.db")
 		self.Session = sessionmaker(bind=self.engine)
+
+		# The master session object we'll use throughout the application to interact with the database
+		self.session = self.Session()
 
 		# Call function to create navbar
 		self.header = Header(self)
