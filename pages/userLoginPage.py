@@ -1,7 +1,10 @@
 import customtkinter as ctk
+import hashlib
 import sys
 sys.path.append("..")
 from classes.utilities import *
+from classes.models import User
+
 class userLoginPage(ctk.CTkFrame):
 	def __init__(self, master):
 		super().__init__(master)
@@ -58,18 +61,33 @@ class userLoginPage(ctk.CTkFrame):
 		openRegisterAccountBtn.grid(row=0, column=1, padx=10, pady=10)
 		confirmLoginBtn.grid(row=0, column=2, padx=10, pady=10)
 		
+
+	## Attempts to log in a user
 	def loginUser(self):
-		print("User Login button was clicked")
-		pass
 
+		# Check if input fields are empty
+		if (isEmptyEntryWidgets(self.formEntryList)):
+			self.formErrorMessage.configure(text="Some fields are empty!")
+			return
 
+		# Get input values from the form
+		username = self.formEntryList[0].get()
+		password = self.formEntryList[1].get()
+		passwordHash = hashlib.md5(password.encode("utf-8")).hexdigest()
 
-
-
-
-
-
-
-
-
+		# Now check if the inputted username and password hash matches a record from the User table 
+		session = self.master.Session() #type: ignore
+		retrievedUser = session.query(User).filter_by(username=username, passwordHash=passwordHash).first()
+		if not retrievedUser:
+			self.formErrorMessage.configure(text="Username or password is incorrect!")
+			return
 		
+		# Assign the new logged in user
+		self.master.loggedInUser = retrievedUser #type: ignore
+
+		# Update the nav buttons now that the user is logged in
+		# so that they actually work and aren't disabled
+		self.master.header.updateNavButtons() #type: ignore
+
+		# Redirect the user to the 'My Account' or the 'user account page'
+		self.master.openPage("userAccountPage") #type: ignore
