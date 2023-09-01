@@ -30,15 +30,10 @@ ctk.set_appearance_mode("Light")  # Modes: "System" (standard), "Dark", "Light"
 # 		super().__init__(master)
 # 		self.master = master
 
-class storyLibraryPage(ctk.CTkFrame):
-	def __init__(self, master):
-		super().__init__(master)
-		self.master = master
-
-		
-
-
-
+# class storyLibraryPage(ctk.CTkFrame):
+# 	def __init__(self, master):
+# 		super().__init__(master)
+# 		self.master = master
 
 ##### Page for changing passwords #####
 class changePasswordPage(ctk.CTkFrame):
@@ -53,8 +48,6 @@ class changePasswordPage(ctk.CTkFrame):
 		# Create header of the form
 		formHeader = ctk.CTkFrame(form, fg_color="transparent")
 		formHeading = ctk.CTkLabel(formHeader, text="Change Password", font=("Helvetica", 32))
-		
-		passwordRulesMessage = ctk.CTkLabel(formHeader, text="Password has to be some long and have numbers!")
 		self.formErrorMessage = ctk.CTkLabel(formHeader, text="")
 		
 		# Create the input section with form fields 
@@ -81,20 +74,57 @@ class changePasswordPage(ctk.CTkFrame):
 		# Create section to have form buttons/actions
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
 		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", command=lambda: clearEntryWidgets(self.formEntryList))		
-		changePasswordBtn = ctk.CTkButton(formBtnsSection, text="Confirm Change")
+		changePasswordBtn = ctk.CTkButton(formBtnsSection, text="Confirm Change", command=self.changePassword)
 
 		# Structure the remaining elements of the page
 		# padx=90; adds enough gray padding so that form looks uniform
 		formHeader.grid(row=0, column=0, pady=10, padx=90)
 		formHeading.grid(row=0, column=0)
-		passwordRulesMessage.grid(row=1, column=0)
-		self.formErrorMessage.grid(row=2, column=0)
+		self.formErrorMessage.grid(row=1, column=0)
 		formFieldsSection.grid(row=1, column=0, pady=10)
 		formBtnsSection.grid(row=2, column=0, pady=10)
 		clearFormBtn.grid(row=0, column=0, padx=10, pady=10)
 		changePasswordBtn.grid(row=0, column=1, padx=10, pady=10)
 
+	def changePassword(self):
+		# Check if fields are empty
+		if (isEmptyEntryWidgets(self.formEntryList)):
+			self.formErrorMessage.configure(text="Some fields are empty!")
+			return
 
+		oldPassword = self.formEntryList[0].get()
+		oldPasswordHash = hashlib.md5(oldPassword.encode("utf-8")).hexdigest()
+		newPassword = self.formEntryList[1].get()
+		confirmNewPassword = self.formEntryList[2].get()
+
+		# Check if the new password is valid
+		if not isValidPassword(newPassword):
+			self.formErrorMessage.configure(text="Password can only be 6-20 characters with only numbers, letters, and symbols: !@#$%^&*(){}[]<>,+~-._")
+			return
+		
+		# Check if passwords match
+		if newPassword != confirmNewPassword:
+			self.formErrorMessage.configure(text="Passwords must match!")
+			return
+		
+		# User can only delete the account they're currently signed in to.
+		# So query in the user's table for a matching username, and a matching password hash
+		session = self.master.Session() 
+		retrievedUser = session.query(User).filter_by(username=self.master.loggedInUser.username, passwordHash=oldPasswordHash).first()
+		
+		# If we didn't find a user with the current usernmae and password hash to current password, then they had to have gotten the password input wrong
+		if not retrievedUser:
+			self.formErrorMessage.configure(text="Old password entered is incorrect!")
+			return
+		
+		# Save new password to user
+		retrievedUser.passwordHash = hashlib.md5(newPassword.encode("utf-8")).hexdigest()
+		session.commit()
+		session.close()
+
+		# After a password is changed we take them to the login page
+		self.master.openPage("userLoginPage")
+			
 
 ##### Delete Account Page #####
 class deleteAccountPage(ctk.CTkFrame):
@@ -581,37 +611,6 @@ class App(ctk.CTk):
 		self.engine = create_engine("sqlite:///assets/PyProject.db")
 		self.Session = sessionmaker(bind=self.engine)
 
-
-
-
-
-
-
-
-
-
-		session = self.Session()
-		self.loggedInUser = session.query(User).filter_by(username="knguyen44").first()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		# Call function to create navbar
 		self.header = Header(self)
 		self.header.pack(side="top", fill="x")
@@ -620,7 +619,7 @@ class App(ctk.CTk):
 		footer.pack(fill="x", side="bottom")
 
 		# Start off by making the user log in
-		self.openPage("userAccountPage")
+		self.openPage("userLoginPage")
 		
 	def openPage(self, pageName, *args):
 		try:
