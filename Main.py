@@ -25,10 +25,97 @@ ctk.set_appearance_mode("Light")  # Modes: "System" (standard), "Dark", "Light"
 # 		super().__init__(master)
 # 		self.master = master
 
-# class aiSettingsPage(ctk.CTkFrame):
-# 	def __init__(self, master):
-# 		super().__init__(master)
-# 		self.master = master
+
+# Ai settings page frame
+class aiSettingsPage(ctk.CTkFrame):
+	def __init__(self, master):
+		super().__init__(master)
+		self.master = master
+		form = ctk.CTkFrame(self)
+
+		# Form header
+		formHeader = ctk.CTkFrame(form, fg_color="transparent")
+		formHeading = ctk.CTkLabel(formHeader, text="Configure AI Settings!", font=("Helvetica", 32))
+		
+		# Section for form sliders 
+		formFieldsSection = ctk.CTkFrame(form)
+		self.formSlidersList = [] #list of sliders
+
+
+		'''
+		NOTE: The "value" attribute in the formFields objects/maps should be obtained from the 
+			ai chat bot that we instantiate.
+		''' 
+		formFields = [ # array of objects for the creation of the form sliders
+			{
+				"text": 'Temperature',
+				"lower": 1,
+				"upper": 10,
+				"value": 5,
+			},
+			{
+				"text": 'Top P',
+				"lower": 1,
+				"upper": 10,
+				"value": 5,
+			},
+			{
+				"text": 'Top K',
+				"lower": 1,
+				"upper": 10,
+				"value": 5,
+			},
+			{
+				"text": 'Presence Penalty',
+				"lower": 1,
+				"upper": 10,
+				"value": 5,
+			},
+			{
+				"text": 'Frequency Penalty',
+				"lower": 1,
+				"upper": 10,
+				"value": 5,
+			},
+		]
+
+		# Create form sliders and labels iteratively
+		for x in range(len(formFields)):
+			sliderVar = tk.IntVar() # tkinter variable to keep track and display a slider's value
+			sliderVar.set(formFields[x]["value"]) # set the starting value of the tkinter variable, and as a result the slider itself
+			label = ctk.CTkLabel(formFieldsSection, text=formFields[x]["text"]) # label defining what a slider is for
+			sliderValueLabel = ctk.CTkLabel(formFieldsSection, textvariable=sliderVar) # label defining what value a slider is currently on
+			slider = ctk.CTkSlider(formFieldsSection, from_=formFields[x]["lower"], to=formFields[x]["upper"], variable=sliderVar) # tkinter slider widget
+			label.grid(row=x, column=0, padx=10, pady=10)
+			sliderValueLabel.grid(row=x, column=1, padx=10, pady=10)
+			slider.grid(row=x, column=2, padx=10, pady=10)
+			self.formSlidersList.append(slider)
+
+		# Create the form buttons
+		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
+		restoreSettingsBtn = ctk.CTkButton(formBtnsSection, text="Restore Settings")
+		changeSettingsBtn = ctk.CTkButton(formBtnsSection, text="Confirm Changes")
+
+		# Structure the widgets on the page
+		form.pack(expand=True)		
+		formHeader.grid(row=0, column=0, pady=10)
+		formHeading.grid(row=0, column=0)
+		formFieldsSection.grid(row=1, column=0, pady=10, padx=10)
+		formBtnsSection.grid(row=2, column=0, pady=10)
+		restoreSettingsBtn.grid(row=0, column=0, padx=10)
+		changeSettingsBtn.grid(row=0, column=1, padx=10)
+	
+
+	# Restores the value of the sliders to represent what the AI chat bot 
+	# is currently using.
+	def restoreAISettings(self):
+		pass
+
+
+	# Changes the settings of the AI chat bot
+	def changeAISettings(self):
+		pass
+
 
 class storyLibraryPage(ctk.CTkFrame):
 	def __init__(self, master):
@@ -40,8 +127,6 @@ class storyLibraryPage(ctk.CTkFrame):
 		innerPageFrame = ctk.CTkScrollableFrame(self, fg_color="transparent", width=700, height=500)
 		innerPageFrame.pack(expand=True)
 		
-
-
 		# Get the saved stories, from the logged in user, if there are any
 		savedStories = self.master.loggedInUser.stories
 
@@ -271,8 +356,8 @@ class changePasswordPage(ctk.CTkFrame):
 		self.master.session.commit() #type: ignore
 		self.master.session.close() #type: ignore
 
-		# After a password is changed we take them to the login page
-		self.master.openPage("userLoginPage") #type: ignore
+		# After a password is changed we log out our user
+		self.master.logoutUser() #type: ignore
 			
 
 ##### Delete Account Page #####
@@ -413,7 +498,7 @@ class userAccountPage(ctk.CTkFrame):
 		userBtnsSection = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
 		openEditAvatarBtn = ctk.CTkButton(userBtnsSection, text="Edit Avatar", command=lambda: self.master.openPage("editAvatarPage")) #type: ignore
 		openEditAccountBtn = ctk.CTkButton(userBtnsSection, text="Edit Account", command=lambda: self.master.openPage("editAccountPage")) #type: ignore
-		confirmLogOutBtn = ctk.CTkButton(userBtnsSection, text="Log Out", command=self.logoutUser)
+		confirmLogOutBtn = ctk.CTkButton(userBtnsSection, text="Log Out", command=self.master.logoutUser)
 		openEditAvatarBtn.grid(row=0, column=0, pady=5)
 		openEditAccountBtn.grid(row=1, column=0, pady=5)
 		confirmLogOutBtn.grid(row=2, column=0, pady=5)
@@ -443,16 +528,6 @@ class userAccountPage(ctk.CTkFrame):
 		userImageSection.grid(row=0, column=0, padx=30, pady=10)
 		userBtnsSection.grid(row=1, padx=30, column=0)
 		userInfoSection.grid(row=0, column=1, padx=30)
-
-	# Log the current user out of the application
-	def logoutUser(self):
-		# loggedInUser is none because the user is logging out 
-		self.master.loggedInUser = None #type: ignore
-		# Redirect the user to the login page
-		self.master.openPage("userLoginPage") #type: ignore
-		# Update nav buttons so that user can't access the pages associated with them
-		self.master.header.updateNavButtons() #type: ignore
-
 
 
 ##### User Registration Page ######
@@ -760,6 +835,7 @@ class App(ctk.CTk):
 			"changePasswordPage": changePasswordPage,
 			"storyLibraryPage": storyLibraryPage,
 			"editAvatarPage": editAvatarPage,
+			"aiSettingsPage": aiSettingsPage,
 		}
 
 		# Engine and session constructor that we're going to use 
@@ -768,7 +844,6 @@ class App(ctk.CTk):
 
 		# The master session object we'll use throughout the application to interact with the database
 		self.session = self.Session()
-
 
 		# Call function to create navbar
 		self.header = Header(self)
@@ -789,6 +864,17 @@ class App(ctk.CTk):
 			self.currentPage.pack(fill="both", expand=True)
 		except KeyError:
 			print(f"Error: Page {pageName} doesn't exist")
+
+	
+	# Log the current user out of the application
+	def logoutUser(self):
+		# loggedInUser is none because the user is logging out 
+		self.loggedInUser = None #type: ignore
+		# Redirect the user to the login page
+		self.openPage("userLoginPage") #type: ignore
+		# Update nav buttons so that user can't access the pages associated with them
+		self.header.updateNavButtons() #type: ignore
+
 
 
 if __name__ == "__main__":
