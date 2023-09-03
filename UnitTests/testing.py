@@ -61,9 +61,23 @@ story5 = Story(
 )
 
 
+story6 = Story(
+    storyTitle="Clash of the Strongest: The Strength and Solitude of being at the Top",
+    messages = [
+        Message(text="The fight of the century!", isAISender=True),
+    ]
+)
+
+
 retrievedUser = session.query(User).filter_by(username="knguyen44").first()
 
-retrievedUser.stories.append(story5)
+if (retrievedUser):
+    retrievedUser.stories = []
+    for x in range(1, 31):
 
+        story = Story(
+            storyTitle=f"Story #{x}",
+        )
+        retrievedUser.stories.append(story)        
 session.commit()
 session.close()

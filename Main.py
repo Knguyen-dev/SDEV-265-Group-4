@@ -36,15 +36,18 @@ class storyLibraryPage(ctk.CTkFrame):
 		self.master = master
 
 		# Inner page frame for centering content at center of storyLibraryPage frame
-		innerPageFrame = ctk.CTkFrame(self, fg_color="transparent")
+		# innerPageFrame = ctk.CTkFrame(self, fg_color="transparent")
+		innerPageFrame = ctk.CTkScrollableFrame(self, fg_color="transparent", width=700, height=500)
 		innerPageFrame.pack(expand=True)
+		
+
 
 		# Get the saved stories, from the logged in user, if there are any
 		savedStories = self.master.loggedInUser.stories
 
 		# If there aren't any stories saved, then just show a message, and stop it early
 		if not savedStories:
-			label = ctk.CTkLabel(innerPageFrame, text="No stories have been saved yet!")
+			label = ctk.CTkLabel(innerPageFrame, text="No stories have been saved yet!", font=("Helvetica", 24))
 			label.pack()
 			return
 
@@ -765,6 +768,7 @@ class App(ctk.CTk):
 
 		# The master session object we'll use throughout the application to interact with the database
 		self.session = self.Session()
+
 
 		# Call function to create navbar
 		self.header = Header(self)
