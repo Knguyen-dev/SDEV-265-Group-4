@@ -403,7 +403,7 @@ class deleteAccountPage(ctk.CTkFrame):
 
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
 		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", command=lambda: clearEntryWidgets(self.formEntryList))
-		deleteAccountBtn = ctk.CTkButton(formBtnsSection, text="Delete Account")
+		deleteAccountBtn = ctk.CTkButton(formBtnsSection, text="Delete Account", command=self.deleteAccount)
 		
 		# Structure the remaining elements of the page
 		formHeader.grid(row=0, column=0, padx=40, pady=10)
@@ -416,11 +416,35 @@ class deleteAccountPage(ctk.CTkFrame):
 		deleteAccountBtn.grid(row=0,column=1, padx=10, pady=10)
 
 
+	# Deletes the account/record of the currently logged in user from the database
 	def deleteAccount(self):
-		pass
+		# Check if fields are empty
+		if isEmptyEntryWidgets(self.formEntryList):
+			self.formErrorMessage.configure(text="Some fields are empty!")
+			return
+		
+		# Get input fields from forms
+		username = self.formEntryList[0].get()
+		password = self.formEntryList[1].get()
+		passwordHash = hashlib.md5(password.encode("utf-8")).hexdigest()
+
+		'''
+		- Since user is deleting their own account, the username they enter should be the username of the currently logged in user.
+		- As a result, for the form to be valid, the username and password must belong to the currently logged in user.		
+		'''
+		if self.master.loggedInUser.username == username and self.master.loggedInUser.passwordHash == passwordHash: #type: ignore
+			# Delete the logged in user from the database and save those changes
+			self.master.session.delete(self.master.loggedInUser) #type: ignore
+			self.master.session.commit() #type: ignore
+			# We can safely do the logout process on the user now, since their account does not exist anymore
+			self.master.logoutUser() #type: ignore
+		else:
+			# Else, their username or password is wrong
+			self.formErrorMessage.configure(text="Username or password is incorrect!")
 
 
 
+			
 
 ###### The page for editting accounts #####
 class editAccountPage(ctk.CTkFrame):
