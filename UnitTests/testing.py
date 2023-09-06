@@ -69,15 +69,24 @@ story6 = Story(
 )
 
 
-retrievedUser = session.query(User).filter_by(username="knguyen44").first()
+# retrievedUser = session.query(User).filter_by(username="knguyen44").first()
+# if (retrievedUser):
+#     retrievedUser.stories = []
+#     for x in range(1, 31):
 
-if (retrievedUser):
-    retrievedUser.stories = []
-    for x in range(1, 31):
+#         story = Story(
+#             storyTitle=f"Story #{x}",
+#         )
+#         retrievedUser.stories.append(story)  
 
-        story = Story(
-            storyTitle=f"Story #{x}",
-        )
-        retrievedUser.stories.append(story)        
+retrievedStory = session.query(Story).filter_by(storyTitle="Story #13").first()
+
+if retrievedStory:
+    retrievedStory.messages  = [
+            Message(text="Once upon a time", isAISender=True),
+            Message(text="And the king ruled", isAISender=False),
+            Message(text="Of course the monarchy was red", isAISender=True),
+        ]
+
 session.commit()
 session.close()

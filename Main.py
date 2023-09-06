@@ -20,10 +20,210 @@ import os
 
 ctk.set_appearance_mode("Light")  # Modes: "System" (standard), "Dark", "Light"
 
-# class homePage(ctk.CTkFrame):
-# 	def __init__(self, master):
-# 		super().__init__(master)
-# 		self.master = master
+'''
+NOTE: For functionality such as continuing a story. We need to keep track of the 
+messages the user is typing in. If they type in a message, and then go to another page, we'll
+need to remember what messages they typed. If there isn't an ai function for this, we 
+can keep track of the user's messages in the "App" class with an array of Message Objects. So 
+next time the user clicks "Continue story" we just load in the ai chat page with the message objects 
+from 'App', which will render those messages in.
+
+- Also for saving a story, we'll just access the messages in 'App' as those are the messages 
+from the story that the user wants to save
+
+- For continuing a saved story, we'll set obviously load those messages into the ai chat page 
+class for rendering, but also we'll make those messages as the messages for the current session 
+or story. So if user clicks off of a page, those messages are now the recent ones and the ones they 
+left off on.
+
+
+- The reason for only passing "Message" objects to the ai chat page is because it
+not needed. We don't want to create a story object everytime because when you're in the ai chat page,
+you haven't automatically created a story with a title. You
+have some story, that may or may not be saved. Only when you click the save button, do you actually get
+to choose the title of the story.
+
+'''
+
+
+
+
+
+class homePage(ctk.CTkFrame):
+	def __init__(self, master):
+		super().__init__(master)
+		self.master = master
+
+		innerPageFrame = ctk.CTkFrame(self, fg_color="transparent")
+
+		pageHeader = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
+		pageHeading = ctk.CTkLabel(pageHeader, text="Home", font=("Helvetica", 32))
+
+		pageBtnsSection = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
+		newStoryBtn = ctk.CTkButton(pageBtnsSection, text="Start A New Story!")
+		continuePrevStoryBtn = ctk.CTkButton(pageBtnsSection, text="Continue Previous Story!")
+
+		innerPageFrame.pack(expand=True)
+		pageHeader.grid(row=0, column=0, pady=10)
+		pageHeading.grid(row=0, column=0)
+
+		pageBtnsSection.grid(row=1, column=0)
+		newStoryBtn.grid(row=0, column=0, pady=5)
+		continuePrevStoryBtn.grid(row=1, column=0, pady=5)
+
+
+	'''
+	+ startNewStory: 
+		- When we start a new story, we are starting a new chat. 
+		All messages from the previous chat/session, should be deleted. As well as 
+		this, when we open the ai chat page, we should not pass any message objects to its class, so it has no previous 
+		messages to render. 
+
+	+ continuePrevStory:
+		- When we continue a previous story, we are continuing 
+		the most recent chat session that the user had. We 
+		direct the user to the chat page, passing all of the messages, as
+		message objects to the chat page class so that the chat page can render those messages appropriately.
+	'''
+	def startNewStory(self):
+		# Clear chat messages from the previous or most recent session since we're starting a new story/chat
+		
+		# Redirect the user to the ai chat page, and don't pass in anything for the 'Messages' argument that 
+		# we plan the ai chat page to have
+		pass
+
+	def continuePrevStory(self):
+		# Get the chat messages from the most recent session/chat
+
+		# Redirect the user to the ai chate page, and pass these messages in order for them to be already rendered.
+		pass
+
+
+			
+
+
+'''
++ Page for remixing an existing story. This page is passed
+	a story object (from the storyLibraryPage) that represents the story we're remixing.
+	Using this existing story, and the user's input saying how 
+	the story will be remixed, we send both to the AI. The 
+	AI then sends back a generated message to this class. Then we redirect 
+	the user to the ai chat page and pass in the ai's message (this starts a new chat).
+
+'''
+class remixStoryPage(ctk.CTkFrame):
+	def __init__(self, master, story):
+		super().__init__(master)
+		self.master = master
+		self.story = story
+
+		form = ctk.CTkFrame(self)
+
+		formHeader = ctk.CTkFrame(form, fg_color="transparent")
+		formHeading = ctk.CTkLabel(formHeader, text="Remix A Story", font=("Helvetica", 32))
+		subheading = ctk.CTkLabel(formHeader, text=f"Currently Remixing '{story.storyTitle}'!", wraplength=200)
+
+		formFieldsSection = ctk.CTkFrame(form)
+		label = ctk.CTkLabel(formFieldsSection, text="Enter your twist on this story!", wraplength=100)
+		self.remixInput = ctk.CTkTextbox(formFieldsSection)
+
+		formBtnsSection = ctk.CTkFrame(form)
+		clearRemixBtn = ctk.CTkButton(formBtnsSection, text="Clear", command=lambda: self.remixInput.delete("0.0", "end"))
+		remixStoryBtn = ctk.CTkButton(formBtnsSection, text="Confirm Remix", command=self.remixStory)
+
+		form.pack(expand=True)
+		formHeader.grid(row=0, column=0, pady=10, padx=50)
+		formHeading.grid(row=0, column=0)
+		subheading.grid(row=1, column=0)
+		formFieldsSection.grid(row=1, column=0, pady=10)
+		label.grid(row=0, column=0, pady=10)
+		self.remixInput.grid(row=1, column=0, pady=10)
+		formBtnsSection.grid(row=2, column=0, pady=10)
+		clearRemixBtn.grid(row=0, column=0, padx=10)
+		remixStoryBtn.grid(row=0, column=1, padx=10)
+
+
+	'''
+	+ remixStory: Remixes a story using an existing story and user's input. Then takes the user to the ai chat page for the remixed story
+	'''
+	def remixStory(self):
+
+		# Get the text of the remix
+		remix = self.remixInput.get("0.0", "end")
+
+		'''
+		- Assume there's a function, pass the ai the story's messages and then the 'remix' text. You're 
+		expected a response message, a string, so store it in 'responseMessage' or something similar. 
+		It should be something similar to this: 
+		'''
+		# responseMessage = storyAI.remixStory(remix, messages)
+
+		# Then turn 'responseMessage' into a Message object and put responseMessage into an array
+		# so that you can pass it into the ai chat page's class
+
+		# Then redirect the user to the ai chat page, pass in our array that has "responseMessage" message object
+
+
+
+'''
++ saveStoryPage: Page where the user will save a story, which should be the most recent story that they 
+had on the chat page. The chat page, would redirect the user to the saveStoryPage. 
+
+'''
+class saveStoryPage(ctk.CTkFrame):
+	def __init__(self, master):
+		super().__init__(master)
+		self.master = master
+
+		form = ctk.CTkFrame(self)
+		
+		formHeader = ctk.CTkFrame(form, fg_color="transparent")
+		formHeading = ctk.CTkLabel(formHeader, text="Save Story", font=("Helvetica", 32))
+		self.formErrorMessage = ctk.CTkLabel(formHeader, text="")
+
+		formFieldsSection = ctk.CTkFrame(form)		
+		label = ctk.CTkLabel(formFieldsSection, text="Story Title")
+		self.storyTitleEntry = ctk.CTkEntry(formFieldsSection)
+
+		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
+		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", command=lambda: clearEntryWidgets([self.storyTitleEntry]))
+		saveStoryBtn = ctk.CTkButton(formBtnsSection, text="Save Story", command=self.saveStory)
+
+		# Structure the remaining elements of the page
+		form.pack(expand=True)
+		formHeader.grid(row=0, column=0, pady=10, padx=80)
+		formHeading.grid(row=0, column=0)
+		self.formErrorMessage.grid(row=1, column=0)
+		formFieldsSection.grid(row=1, column=0, pady=10)
+		label.grid(row=0, column=0, pady=10, padx=10)
+		self.storyTitleEntry.grid(row=0, column=1, pady=10, padx=10)
+		formBtnsSection.grid(row=2, column=0, pady=10)
+		clearFormBtn.grid(row=0, column=0, padx=10)
+		saveStoryBtn.grid(row=0, column=1, padx=10)
+
+
+	# Saves a story to the user's library of stories
+	def saveStory(self):
+		# Check if fields are empty, put the entry widget in an array so that the function works
+		if (isEmptyEntryWidgets([self.storyTitleEntry])):
+			self.formErrorMessage.configure(text="Some fields are empty!")
+			return
+		
+		# Get messages of the most recent chat from the ai, because
+		# that is where the user was writing their story with the AI.
+		# This would be "self.master.currentStoryMessages"
+
+		# Create a Story object with the user's inputted title
+
+		# Create Message objects from all of the chat's messages 
+
+		# Now assign/put those message objects in the story object
+
+		# Save the story to the database, in the stories table
+
+		# Redirect the user to the storyLibraryPage, which is where their new story should be
+		self.master.openPage("storyLibraryPage") #type: ignore
+
 
 
 # Ai settings page frame
@@ -40,8 +240,6 @@ class aiSettingsPage(ctk.CTkFrame):
 		# Section for form sliders 
 		formFieldsSection = ctk.CTkFrame(form)
 		self.formSlidersList = [] #list of sliders
-
-
 		'''
 		NOTE: The "value" attribute in the formFields objects/maps should be obtained from the 
 			ai chat bot that we instantiate.
@@ -123,8 +321,7 @@ class storyLibraryPage(ctk.CTkFrame):
 		self.master = master
 
 		# Inner page frame for centering content at center of storyLibraryPage frame
-		# innerPageFrame = ctk.CTkFrame(self, fg_color="transparent")
-		innerPageFrame = ctk.CTkScrollableFrame(self, fg_color="transparent", width=700, height=500)
+		innerPageFrame = ctk.CTkScrollableFrame(self, fg_color="transparent", width=525, height=500)
 		innerPageFrame.pack(expand=True)
 		
 		# Get the saved stories, from the logged in user, if there are any
@@ -143,43 +340,48 @@ class storyLibraryPage(ctk.CTkFrame):
 		for story in savedStories:
 			storyCard = ctk.CTkFrame(innerPageFrame, fg_color="#7dd3fc", width=200)
 
-			# Two story cards per row
-			# if true, then two story cards have already been placed, so reset
+			# columnIndex number of story cards per row
+			# if true, then columnIndex story cards have already been placed, so reset
 			# the column index, and move on to a new row
-			if (columnIndex == 2):
+			if (columnIndex == 3):
 				columnIndex = 0
 				rowIndex += 1
 
 			cardHeader = ctk.CTkFrame(storyCard)
 			cardTitle = ctk.CTkLabel(cardHeader, fg_color="#7dd3fc", text=f"Title: {story.storyTitle}", wraplength=200)
 			cardBody = ctk.CTkFrame(storyCard, fg_color="#7dd3fc")
-			continueStoryBtn = ctk.CTkButton(cardBody, text="Continue", command=lambda story=story: self.continueStory(story))
-			deleteStoryBtn = ctk.CTkButton(cardBody, text="Delete", command=lambda story=story: self.deleteStory(story))
+			continueSavedStoryBtn = ctk.CTkButton(cardBody, text="Continue", command=lambda story=story: self.continueSavedStory(story))
+			openRemixStoryBtn = ctk.CTkButton(cardBody, text="Remix", command=lambda story=story: self.master.openPage("remixStoryPage", story))  #type: ignore
+			deleteSavedStoryBtn = ctk.CTkButton(cardBody, text="Delete", command=lambda story=story: self.deleteSavedStory(story))
 			
 			# Structure the storyCard and its widgets
-			storyCard.grid(row=rowIndex, column=columnIndex, padx=10, pady=10, ipady=5)
+			storyCard.grid(row=rowIndex, column=columnIndex, padx=10, pady=10)
 			cardHeader.grid(row=0, column=0, pady=10)
 			cardTitle.grid(row=0, column=0)
-			
 			cardBody.grid(row=1, column=0)
-			continueStoryBtn.grid(row=0, column=0, padx=10)
-			deleteStoryBtn.grid(row=0, column=1, padx=10)
+			continueSavedStoryBtn.grid(row=0, column=0, pady=5)
+			openRemixStoryBtn.grid(row=1, column=0, pady=5)
+			deleteSavedStoryBtn.grid(row=2, column=0, pady=5)
 
 			# Increment column count
 			columnIndex += 1
 		
 	'''
-	- Directs a user to the ai chat page, and passes 
-	
+	+ continueSavedStory: 
+		Get the messages of the story object and pass them into the ai chat page's class while we redirect them, 
+		so those old messages can be rendered. As a result, the user is allowed to continue where they left off
 	'''
-	def continueStory(self, story):
-		print("Continuing: ", story)
+	def continueSavedStory(self, story):
+		# The messages from the saved story become the messages for the current session
+		self.master.currentStoryMessages = story.messages #type: ignore
+
+		# Then redirect the user to the ai chat page now that we've updated the messages we want to render
+
+
+
 	
-	
-	'''
-	+ Deletes a story from the user's library
-	'''
-	def deleteStory(self, story):
+	# Deletes a story from the user's library
+	def deleteSavedStory(self, story):
 		# Delete story from database
 		self.master.session.delete(story) #type: ignore
 		self.master.session.commit() #type: ignore
@@ -371,7 +573,7 @@ class deleteAccountPage(ctk.CTkFrame):
 		# Create header of the form
 		formHeader = ctk.CTkFrame(form, fg_color="transparent")
 		formHeading = ctk.CTkLabel(formHeader, text="Delete Account", font=("Helvetica", 32))
-		subHeading = ctk.CTkLabel(formHeader, text="Are you sure you want to delete 'Insert Username'?")
+		subHeading = ctk.CTkLabel(formHeader, text=f"Are you sure you want to delete '{self.master.loggedInUser.username}'?")
 		self.formErrorMessage = ctk.CTkLabel(formHeader, text="")
 		
 		# Create the input section with form fields 
@@ -928,6 +1130,10 @@ class App(ctk.CTk):
 			"storyLibraryPage": storyLibraryPage,
 			"editAvatarPage": editAvatarPage,
 			"aiSettingsPage": aiSettingsPage,
+			"saveStoryPage": saveStoryPage,
+			"homePage": homePage,
+			"remixStoryPage": remixStoryPage,
+			# Then add in our homePage as well
 		}
 
 		# Engine and session constructor that we're going to use 
@@ -937,15 +1143,22 @@ class App(ctk.CTk):
 		# The master session object we'll use throughout the application to interact with the database
 		self.session = self.Session()
 
+		# Array that keeps track of the messages in the most recent story or session
+		# that the user created with the AI. Should be an array of Message Objects
+		self.currentStoryMessages = []
+
+		# Log into a user for dev purposes
+		self.loggedInUser = self.session.query(User).filter_by(username="knguyen44").first()
+		selectedStory = self.session.query(Story).filter_by(storyTitle="A really long title that's in the deep end. Of course!").first()
+
+
 		# Call function to create navbar
 		self.header = Header(self)
 		self.header.pack(side="top", fill="x")
-
 		footer = Footer(self)
 		footer.pack(fill="x", side="bottom")
 
-		# Start off by making the user log in
-		self.openPage("userLoginPage")
+		self.openPage("saveStoryPage")
 		
 	def openPage(self, pageName, *args):
 		try:
