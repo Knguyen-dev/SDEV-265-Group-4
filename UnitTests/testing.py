@@ -1,10 +1,12 @@
+
 import sys
 sys.path.append("..")
+
 
 from classes.models import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
+import copy
 
 # Let's add some stories to my user
 engine = create_engine("sqlite:///../assets/PyProject.db")
@@ -69,16 +71,29 @@ story6 = Story(
 )
 
 
-myMessage = Message(text="Hello world this is a message", isAISender=True)
-
-print(myMessage.text)
 
 
-# retrievedUser = session.query(User).filter_by(username="knguyen44").first() 
-# storyList = [story1,story2,story3,story4,story5,story6]
+retrievedStory = session.query(Story).filter_by(storyTitle="Cheffers").first()
 
-# if retrievedUser:
-#     retrievedUser.stories = storyList
-    
-# session.commit()
-# session.close()
+
+currentMessages = []
+
+if retrievedStory:
+    currentMessages = retrievedStory.messages
+
+for message in currentMessages:
+    print(f"Before: {message.text}")
+currentMessages = []
+
+
+
+session.commit()
+
+newStory = session.query(Story).filter_by(storyTitle="Cheffers").first()
+
+if newStory:
+    for message in newStory.messages:
+        print(message.text)
+
+
+session.close()

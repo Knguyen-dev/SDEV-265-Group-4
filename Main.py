@@ -17,34 +17,7 @@ from PIL import Image, ImageTk
 import os			
 
 
-
 ctk.set_appearance_mode("Light")  # Modes: "System" (standard), "Dark", "Light"
-
-'''
-NOTE: For functionality such as continuing a story. We need to keep track of the 
-messages the user is typing in. If they type in a message, and then go to another page, we'll
-need to remember what messages they typed. If there isn't an ai function for this, we 
-can keep track of the user's messages in the "App" class with an array of Message Objects. So 
-next time the user clicks "Continue story" we just load in the ai chat page with the message objects 
-from 'App', which will render those messages in.
-
-- Also for saving a story, we'll just access the messages in 'App' as those are the messages 
-from the story that the user wants to save
-
-- For continuing a saved story, we'll set obviously load those messages into the ai chat page 
-class for rendering, but also we'll make those messages as the messages for the current session 
-or story. So if user clicks off of a page, those messages are now the recent ones and the ones they 
-left off on.
-
-
-- The reason for only passing "Message" objects to the ai chat page is because it
-not needed. We don't want to create a story object everytime because when you're in the ai chat page,
-you haven't automatically created a story with a title. You
-have some story, that may or may not be saved. Only when you click the save button, do you actually get
-to choose the title of the story.
-
-'''
-
 
 # Our mock ai chat page
 class AIChatPage(ctk.CTkFrame):
@@ -60,7 +33,7 @@ class AIChatPage(ctk.CTkFrame):
 		
 		# Message that shows the story of their story writing, whether they're writing a new story,
 		# continuing an old one, or remixing a story, and other information
-		storyStateMessage = ctk.CTkLabel(header, text="Current writing a new story!")
+		storyStateMessage = ctk.CTkLabel(header, text="")
 
 		# Message indicating status of the page, whether an error has occurred, or to show the user 
 		# if they're still waiting on a message from the ai
@@ -72,7 +45,7 @@ class AIChatPage(ctk.CTkFrame):
 		# Section with all of the input options the user has for the AIChatPage
 		chatInputSection = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
 		self.chatEntry = ctk.CTkEntry(chatInputSection, width=300, placeholder_text="Send a message e.g. 'Once upon a time...'")
-		self.openSaveStoryBtn = ctk.CTkButton(chatInputSection, text="Save Story")
+		self.openSaveStoryBtn = ctk.CTkButton(chatInputSection, text="Save Story", command=lambda: self.master.openPage("saveStoryPage")) #type: ignore
 		self.sendChatBtn = ctk.CTkButton(chatInputSection, text="Send", command=self.sendUserChat)
 
 		# Structure and style widgets accordingly
@@ -88,10 +61,19 @@ class AIChatPage(ctk.CTkFrame):
 		self.sendChatBtn.grid(row=0, column=1, padx=10)
 		self.openSaveStoryBtn.grid(row=0, column=2, padx=10)
 
-		# If there are any messages that are tracked to be a part of the current story the user is writing, then
-		# render them on screen.
-		if self.master.currentStoryMessages:
-			for messageObj in self.master.currentStoryMessages:
+
+		# If the user is continuing a saved story, we should render the already saved messages from that story first
+		if self.master.currentSavedStory:
+			for messageObj in self.master.currentSavedStory.messages:
+				self.renderChatMessage(messageObj)
+			storyStateMessage.configure(text=f"Currently continuing '{self.master.currentSavedStory.storyTitle}'!")
+		else:
+		# Else the user is writing a new story 
+			storyStateMessage.configure(text=f"Currently continuing writing a new story!")
+
+		# Then after, if there have been any messages that the user has made, but not saved, we render them
+		if self.master.unsavedStoryMessages:
+			for messageObj in self.master.unsavedStoryMessages:
 				self.renderChatMessage(messageObj)
 		
 
@@ -131,17 +113,21 @@ class AIChatPage(ctk.CTkFrame):
 		# Get the user's message as an object
 		userMessage = Message(text=self.chatEntry.get(), isAISender=False)
 
+		# Then clear user's chat entry since they sent the message, we don't want to force them to clear it themselves
+		self.chatEntry.delete(0, "end")
+
 		# Call function to get the AI's response message 
 		AIMessage = Message(text="Sample AI Response", isAISender=True)
 
-		# Add those messages sequentially in the currentStoryMessages array so that 
+		# Add those messages sequentially in the unsavedStoryMessages array so that 
 		# we can keep track of the user's messages
-		self.master.currentStoryMessages.append(userMessage) #type: ignore
-		self.master.currentStoryMessages.append(AIMessage) #type: ignore
+		self.master.unsavedStoryMessages.append(userMessage) #type: ignore
+		self.master.unsavedStoryMessages.append(AIMessage) #type: ignore
 		
 		# Render the user's messages sequentially, so the user message is always rendered before the ai message
 		self.renderChatMessage(userMessage)
 		self.renderChatMessage(AIMessage)
+
 
 
 
@@ -154,8 +140,6 @@ class homePage(ctk.CTkFrame):
 
 		pageHeader = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
 		pageHeading = ctk.CTkLabel(pageHeader, text="Home", font=("Helvetica", 32))
-		# Would tell the user whether or not 'Continue previous story" is enabled or not; though still working out the conditions for that
-		subHeading = ctk.CTkLabel(pageHeader, text="", font=("Helvetica", 16))
 
 		pageBtnsSection = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
 		newStoryBtn = ctk.CTkButton(pageBtnsSection, text="Start A New Story!", command=self.startNewStory)		
@@ -164,22 +148,17 @@ class homePage(ctk.CTkFrame):
 		innerPageFrame.pack(expand=True)
 		pageHeader.grid(row=0, column=0, pady=10)
 		pageHeading.grid(row=0, column=0)
-		subHeading.grid(row=1, column=0)
 
 		pageBtnsSection.grid(row=1, column=0)
 		newStoryBtn.grid(row=0, column=0, pady=5)
 		continuePrevStoryBtn.grid(row=1, column=0, pady=5)
 
 
-	'''
-	+ startNewStory: 
-		- When we start a new story, we are starting a new chat. 
-		All messages from the previous chat/session, should be deleted.
-	'''
+	# Starts a new chat, so that user can write a new story
 	def startNewStory(self):
 		# Clear previous chat messages and wipe story id since we're starting a new story
-		self.master.currentStoryMessages = [] #type: ignore
-		self.master.currentStoryID = None #type: ignore
+		self.master.unsavedStoryMessages = [] #type: ignore
+		self.master.currentSavedStory = None #type: ignore
 
 		# Redirect the user to the ai chat page
 		self.master.openPage("AIChatPage") #type: ignore
@@ -236,90 +215,79 @@ class remixStoryPage(ctk.CTkFrame):
 		# Get the text of the remix
 		remix = self.remixInput.get("0.0", "end")
 
-		'''
-		- Assume there's a function, pass the ai the story's messages and then the 'remix' text. You're 
-		expected a response message, a string, so store it in 'responseMessage' or something similar. 
-		It should be something similar to this: 
-		'''
-		# responseMessage = storyAI.remixStory(remix, messages)
-
-		# Mock ai message for testing purposes
-		responseMessage = "Sample AI Message"
-		responseMessage = Message(
-			text=responseMessage
-		)
-
-		# Remixing means starting a new story, story isn't in database so clear currentStoryID
-		# Then the current messages in our story are now just the response ai message that was created
-		self.master.currentStoryID = None #type: ignore
-		self.master.currentStoryMessage = [responseMessage] #type: ignore
-
-		# Then redirect the user to the ai chat page
-		# self.openPage("AIChatPage")
-
-
 '''
-+ saveStoryPage: Page where the user will save a story, whether it be a new story or updating 
-changes to an existing one
++ saveStoryPage: Page where the user will save a a story. If we load the frame, that means the we're loading 
+the form and the user is saving a completely new story. Else the class can be instantiated without being packed in so that 
+the user makes updates to an existing story.
 '''
 class saveStoryPage(ctk.CTkFrame):
 	def __init__(self, master):
 		super().__init__(master)
 		self.master = master
 
-		# If currentStoryID exists, then the user is trying to apply changes to an existing story in their library
-		if self.master.currentStoryID:
-			self.updateExistingStory()
-		else:
-			# Else the user is trying to save a completely new story, so we'll give them a form
-			form = ctk.CTkFrame(self)		
-			formHeader = ctk.CTkFrame(form, fg_color="transparent")
-			formHeading = ctk.CTkLabel(formHeader, text="Save Story", font=("Helvetica", 32))
-			self.formErrorMessage = ctk.CTkLabel(formHeader, text="")
+		# user is trying to save a completely new story, so we'll give them a form
+		form = ctk.CTkFrame(self)		
+		formHeader = ctk.CTkFrame(form, fg_color="transparent")
+		formHeading = ctk.CTkLabel(formHeader, text="Save Story", font=("Helvetica", 32))
+		storyStateMessage = ctk.CTkLabel(formHeader, text="")
+		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
 
+		# Create necessary widgets regardless of whether the user is updating an existing story or saving a new one
+		form.pack(expand=True)
+		formHeader.grid(row=0, column=0, pady=10, padx=80)
+		formHeading.grid(row=0, column=0)
+		storyStateMessage.grid(row=1, column=0)
+
+
+		# Depending on whether the user is saving changes to an existing story or saving a completely new story, 
+		# our page will form differently 
+
+		# If they're making changes to an existing story
+		if self.master.currentSavedStory:
+			storyStateMessage.configure(text=f"Currently updating '{self.master.currentSavedStory.storyTitle}'!")
+			
+			formBtnsSection.grid(row=1, column=0, pady=10)
+			updateSavedStoryBtn = ctk.CTkButton(formBtnsSection, text="Update Story", command=self.updateExistingStory)
+			updateSavedStoryBtn.grid(row=0, column=0)
+		else:
+		# Else they're saving a new story
+			storyStateMessage.configure(text=f"Currently saving a new story!")
+			self.formErrorMessage = ctk.CTkLabel(formHeader, text="")
 			formFieldsSection = ctk.CTkFrame(form)		
 			label = ctk.CTkLabel(formFieldsSection, text="Story Title")
 			self.storyTitleEntry = ctk.CTkEntry(formFieldsSection)
-
-			formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
 			clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", command=lambda: clearEntryWidgets([self.storyTitleEntry]))
-			saveStoryBtn = ctk.CTkButton(formBtnsSection, text="Save Story", command=self.saveNewStory)
+			saveNewStoryBtn = ctk.CTkButton(formBtnsSection, text="Save Story", command=self.saveNewStory)
 
-			# Structure the remaining elements of the page
-			form.pack(expand=True)
-			formHeader.grid(row=0, column=0, pady=10, padx=80)
-			formHeading.grid(row=0, column=0)
-			self.formErrorMessage.grid(row=1, column=0)
+			self.formErrorMessage.grid(row=2, column=0)
 			formFieldsSection.grid(row=1, column=0, pady=10)
 			label.grid(row=0, column=0, pady=10, padx=10)
 			self.storyTitleEntry.grid(row=0, column=1, pady=10, padx=10)
 			formBtnsSection.grid(row=2, column=0, pady=10)
 			clearFormBtn.grid(row=0, column=0, padx=10)
-			saveStoryBtn.grid(row=0, column=1, padx=10)
+			saveNewStoryBtn.grid(row=0, column=1, padx=10)			
+
+
+		
+	
 
  
 	# Updates or saves changes to an existing story and redirects user to the library page
 	def updateExistingStory(self):
-		# Get current story from the database
-		retrievedStory = self.master.session.query(Story).filter_by(id=self.master.currentStoryID) #type: ignore
+		# Put all of those unsaved messages into the saved story 
+		for unsavedMessage in self.master.unsavedStoryMessages: #type: ignore 
+			self.master.currentSavedStory.messages.append(unsavedMessage) #type: ignore
 
-		# Get the current story messages, which would be the messages from their most recent session before they 
-		# wanted to save their story
-		retrievedStory.messages = self.master.currentStoryMessages #type: ignore
-	
+		# Reset unsavedStoryMessages since all of the previous messages have been saved
+		self.master.unsavedStoryMessages = [] #type: ignore
+
 		# Update the story's messages in the database
 		self.master.session.commit() #type: ignore
 
 		# Redirect user to the story library page
 		self.master.openPage("storyLibraryPage") #type: ignore
-
-	'''
-	- When saving a new story, at the moment the user won't have a currentStoryID, so we'll
-	the id of the saved story as our story id
 	
-	'''
 
-	
 	
 	# Saves a completely new story to the user's library; then redirects the user to the story library page
 	def saveNewStory(self):
@@ -331,18 +299,18 @@ class saveStoryPage(ctk.CTkFrame):
 		# Create story object with the user's inputted title and the current messages
 		newStory = Story(
 			storyTitle=self.storyTitleEntry.get(),
-			messages = self.master.currentStoryMessages, #type: ignore
+			messages = self.master.unsavedStoryMessages, #type: ignore
 		)
 
-		# Save the story to the database
-		self.master.session.add(newStory) #type: ignore
+		# Reset unsavedStoryMessages since all of the previous messages have been saved
+		self.master.unsavedStoryMessages = [] #type: ignore
+
+		# Add the story to the current user and save the database
+		self.master.loggedInUser.stories.append(newStory) #type: ignore
 		self.master.session.commit() #type: ignore
 
-
-		# Set the new currentStoryID to the story we just saved
-		self.master.currentStoryID = newStory.id #type: ignore 
-
-
+		# Update the saved story that we're currently continuing
+		self.master.currentSavedStory = newStory #type: ignore
 
 		# Redirect the user to the storyLibraryPage, which is where their new story should be
 		self.master.openPage("storyLibraryPage") #type: ignore
@@ -490,20 +458,27 @@ class storyLibraryPage(ctk.CTkFrame):
 			columnIndex += 1
 		
 	'''
-	+ continueSavedStory: 
-		Get the messages of the story object and pass them into the ai chat page's class while we redirect them, 
-		so those old messages can be rendered. As a result, the user is allowed to continue where they left off
+	+ continueSavedStory: Let the user continue where they left off 
 	'''
 	def continueSavedStory(self, story):
-		# The messages from the saved story become the messages for the current session
-		self.master.currentStoryMessages = story.messages #type: ignore
-
-		# Then redirect the user to the ai chat page now that we've updated the messages we want to render
-
+		# Update the saved story that we are currently continuing
+		self.master.currentSavedStory = story #type: ignore
+		# If the user is continuing a saved story, they're starting a new chat, so wipe out all of the unsaved messages they have first
+		self.master.unsavedStoryMessages = [] #type: ignore
+		# Redirect user to the ai chat page
+		self.master.openPage("AIChatPage") #type: ignore
 
 
 	# Deletes a story from the user's library
 	def deleteSavedStory(self, story):
+		# If the user is continuing a saved story, and its the same one that they're deleting
+		if self.master.currentSavedStory == story: #type: ignore
+			# Reset the saved story in master, but also reset the unsaved messages because
+			# these messages would have been related to the story that the user was going to delete, so 
+			# we're going to cleanly delete both
+			self.master.currentSavedStory = None #type: ignore
+			self.master.unsavedStoryMessages = [] #type: ignore 
+
 		# Delete story from database
 		self.master.session.delete(story) #type: ignore
 		self.master.session.commit() #type: ignore
@@ -560,7 +535,7 @@ class editAvatarPage(ctk.CTkFrame):
 	# Loads the current image onto the screen
 	def loadCurrentImage(self):
 		# Put new image on the label to display it
-		newImage = ImageTk.PhotoImage(Image.open(f"{self.imageFolderPath}{self.imageList[self.imageIndex]}").resize((300, 300)))
+		newImage = ImageTk.PhotoImage(Image.open(f"{self.imageFolderPath}{self.imageList[self.imageIndex]}").resize((300, 300))) 
 		self.imageLabel.configure(image=newImage)
 		self.imageLabel.image = newImage #type: ignore
 
@@ -1241,13 +1216,12 @@ class App(ctk.CTk):
 		# the User that is currently logged into the application
 		self.loggedInUser = None 
 
-		# ID of the story that the user is currently continuing.
-		self.currentStoryID = None
+		# Story object that represents the current saved story that the user is continuing
+		self.currentSavedStory = None
 
 		# Array that keeps track of the messages in the most recent story or session
-		# NOTE: currentStoryMessages could have messages even when currentStoryID is None. This happens when the user 
-		# starts a new story and we record the messages, but at the same time this story hasn't been saved into the database
-		self.currentStoryMessages = []
+		# NOTE: unsavedStoryMessages will continue saving messages even if those messages aren't associated with a story in the database.
+		self.unsavedStoryMessages = []
 
 		# Frames in the application
 		self.pageMap = {
@@ -1268,7 +1242,7 @@ class App(ctk.CTk):
 		}
 
 		# Engine and session constructor that we're going to use 
-		self.engine = create_engine("sqlite:///assets/PyProject.db")
+		self.engine = create_engine("sqlite:///assets/PyProject.db", echo=True)
 		self.Session = sessionmaker(bind=self.engine)
 
 		# The master session object we'll use throughout the application to interact with the database
@@ -1276,7 +1250,6 @@ class App(ctk.CTk):
 
 		# Log into a user for dev purposes
 		self.loggedInUser = self.session.query(User).filter_by(username="knguyen44").first()
-		selectedStory = self.session.query(Story).filter_by(storyTitle="A really long title that's in the deep end. Of course!").first()
 
 		# Call function to create navbar
 		self.header = Header(self)
@@ -1286,23 +1259,11 @@ class App(ctk.CTk):
 
 		'''
 		BOOK MARK:
-
-		1. Create a basic ai chat page version, gui and message rendering logic
-
-		2. Link buttons in the homePage, and start testing rendering and if 
-		it's rendering messages correctly. This just involves first 
-		testing our storyLibrary page if the continue works since we 
-		already know delete works. During this we should test new story and then continue story
-
-		3. Then start testing the saveStoryPage, on existing stories and on 
-			a new story. 
-		
+	
 		4. Test remix stories. For AI replies, for all of our tests, you
-		can create a mock function
-		
-		
+		can create a mock function		
 		'''
-		self.openPage("homePage")
+		self.openPage("storyLibraryPage")
 
 
 
@@ -1324,11 +1285,11 @@ class App(ctk.CTk):
 		# loggedInUser is none because the user is logging out 
 		self.loggedInUser = None #type: ignore
 
-		# Reset the id of the current story
-		self.currentStoryID = None
+		# Wipe the saved story that we're currently continuing
+		self.currentSavedStory = None
 
 		# Reset the messages of the current story
-		self.currentStoryMessages = []
+		self.unsavedStoryMessages = []
 
 		# Redirect the user to the login page
 		self.openPage("userLoginPage") #type: ignore
