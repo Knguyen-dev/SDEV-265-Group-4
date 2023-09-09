@@ -67,6 +67,9 @@ class AIChatPage(ctk.CTkFrame):
 			for messageObj in self.master.currentSavedStory.messages:
 				self.renderChatMessage(messageObj)
 			storyStateMessage.configure(text=f"Currently continuing '{self.master.currentSavedStory.storyTitle}'!")
+		elif self.master.currentRemixedStory:
+		# Else the user could be writing a remix
+			storyStateMessage.configure(text=f"Currently writing a remix based on {self.master.currentRemixedStory.storyTitle}!")
 		else:
 		# Else the user is writing a new story 
 			storyStateMessage.configure(text=f"Currently continuing writing a new story!")
@@ -156,9 +159,10 @@ class homePage(ctk.CTkFrame):
 
 	# Starts a new chat, so that user can write a new story
 	def startNewStory(self):
-		# Clear previous chat messages and wipe story id since we're starting a new story
+		# Clear previous chat messages and wipe story data since the user is starting a brand new slate
 		self.master.unsavedStoryMessages = [] #type: ignore
 		self.master.currentSavedStory = None #type: ignore
+		self.master.currentRemixedStory = None #type: ignore
 
 		# Redirect the user to the ai chat page
 		self.master.openPage("AIChatPage") #type: ignore
@@ -209,11 +213,54 @@ class remixStoryPage(ctk.CTkFrame):
 
 
 	'''
-	+ remixStory: Remixes a story using an existing story and user's input. Then takes the user to the ai chat page for the remixed story
+	+ remixStory: Remixes a story using an existing story and user's input. This should start a new chat as the 
+	user is now writing a new story that they haven't saved yet. If they save the remix, we treat it as the user is saving a completely new 
+	story. As a result we save their remix as a new story, whilst keeping the story they remixed off of (the inspiration) unchanged.
 	'''
 	def remixStory(self):
+
+		# If the user is remixing a story, they're choosing not to continue writing on a saved story 
+		self.master.currentSavedStory = None #type: ignore 
+
+		# They are also starting a new chat, so we should remove all old unsaved story messages, so that 
+		# their prompt to the ai, and the ai's response should be the first two messages of their new story.
+		self.master.unsavedStoryMessages = [] #type: ignore
+
+		'''
+		BOOK MARK:
+		1. Currently working on how we can remix a story. Right now working on AIChatPage's behavior for it with the storyLibraryPage and remixStoryPage.
+		2. Then we'll work on saving the information and how that'll work; the idea could be when they save a remix, that remix now becomes the currentSavedStory that 
+		they're continuing on. Something like that
+		3. And then we'll have to work on how it works on how it deletes and whatnot
+		'''
+
+		# Set the current story that was passed in as the current story that the user is remixing off of
+		self.master.currentRemixedStory = self.story #type: ignore
+		
 		# Get the text of the remix
-		remix = self.remixInput.get("0.0", "end")
+		userRemixMessage = Message(text=self.remixInput.get("1.0", "end-1c"), isAISender=False)
+	
+		# At this point we'd send the ai the text of the story being remixed
+		AIMessage = Message(text="Sample AI Remix Message", isAISender=True)
+
+		# Put both of those messages into unsaved message 
+		self.master.unsavedStoryMessages.append(userRemixMessage) #type: ignore
+		self.master.unsavedStoryMessages.append(AIMessage) #type: ignore
+
+		# Redirect user to the ai chat page
+		self.master.openPage("AIChatPage") #type: ignore
+
+
+
+
+
+
+
+
+
+
+
+
 
 '''
 + saveStoryPage: Page where the user will save a a story. If we load the frame, that means the we're loading 
@@ -251,7 +298,14 @@ class saveStoryPage(ctk.CTkFrame):
 			updateSavedStoryBtn.grid(row=0, column=0)
 		else:
 		# Else they're saving a new story
-			storyStateMessage.configure(text=f"Currently saving a new story!")
+
+			# If the new story they're saving is actually a remix
+			if (self.master.currentRemixedStory):
+				storyStateMessage.configure(text=f"Currently saving a new story remixed from {self.master.currentRemixedStory.storyTitle}!")
+			else:
+			# Else their new story is not a remix and it's just a completely new story
+				storyStateMessage.configure(text=f"Currently saving a new story!")
+
 			self.formErrorMessage = ctk.CTkLabel(formHeader, text="")
 			formFieldsSection = ctk.CTkFrame(form)		
 			label = ctk.CTkLabel(formFieldsSection, text="Story Title")
@@ -270,8 +324,6 @@ class saveStoryPage(ctk.CTkFrame):
 
 		
 	
-
- 
 	# Updates or saves changes to an existing story and redirects user to the library page
 	def updateExistingStory(self):
 		# Put all of those unsaved messages into the saved story 
@@ -309,8 +361,13 @@ class saveStoryPage(ctk.CTkFrame):
 		self.master.loggedInUser.stories.append(newStory) #type: ignore
 		self.master.session.commit() #type: ignore
 
-		# Update the saved story that we're currently continuing
+		# The story that the user just saved is now the saved story that they're continuing
 		self.master.currentSavedStory = newStory #type: ignore
+
+		# If the story the user was saving was a remix, then we reset it.
+		# Basically means, they already saved their remixed story so they're done remixing, so we can stop treating it as if they're still remixing.
+		if (self.master.currentRemixedStory): #type: ignore
+			self.master.currentRemixedStory = None #type: ignore
 
 		# Redirect the user to the storyLibraryPage, which is where their new story should be
 		self.master.openPage("storyLibraryPage") #type: ignore
@@ -463,8 +520,13 @@ class storyLibraryPage(ctk.CTkFrame):
 	def continueSavedStory(self, story):
 		# Update the saved story that we are currently continuing
 		self.master.currentSavedStory = story #type: ignore
+		
+		# The user isn't remixing a story, so set it to None
+		self.master.currentRemixedStory = None #type: ignore
+		
 		# If the user is continuing a saved story, they're starting a new chat, so wipe out all of the unsaved messages they have first
 		self.master.unsavedStoryMessages = [] #type: ignore
+
 		# Redirect user to the ai chat page
 		self.master.openPage("AIChatPage") #type: ignore
 
@@ -478,7 +540,13 @@ class storyLibraryPage(ctk.CTkFrame):
 			# we're going to cleanly delete both
 			self.master.currentSavedStory = None #type: ignore
 			self.master.unsavedStoryMessages = [] #type: ignore 
+		elif self.master.currentRemixedStory == story: #type: ignore
+		# Else the user is currently remixing a story, and the story they're deleting is the story they were remixing from
+			self.master.currentRemixedStory = None #type: ignore
 
+			# Remove all unsaved messages, since they were related to that remixed story
+			self.master.unsavedStoryMessages = [] #type: ignore 
+		
 		# Delete story from database
 		self.master.session.delete(story) #type: ignore
 		self.master.session.commit() #type: ignore
@@ -1219,6 +1287,9 @@ class App(ctk.CTk):
 		# Story object that represents the current saved story that the user is continuing
 		self.currentSavedStory = None
 
+		# Story object representing the story that the user is remixing off of
+		self.currentRemixedStory = None
+
 		# Array that keeps track of the messages in the most recent story or session
 		# NOTE: unsavedStoryMessages will continue saving messages even if those messages aren't associated with a story in the database.
 		self.unsavedStoryMessages = []
@@ -1290,6 +1361,8 @@ class App(ctk.CTk):
 
 		# Reset the messages of the current story
 		self.unsavedStoryMessages = []
+
+		self.currentRemixedStory = None
 
 		# Redirect the user to the login page
 		self.openPage("userLoginPage") #type: ignore
