@@ -4,12 +4,27 @@ sys.path.append("..")
 from classes.models import Message
 
 '''
-+ Page for remixing an existing story. This page is passed
-	a story object (from the storyLibraryPage) that represents the story we're remixing.
-	Using this existing story, and the user's input saying how 
-	the story will be remixed, we send both to the AI. The 
-	AI then sends back a generated message to this class. Then we redirect 
-	the user to the ai chat page and pass in the ai's message (this starts a new chat).
++ remixStoryPage: Frame that represents the page that allows the user to remix a story. User will be able 
+	to input in a twist to the story that they have selected. Then after submission, the user is taken to the 
+	AIChatPage to write their new story.
+
+Attributes/Variables:
+- story (Story): Story object that the user is remixing their story from. So this story is the inspiration for their
+	remix.
+- master: 'App' class instance from 'Main.py'
+- form (CTkFrame): Frame that contains all form widgets
+- formHeader (CTkFrame): Header of form
+- formHeading (CTkLabel): Heading message for form
+- subHeading (CTkLabel): a sub-heading that indicates what story the user is remixing off from
+- formFieldsSection (CTkFrame): Contains all labels and input related widgets for the form
+- remixLabel (CTkLabel): Label for remixInput
+- remixInput (CTkTextBox): Textbox where the user enters their twist or remix on the selected story
+- formBtnsSection (CTkFrame): Section that contains all of the buttons for the form
+- clearRemixBtn (CTkButton): Button that clears the remixInput
+- remixStoryBtn (CTkButton): Button that remixes the story and takes the user to the AIChatPage
+
+Methods: 
+- remixStory(self): Let's user remix a story and then redirects the user to the AIChatPage for it.
 '''
 class remixStoryPage(ctk.CTkFrame):
 	def __init__(self, master, story):
@@ -18,13 +33,12 @@ class remixStoryPage(ctk.CTkFrame):
 		self.story = story
 
 		form = ctk.CTkFrame(self)
-
 		formHeader = ctk.CTkFrame(form, fg_color="transparent")
 		formHeading = ctk.CTkLabel(formHeader, text="Remix A Story", font=("Helvetica", 32))
-		subheading = ctk.CTkLabel(formHeader, text=f"Currently Remixing '{story.storyTitle}'!", wraplength=200)
+		subHeading = ctk.CTkLabel(formHeader, text=f"Currently Remixing '{story.storyTitle}'!", wraplength=200)
 
 		formFieldsSection = ctk.CTkFrame(form)
-		label = ctk.CTkLabel(formFieldsSection, text="Enter your twist on this story!", wraplength=100)
+		remixLabel = ctk.CTkLabel(formFieldsSection, text="Enter your twist on this story!", wraplength=100)
 		self.remixInput = ctk.CTkTextbox(formFieldsSection)
 
 		formBtnsSection = ctk.CTkFrame(form)
@@ -34,9 +48,9 @@ class remixStoryPage(ctk.CTkFrame):
 		form.pack(expand=True)
 		formHeader.grid(row=0, column=0, pady=10, padx=50)
 		formHeading.grid(row=0, column=0)
-		subheading.grid(row=1, column=0)
+		subHeading.grid(row=1, column=0)
 		formFieldsSection.grid(row=1, column=0, pady=10)
-		label.grid(row=0, column=0, pady=10)
+		remixLabel.grid(row=0, column=0, pady=10)
 		self.remixInput.grid(row=1, column=0, pady=10)
 		formBtnsSection.grid(row=2, column=0, pady=10)
 		clearRemixBtn.grid(row=0, column=0, padx=10)
@@ -44,9 +58,10 @@ class remixStoryPage(ctk.CTkFrame):
 
 
 	'''
-	+ remixStory: Remixes a story using an existing story and user's input. This should start a new chat as the 
-	user is now writing a new story that they haven't saved yet. If they save the remix, we treat it as the user is saving a completely new 
-	story. As a result we save their remix as a new story, whilst keeping the story they remixed off of (the inspiration) unchanged.
+	- Remixes a story using an existing story and user's input.
+	1. userRemixMessage (Message): Message object representing the text that the user entered
+	2. AIMessage (Message): Message object representing the text that the AI generated in reply
+		to the user.
 	'''
 	def remixStory(self):
 		# If the user is remixing a story, they're choosing not to continue writing on a saved story 

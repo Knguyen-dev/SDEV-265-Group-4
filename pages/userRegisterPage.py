@@ -5,7 +5,32 @@ sys.path.append("..")
 from classes.utilities import *
 from classes.models import User
 
-##### User Registration Page ######
+
+'''
++ userRegisterPage: Frame that represents the registration page that the user is directed to in order to create a new 
+	account.
+
+Constructor:
+- master: 'App' class instance from 'Main.py'
+
+Attributes/Variables:
+- master (App): App class from 'Main.py'
+- form (CTkFrame): Tkinter frame that contains all of the widgets for the form
+- formHeader (CTkFrame): Header of the form 
+- formHeading (CTkLabel): Heading message for the form
+- formErrorMesage (CTkLabel): Label that indicates various errors that happened while submitting the form
+- formFieldsSection (CTkFrame): Section that contains labels and their corresponding entry widgets
+- formFields (Array): Array of objects that's used to create the label and entry widgets
+- formEntryList (Array): List of entry widgets for the registration form
+- formBtnsSection (CTkFrame): Container for the buttons of the form
+- openLoginBtn (CTkButton): Button that redirects the user to the login apge
+- confirmRegisterBtn (CTkButton): Button that submits the form and attempts to register the user.
+- clearFormBtn (CTkButton): Clears the entry widgets on the form
+
+Methods: 
+- registerUser(self): Registers a new user into the database if the form is valid. Then after a successful 
+	submission, the user is redirected to the login page
+'''
 class userRegisterPage(ctk.CTkFrame):
 	def __init__(self, master):
 		super().__init__(master)
@@ -44,8 +69,8 @@ class userRegisterPage(ctk.CTkFrame):
 				"toggleHidden": True
 			},
 		]		
-		# Create list of form entries to get input later
 		self.formEntryList = []
+
 		# Iterate through object to create fields
 		for x in range(len(formFields)):
 			label = ctk.CTkLabel(formFieldsSection, text=formFields[x]["text"])
@@ -76,7 +101,19 @@ class userRegisterPage(ctk.CTkFrame):
 		openLoginBtn.grid(row=0, column=1, padx=10, pady=10)
 		confirmRegisterBtn.grid(row=0, column=2, padx=10, pady=10)
 
-	# Registers a user in the database
+	'''
+	- Registers a user in the database. If the form is valid, the user is added and redirected to the login page. Else 
+		the form will show an error message telling the user which part of their form is wrong.
+	1. email (string): Value representing the email that the user entered.
+	2. username (string): The value the user representing the username field.
+	3. firstName (string): The value the user representing the first mame field.
+	4. lastName (string): The value the user representing the last name field.
+	5. password (string): The value the user representing the password field.
+	6. confirmPassword (string): The value the user entered for the confirm password field.
+	7. retrievedUser (User): If retrievedUser exists, the username that was entered into the form is already owned
+		by a user in the database. 
+	8. newUser (User): User object with attribute values from the form that is going to be added into the database
+	'''
 	def registerUser(self):
 		# Check if any fields are empty before moving on
 		if isEmptyEntryWidgets(self.formEntryList):
@@ -111,7 +148,6 @@ class userRegisterPage(ctk.CTkFrame):
 			self.formErrorMessage.configure(text="Passwords must match!")
 			return
 		
-		
 		# Check if there are any users with the inputted username
 		retrievedUser = self.master.session.query(User).filter_by(username=username).first() #type: ignore
 		if retrievedUser:
@@ -124,8 +160,6 @@ class userRegisterPage(ctk.CTkFrame):
 			username=username,
 			firstName=firstName,
 			lastName=lastName,
-			# For right now do a simple md5 hash, but later
-			# we should use that api idea
 			passwordHash=hashlib.md5(password.encode("utf-8")).hexdigest(),
 			avatar="default_user.jpg"
 		)
@@ -134,5 +168,6 @@ class userRegisterPage(ctk.CTkFrame):
 		self.master.session.add(newUser) #type: ignore
 		self.master.session.commit() #type: ignore
 		self.master.session.close() #type: ignore
+
 		# Redirect user to login screen after they've successfully registered
 		self.master.openPage("userLoginPage") #type: ignore

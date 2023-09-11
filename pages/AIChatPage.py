@@ -3,6 +3,29 @@ import sys
 sys.path.append("..")
 from classes.models import Message
 
+'''
++ AIChatPage: Frame that represents the page where the user and AI send chat messages to each other in order to 
+	write their story.
+
+Attributes/Variables:
+- master (App): 'App' class instance from 'Main.py' 
+- innerPageFrame (CTkFrame): Page frame that contains all of the widgets for the page and is used to center it
+- header (CTkFrame): Header of the page frame
+- heading (CTkLabel): Heading message
+- storyStateMessage (CTkLabel): Label that tells the user what kind of story they're writing, whether they're remixing, writing 
+	a new story, continuing a saved story, etc.
+- pageStatusMessage (CTkLabel): Indicates status of the page like when the user is currently waiting on the AI for a response
+	or whether an occur has occurred.
+- chatBox (CTkTextbox): Textbox that shows the messages of the user and AI.
+- chatInputSection (CTkFrame): Section with all of the input related widgets
+- chatEntry (CTkEntry): Input text box where user types in their message
+- openSaveStoryBtn (CTkButton): Button that redirects the user to the saveStoryPage
+- sendChatBtn (CTkButton): Button that sends the chat to the AI.
+
+Methods:
+- sendUserChat(self): Sends a user chat message to the AI and gets its response.
+- renderChat(self, messageObj): Renders message text onto the screen given a messgae object.
+'''
 class AIChatPage(ctk.CTkFrame):
 	def __init__(self, master):
 		super().__init__(master)
@@ -10,19 +33,11 @@ class AIChatPage(ctk.CTkFrame):
 
 		innerPageFrame = ctk.CTkFrame(self)
 		innerPageFrame.pack(expand=True)
-
 		header = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
 		heading = ctk.CTkLabel(header, text="Write Your Story!", font=("Helvetica", 32))
-		
-		# Message that shows the story of their story writing, whether they're writing a new story,
-		# continuing an old one, or remixing a story, and other information
 		storyStateMessage = ctk.CTkLabel(header, text="")
-
-		# Message indicating status of the page, whether an error has occurred, or to show the user 
-		# if they're still waiting on a message from the ai
 		self.pageStatusMessage = ctk.CTkLabel(header, text="")
 		
-		# Text box that where all messages between user and ai will be shown
 		self.chatBox = ctk.CTkTextbox(innerPageFrame, state="disabled", width=500, height=300)
 
 		# Section with all of the input options the user has for the AIChatPage
@@ -48,7 +63,7 @@ class AIChatPage(ctk.CTkFrame):
 				self.renderChatMessage(messageObj)
 			storyStateMessage.configure(text=f"Currently continuing '{self.master.currentStory.storyTitle}'!")
 		elif self.master.isRemixedStory: #type: ignore
-		# Else the user is currently writing a remix
+		# Else the user is currently writing a remix, so just show that the user is writing a remix
 			storyStateMessage.configure(text=f"Currently writing a remix based on {self.master.currentStory.storyTitle}!")
 		else:
 		# Else the user is writing a new story 
@@ -65,7 +80,6 @@ class AIChatPage(ctk.CTkFrame):
 		# Configure the chatbox to normal so that text can be inserted
 		self.chatBox.configure(state="normal")			
 
-		# Logic for rendering a message
 		# If it's an AI message
 		if (messageObj.isAISender):
 			# If the chatbox is empty, this is the first message, so render it properly with no extra space
@@ -76,9 +90,11 @@ class AIChatPage(ctk.CTkFrame):
 				self.chatBox.insert("end-1c", "\n\n" + f"StoryBot: {messageObj.text}") #type: ignore
 		else:
 		# Else it's a message from the user
+			# If it's the first message, render with no spaces
 			if self.chatBox.get("1.0", "end-1c") == "":
 				self.chatBox.insert("1.0", f"{self.master.loggedInUser.username}: {messageObj.text}") #type: ignore
 			else:
+			# Else render it with an extra space
 				self.chatBox.insert("end-1c", "\n\n" + f"{self.master.loggedInUser.username}: {messageObj.text}") #type: ignore
 
 		# Scroll the chat window to the most recent message if needed
@@ -90,10 +106,10 @@ class AIChatPage(ctk.CTkFrame):
 	
 	'''
 	- Sends the user chat message to the ai, for the ai to respond, then goes to render both of those chat messages
-	1. Also saves chat messages for managing the 'history' of the messages in the current story
+	1. userMessage (Message): Message object containing text that the user sent
+	2. AIMessage (Message): Message object containing text that the AI generated in response to the user
 	'''
 	def sendUserChat(self):
-		# Get the user's message as an object
 		userMessage = Message(text=self.chatEntry.get(), isAISender=False)
 
 		# Then clear user's chat entry since they sent the message, we don't want to force them to clear it themselves

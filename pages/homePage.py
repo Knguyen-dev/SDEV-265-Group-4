@@ -1,5 +1,23 @@
 import customtkinter as ctk
 
+'''
++ homePage: Frame that represents the home page of the application. Here the user can choose to start a new story/chat, 
+	or continue the story that they were most recently on.
+
+Attributes/Variables:
+- master (App): 'App' class instance from 'Main.py'
+- innerPageFrame (CTkFrame): Frame that centers page and contains all of its widgets 
+- pageHeader (CTkFrame): Header of the page
+- pageHeading (CTkLabel): Heading label that displays message of the page
+- pageBtnsSection (CTkFrame): Container that contains all of the home page's buttons 
+- newStoryBtn (CTkButton): Button that starts a new story and redirects the user to the AIChatPage
+- continuePrevStoryBtn (CTkButton): Button that continues the story that the user was most recently on
+	and redirects them to the AIChatPage
+
+Methods: 
+- startNewStory: Redirects user to the AIChatPage, wipes out previous story information such as unsaved messages,
+	and as a result let's them start a new story.
+'''
 class homePage(ctk.CTkFrame):
 	def __init__(self, master):
 		super().__init__(master)

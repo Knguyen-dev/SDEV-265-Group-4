@@ -3,8 +3,33 @@ import hashlib
 import sys
 sys.path.append("..")
 from classes.utilities import clearEntryWidgets, isEmptyEntryWidgets, toggleHidden
+from classes.models import User
 
-##### User login page #####
+'''
++ userLoginPage: Tkinter frame that represents the login page of the application. This is where users would 
+	log into the accounts that they've created/registered.
+
+Constructor:
+- master: 'App' class instance from 'Main.py'
+
+Attributes/Variables:
+- master (App): App class from 'Main.py'
+- form (CTkFrame): Tkinter frame that contains all of the widgets for the form
+- formHeader (CTkFrame): Header of the form 
+- formheading (CTkLabel): Heading message for the form
+- formErrorMesage (CTkLabel): Label that indicates various errors that happened while submitting the form
+- formFieldsSection (CTkFrame): Section that contains labels and their corresponding entry widgets
+- formFields (Array): Array of objects that's used to create the label and entry widgets
+- formEntryList (Array): List of entry widgets for the registration form
+- formBtnsSection (CTkFrame): Container for the buttons of the form
+- clearFormBtn (CTkButton): Clear the form of any pre-existing input
+- confirmLoginBtn (CTkButton): Button that attempts to log the user in
+- openRegisterAccountBtn (CTkButton): Redirects the user to the userRegisterPage
+
+Methods: 
+- loginUser(self): Attempts to log the user in. If their credentials are valid, the user is directed to 
+	the userAccountPage. Else, the form will pop up with a message telling the user that their input is incorrect.
+'''
 class userLoginPage(ctk.CTkFrame):
 	def __init__(self, master):
 		super().__init__(master)
@@ -29,7 +54,7 @@ class userLoginPage(ctk.CTkFrame):
 				"toggleHidden": True,
 			}
 		]
-		# Create list of form entries to get input later
+		# Iteratively create the labels, entry widgets, and checboxes.
 		self.formEntryList = []
 		for x in range(len(formFields)):
 			label = ctk.CTkLabel(formFieldsSection, text=formFields[x].get("text"))
@@ -58,8 +83,15 @@ class userLoginPage(ctk.CTkFrame):
 		openRegisterAccountBtn.grid(row=0, column=1, padx=10, pady=10)
 		confirmLoginBtn.grid(row=0, column=2, padx=10, pady=10)
 		
-
-	## Attempts to log in a user
+	'''
+	- Attempts to log in a user
+	1. username (string): Inputted username
+	2. password (string): Inputted password
+	3. passwordHash (string): Password hash created from the user's inputted password
+	4. retrievedUser (User): If retrievedUser exists, then there is a User with the same username and 
+		password hash that was entered in onto the form. That means the inputted credentials were correct, so 
+		that's a successful login. Else, the username or the password was incorrect. 
+	'''
 	def loginUser(self):
 		# Check if input fields are empty
 		if (isEmptyEntryWidgets(self.formEntryList)):

@@ -2,7 +2,28 @@ import customtkinter as ctk
 import tkinter as tk
 from PIL import Image, ImageTk
 
-##### The user account or profile page#####
+'''
++ userAccountPage: Frame that represents the user's profile or account page. A page where the user can see all of 
+	their public account information such as their username, profile picture, etc.
+
+Constructor:
+- master: 'App' class instance from 'Main.py'
+
+Attributes/Variables:
+- master: 'App' class instance from 'Main.py'
+- innerPageFrame (CTkFrame): Container for all of the page's widgets
+- userImageSection (CTkFrame): Section that contains the user's image
+- avatarSourcePath (string): Path to the image folder from script's directory.
+- image: PIL image object
+- imageWidget (ImageTk): Tkinter widget that holds the image
+- ImageLabel (tk.Label): Label that displays the widget
+- userBtnsSection (CTkFrame): Container that holds all of the buttons for the page
+- openEditAvatarBtn (CTkButton): Button that redirects the user to the editAvatarPage
+- openEditAccountBtn (CTkButton): Button that redirects the user to the editAccountPage
+- confirmLogOutBtn (CTkButton): Button that logs out the user
+- userInfoSection (CTkFrame): Section that contains the labels that show the user's public information.
+- userInfoFields (array): Array that's used to create the labels that show the user's information.
+'''
 class userAccountPage(ctk.CTkFrame):
 	def __init__(self, master):
 		super().__init__(master)

@@ -4,6 +4,30 @@ import sys
 sys.path.append("..")
 from classes.utilities import clearEntryWidgets, isEmptyEntryWidgets, isValidPassword, toggleHidden
 
+'''
++ changePasswordPage: Page where the user can change the password of their account
+
+Attributes/Variables:
+- master (App): 'App' class instance from 'Main.py'  
+- form (CTkFrame): Frame that contains all form widgets
+- formHeader (CTkFrame): Header of the form
+- formHeading (CTkLabel): Heading label of the form
+- formErrorMessage (CTkLabel): Label that shows any errors that occurred with form submission
+- formFieldsSection (CTkFrame): Section that contains all form labels, entry widgets, etc.
+- formFields (Array): Array that helps create the labels, entry widgets, and check boxes in the form
+- formEntryList (Array): List of entry widgets that'll be used to obtain information from the form
+- label (CTkLabel): Label for the entry widget
+- entry (CTkEntry): Entry widget where user enters infomration
+- checkVar (StringVar): Variable that keeps track of the check box's state
+- visibilityCheckBox (CTkCheckBox): Check box that toggles the visibility of the entry widget
+- formBtnsSection (CTkFrame): Frame that contains all buttons for the form
+- clearFormBtn (CTkButton): Button that clears all input from the form
+- changePasswordBtn (CTkButton): Button that attempts to change the password of the user's account.
+	On success, it logs out the user.
+
+Methods
+
+'''
 
 ##### Page for changing passwords #####
 class changePasswordPage(ctk.CTkFrame):
@@ -22,13 +46,12 @@ class changePasswordPage(ctk.CTkFrame):
 		
 		# Create the input section with form fields 
 		formFieldsSection = ctk.CTkFrame(form)
-
 		formFields = [
 			"Old Password",
 			"New Password",
 			"Retype New Password",
 		]
-		# Create list of form entries to get input later
+		
 		# Then create and position label and entry widgets for form
 		self.formEntryList = []
 		for x in range(len(formFields)):
@@ -56,6 +79,19 @@ class changePasswordPage(ctk.CTkFrame):
 		clearFormBtn.grid(row=0, column=0, padx=10, pady=10)
 		changePasswordBtn.grid(row=0, column=1, padx=10, pady=10)
 
+
+	'''
+	- Changes the currently logged in user's password on their account. On success, it logs them out and redirects 
+		them to the userLoginPage to login again, now with their new password.
+	1. oldPassword (string): Form input representing the user's current password
+	2. oldPasswordHash (string): Password hash based on oldPassword
+	3. newPassword (string): Form input representing the user's new password, or the password they 
+		want to change to.
+	4. confirmNewPassword (string): Form input that should be the same as newPassword, as this is 
+		here to tell the user to retype newPassword to confirm that it is the password they want to change to.
+	5. retrievedUser (User): If this exists, there exists an account in the database where 
+		the username of the currently logged in user and the password that they entered match.
+	'''
 	def changePassword(self):
 		# Check if fields are empty
 		if (isEmptyEntryWidgets(self.formEntryList)):
@@ -77,7 +113,7 @@ class changePasswordPage(ctk.CTkFrame):
 			self.formErrorMessage.configure(text="Passwords must match!")
 			return
 		
-		# User can only delete the account they're currently signed in to.
+		# User can only change the password of the account that they're currently logged into.
 		# So query in the user's table for a matching username, and a matching password hash
 		retrievedUser = self.master.session.query(User).filter_by(username=self.master.loggedInUser.username, passwordHash=oldPasswordHash).first() #type: ignore
 		

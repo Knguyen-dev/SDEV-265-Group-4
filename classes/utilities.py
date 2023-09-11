@@ -3,13 +3,18 @@ from tkinter import END
 import customtkinter as ctk
 import re
 
-## Clears entry widgets of any input
+
+'''
+- Clears entry widgets of any input
+'''
 def clearEntryWidgets(entryWidgets):
     for entry in entryWidgets:
         entry.delete(0, END)
 
-## Toggles whether or not an entry widget's input is hidden, accepts a checkbox
-# Useful for hiding password input field and whatnot
+'''
+- Toggles whether or not an entry widget's input is hidden, accepts a checkbox. Currently used to hide the value 
+	in password entry fields
+'''
 def toggleHidden(entryWidget, checkVar):
 	# If it's checked, user wants to hide password
 	if checkVar.get() == "on":
@@ -17,7 +22,9 @@ def toggleHidden(entryWidget, checkVar):
 	else:
 		entryWidget.configure(show="")
 
-## strips the input of entry widget of trailing or leading whitespace
+'''
+- strips the input of entry widget of trailing or leading whitespace
+'''
 def stripEntryWidgets(entryWidgets):
 	strippedWidgets = []
 	for entry in entryWidgets:
@@ -27,7 +34,9 @@ def stripEntryWidgets(entryWidgets):
 		strippedWidgets.append(entry)
 	return strippedWidgets
 
-## Checks if any one of the entry widgets in the list entryWidgets has no input
+'''
+- Checks if any one of the entry widgets in the list entryWidgets has no input
+'''
 def isEmptyEntryWidgets(entryWidgets):
 	entryWidgets = stripEntryWidgets(entryWidgets) # strip for spaces 
 	for entry in entryWidgets:
@@ -35,6 +44,15 @@ def isEmptyEntryWidgets(entryWidgets):
 			return True
 	return False
 
+'''
+- Checks if email matches the regex pattern
+
+1. First bracket means it can be more than one alphanumeric synbol and underscore. Also accepts periods
+	and hypens.
+2. Second section checks if it has an @ symbol and then some letters behind it, as a domain name "@gmail" "@outlook"
+3. Lastly it checks a period so it checks things like ".com" or ".edu"
+
+'''
 def isValidEmail(email):
 	pattern = r'^[\w\.-]+@\w+\.\w+$'
 	return re.match(pattern, email) is not None
@@ -44,6 +62,7 @@ def isValidPassword(password):
 	pattern = r'^[\w!@#$%^&*(){}<>\,\~\+\~\-\.\[\]]{6,20}$'
 	return re.match(pattern, password)
 
+# Ensures username is valid
 def isValidUsername(username):
 	# An alphanumeric username that is 6 to 20 characters long, accepts underscores
 	pattern = r'^\w{6,20}$'
