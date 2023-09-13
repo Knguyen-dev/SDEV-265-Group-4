@@ -46,52 +46,50 @@ class AISettingsPage(ctk.CTkFrame):
 		formFields = [ # array of objects for the creation of the form sliders
 			{
 				"text": 'Temperature',
-				"lower": 1,
-				"upper": 10,
-				"value": 5,
+				"lower": 0,
+				"upper": 2,
+				"value": 0,
 			},
 			{
 				"text": 'Top P',
-				"lower": 1,
-				"upper": 10,
-				"value": 5,
-			},
-			{
-				"text": 'Top K',
-				"lower": 1,
-				"upper": 10,
-				"value": 5,
+				"lower": 0,
+				"upper": 1,
+				"value": 0,
 			},
 			{
 				"text": 'Presence Penalty',
-				"lower": 1,
-				"upper": 10,
-				"value": 5,
+				"lower": -2,
+				"upper": 2,
+				"value": 0,
 			},
 			{
 				"text": 'Frequency Penalty',
-				"lower": 1,
-				"upper": 10,
-				"value": 5,
+				"lower": -2,
+				"upper": 2,
+				"value": 0,
 			},
 		]
 
 		# Create form sliders and labels iteratively
 		for x in range(len(formFields)):
-			sliderVar = tk.IntVar() # tkinter variable to keep track and display a slider's value
-			sliderVar.set(formFields[x]["value"]) # set the starting value of the tkinter variable, and as a result the slider itself
 			sliderLabel = ctk.CTkLabel(formFieldsSection, text=formFields[x]["text"]) # label defining what a slider is for
-			sliderValueLabel = ctk.CTkLabel(formFieldsSection, textvariable=sliderVar) # label defining what value a slider is currently on
-			slider = ctk.CTkSlider(formFieldsSection, from_=formFields[x]["lower"], to=formFields[x]["upper"], variable=sliderVar) # tkinter slider widget
+			slider = tk.Scale(formFieldsSection, from_=formFields[x]["lower"], to=formFields[x]["upper"], resolution=0.01, orient="horizontal", bg="#D3D3D3", length=200)
 			sliderLabel.grid(row=x, column=0, padx=10, pady=10)
-			sliderValueLabel.grid(row=x, column=1, padx=10, pady=10)
-			slider.grid(row=x, column=2, padx=10, pady=10)
+			slider.grid(row=x, column=1, padx=10, pady=10)
 			self.formSlidersList.append(slider)
+
+		isStream = False
+		checkVar = ctk.BooleanVar()
+		checkVar.set(isStream)
+		streamLabel = ctk.CTkLabel(formFieldsSection, text="Stream")
+		self.streamCheckBox = ctk.CTkCheckBox(formFieldsSection, variable=checkVar, onvalue=True, offvalue=False, text="")
+		streamLabel.grid(row=len(formFields), column=0)
+		self.streamCheckBox.grid(row=len(formFields), column=1)
 
 		# Create the form buttons
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
 		restoreSettingsBtn = ctk.CTkButton(formBtnsSection, text="Restore Settings")
-		changeSettingsBtn = ctk.CTkButton(formBtnsSection, text="Confirm Changes")
+		changeSettingsBtn = ctk.CTkButton(formBtnsSection, text="Confirm Changes", command=self.changeAISettings)
 
 		# Structure the widgets on the page
 		form.pack(expand=True)		
@@ -111,4 +109,12 @@ class AISettingsPage(ctk.CTkFrame):
 
 	# Changes the settings of the AI chat bot
 	def changeAISettings(self):
-		pass
+		temperature = self.formSlidersList[0].get()
+		top_p = self.formSlidersList[1].get()
+		presence_penalty = self.formSlidersList[2].get()
+		frequency_penalty = self.formSlidersList[3].get()
+		is_stream = self.streamCheckBox.get()
+
+		# Then call the completion function on the ai chat bot
+
+		
