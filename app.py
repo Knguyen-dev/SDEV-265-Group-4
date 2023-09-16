@@ -17,11 +17,9 @@ def test_run(model: StoryGPT):
     :PARAMS:
         `model` - The AI model to get responses from. Can be a base model or a refined model.
     '''
-    model.setStoryMode("Write a story about society in the year 2050. It's the turn of the decade, and AI technology has grown beyond mere chatbots and image generators. For the first time ever, they have now been implemented sucessfully into humanoid robots. In the story, talk about the challenges to the builders and programmers, talk about the benefits they brought to that society in 2050, and talk about the average person's fears of them. Do not make this an informational piece or a documentary non-fiction. Make this a captivating fiction story book in first person following Jake, an AI programmer for the robots.", 2500, "J.R.R. Tolkien")
+    response = model.sendStoryPrompt("Write a story about society in the year 2050. It's the turn of the decade, and AI technology has grown beyond mere chatbots and image generators. For the first time ever, they have now been implemented sucessfully into humanoid robots. In the story, talk about the challenges to the builders and programmers, talk about the benefits they brought to that society in 2050, and talk about the average person's fears of them. Do not make this an informational piece or a documentary non-fiction. Make this a captivating fiction story book in first person following Jake, an AI programmer for the robots.", 2500, "J.R.R. Tolkien")
 
-    result = model.complete(stream=True)
-
-    for chunk in result:
+    for chunk in response:
         print(chunk, flush=True, end='')
 
 ########################################################################
@@ -40,7 +38,7 @@ def test_run(model: StoryGPT):
 #                              MAIN                                    #
 ########################################################################
 def main():
-    storyGPT = StoryGPT('gpt-3.5-turbo', systemPrompt)
+    storyGPT = StoryGPT()
     # storyGPT = ModelBase('gpt-3.5-turbo', prompt, systemPrompt)
 
     test_run(storyGPT)
