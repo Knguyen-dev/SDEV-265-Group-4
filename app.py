@@ -17,10 +17,76 @@ def test_run(model: StoryGPT):
     :PARAMS:
         `model` - The AI model to get responses from. Can be a base model or a refined model.
     '''
-    response = model.sendStoryPrompt("Write a story about society in the year 2050. It's the turn of the decade, and AI technology has grown beyond mere chatbots and image generators. For the first time ever, they have now been implemented sucessfully into humanoid robots. In the story, talk about the challenges to the builders and programmers, talk about the benefits they brought to that society in 2050, and talk about the average person's fears of them. Do not make this an informational piece or a documentary non-fiction. Make this a captivating fiction story book in first person following Jake, an AI programmer for the robots.", 2500, "J.R.R. Tolkien")
+    mode = input("""
+        
+        Choose a mode: 
+            Start a new story (new): Create a new story
+            Start a new remix (remix): Create a new remix
+            Stop: Close the application
 
-    for chunk in response:
-        print(chunk, flush=True, end='')
+        Story Mode > """) # Primer input
+    
+    mode = mode.lower() # convert all the test to lowercase
+
+    while mode != "stop": # loop until the user types "stop"
+        if mode == "new": # if the mode is a new story
+            topic = input("Please enter the topic of your story > ") # get the topic of the story
+            
+            while True:
+                try:
+                    length = int(input("Please enter the length of your story in words using integers > "))
+                except:
+                    print('Please enter only integers')
+                    continue
+
+                if length < 0:
+                    print('A story cannot have negative words, please reenter your length in positive integers only')
+                    continue
+                break
+            
+            style = input("Please enter the style of the story > ")
+
+            response = model.sendStoryPrompt(topic, length, style)
+
+        elif mode == "remix": # if the mode is remix
+            story = input("Please enter the story you would like to remix > ")
+
+            style = input("Please enter the style the story is written in (optional) > ")
+
+            response = model.sendRemixPrompt(story, style)
+
+        else: # input validation
+            print("Please choose a valid option \n")
+
+            mode = input("""
+        
+                Choose a mode: 
+                    Start a new story (new): Create a new story
+                    Start a new remix (remix): Create a new remix
+                    Stop: Close the application
+
+                Story Mode > """)
+            mode = mode.lower()
+            continue # skip over the rest of the code and restart the loop
+
+        print('\n\n')
+
+        # Print the response generation in real-time
+        for chunk in response:
+            # end has to equal an empty string to stop the print statement from printing every chunk on a new line
+            # flush has to equal True so that the print statement can print the characters in real time
+            print(chunk, end='', flush=True)
+
+        # take input again and make it lowercase
+        mode = input("""
+        
+            Choose a mode: 
+                Start a new story (new): Create a new story
+                Start a new remix (remix): Create a new remix
+                Stop: Close the application
+
+            Story Mode > """)
+        mode = mode.lower()
 
 ########################################################################
 #                            GUI                                       #
