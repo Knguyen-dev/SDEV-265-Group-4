@@ -4,7 +4,8 @@ import datetime # For creating a dynamic footer
 # Import sqlalchemy to do our operations
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
-
+# Import the AI model
+from ai import StoryGPT 
 
 ctk.set_appearance_mode("Light")  # Modes: "System" (standard), "Dark", "Light"
 
@@ -25,6 +26,7 @@ Attributes/Variables:
 
 Methods:
 - updateNavBtns(self): Adjusts the accessibility of the nav buttons based on their login state. 
+- disableNavBtns(self): Disables the nav buttons from being used
 '''
 class Header(ctk.CTkFrame):
 	def __init__(self, master):
@@ -75,6 +77,12 @@ class Header(ctk.CTkFrame):
 				button.configure(state="standard")
 			else:
 				button.configure(state="disabled")
+		
+	# Disables nav all nav buttons
+	def disableNavButtons(self):
+		for button in self.navBtns:
+			button.configure(state="disabled")
+
 
 
 '''
@@ -140,6 +148,9 @@ class App(ctk.CTk):
 		self.height = self.winfo_screenheight()
 		self.geometry(f"{self.width}x{self.height}")
 
+		# AI model class instance that's going to be used throughout the application
+		self.storyGPT = StoryGPT()
+
 		# Attribute to keep track of the current page
 		self.currentPage = None
 		self.loggedInUser = None 
@@ -162,8 +173,6 @@ class App(ctk.CTk):
 		# On load in, take user to the login screen
 		self.openPage("userLoginPage")
 
-
-	
 	'''
 	- Returns a class of a page (a tkinter frame) for the application 
 	1. module: Python module/file as an object.

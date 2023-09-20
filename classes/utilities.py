@@ -67,3 +67,19 @@ def isValidUsername(username):
 	# An alphanumeric username that is 6 to 20 characters long, accepts underscores
 	pattern = r'^\w{6,20}$'
 	return re.match(pattern, username) is not None
+
+# Converts message object to openai json message format 
+def convertMessageObjToJSON(messageObj):
+	messageJSON = {"role": "", "content": f"{messageObj.text}"}
+	if messageObj.isAISender:
+		messageJSON["role"] = "assistant"
+	else:
+		messageJSON["role"] = "user"
+	return messageJSON
+
+# Converts story object to openai json format
+def convertStoryObjToJSON(storyObj):
+	storyJSON = []
+	for messageObj in storyObj.messages:
+		storyJSON.append(convertMessageObjToJSON(messageObj))
+	return storyJSON

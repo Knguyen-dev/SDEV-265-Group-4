@@ -49,5 +49,8 @@ class homePage(ctk.CTkFrame):
 		self.master.isSavedStory = False #type: ignore
 		self.master.isRemixedStory = False #type: ignore
 
+		# Wipe the AI's knowledge of any previous story messages and stories.
+		self.master.storyGPT.clear()
+
 		# Redirect the user to the ai chat page
 		self.master.openPage("AIChatPage") #type: ignore

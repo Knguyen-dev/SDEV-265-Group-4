@@ -73,17 +73,17 @@ class remixStoryPage(ctk.CTkFrame):
 		self.master.isRemixedStory = True #type: ignore
 
 		# They are also starting a new chat, so we should remove all old unsaved story messages
+		# Also clear AI of any past knowledge, they should only know about the inputted story and its twist
 		self.master.unsavedStoryMessages = [] #type: ignore
+		self.master.storyGPT.clear()
 
-		# Get the text of the remix
-		userRemixMessage = Message(text=self.remixInput.get("1.0", "end-1c"), isAISender=False)
-	
-		# At this point we'd send the ai the text of the story being remixed
-		AIMessage = Message(text="Sample AI Remix Message", isAISender=True)
+		# Concatenate that messages of the story into one string, that represents the content of the selected story
+		storyText = ""
+		for messageObj in self.story.messages:
+			storyText += messageObj.text
 
-		# Put both of those messages into unsaved message 
-		self.master.unsavedStoryMessages.append(userRemixMessage) #type: ignore
-		self.master.unsavedStoryMessages.append(AIMessage) #type: ignore
+		# Get AI's response, which will be our generator object  
+		AIResponse = self.master.storyGPT.sendRemixPrompt(storyText, self.remixInput.get("1.0", "end-1c"))
 
 		# Redirect user to the ai chat page
-		self.master.openPage("AIChatPage") #type: ignore
+		self.master.openPage("AIChatPage", AIResponse) #type: ignore
