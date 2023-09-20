@@ -82,10 +82,7 @@ class ModelBase():
 
 			except KeyError: # The AI has stopped generating
 				yield "\n\n The End."
-
 				fullMessage.append("\n\nThe End.")
-
-			# print(fullMessage)
 
 			self.chat.append({"role": "assistant", "content": ''.join(fullMessage)})
 		else:
@@ -239,10 +236,7 @@ class StoryGPT(ModelBase):
 		'''
 		self.prompt = f"Topic: {topic}\nLength: {self.response_length} words\nStyle: {self.response_style}"
 		self.prompt += self.manager.inject()
-		print(self.prompt)
-
 		response = self.complete()
-
 		return response
 
 	def sendRemixPrompt(self, story: str, twist: str):
@@ -251,8 +245,5 @@ class StoryGPT(ModelBase):
 		'''
 		self.prompt = f'Remix this story: "{story}".\nThe twist for this remix: {twist}\nWrite the remix in this style: {self.response_style}'
 		self.prompt += self.manager.inject()
-		print(self.prompt)
-
 		response = self.complete()
-
 		return response
