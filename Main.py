@@ -1,4 +1,4 @@
-import customtkinter as ctk # custom tkinter gui librar  
+import customtkinter as ctk # custom tkinter gui library  
 import importlib # For importing pages 
 import datetime # For creating a dynamic footer 
 # Import sqlalchemy to do our operations
@@ -158,6 +158,9 @@ class App(ctk.CTk):
 		self.isSavedStory = False
 		self.isRemixedStory = False
 		self.unsavedStoryMessages = []
+
+
+		
 
 		# Engine and session constructor that we're going to use 
 		self.engine = create_engine("sqlite:///assets/PyProject.db", echo=True)

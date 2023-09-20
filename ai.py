@@ -82,7 +82,7 @@ class ModelBase():
 
 			except KeyError: # The AI has stopped generating
 				yield "\n\n The End."
-				fullMessage.append("\n\nThe End.")
+				# fullMessage.append("\n\nThe End.")
 
 			self.chat.append({"role": "assistant", "content": ''.join(fullMessage)})
 		else:
@@ -174,6 +174,19 @@ class ModelBase():
 		'''
 		self.chat = self.chat[:3]
 
+	def printChat(self):
+		for message in self.chat:
+			values = message.values()
+
+			if values[0] == "user":
+				print("user: ")
+			elif values[0] == "assistant":
+				print("assistant: ")
+			elif values[0] == "system":
+				print("System Prompt: ")
+			else:
+				print("Some Random Unknown Entity: ")
+
 class InstructionsManager:
 	'''
 	A class for managing rules for the AI to follow. Supports adding, removing, and injecting rules
@@ -243,7 +256,7 @@ class StoryGPT(ModelBase):
 		'''
 		Modifies the prompt to instruct ChatGPT to remix an existing story
 		'''
-		self.prompt = f'Remix this story: "{story}".\nThe twist for this remix: {twist}\nWrite the remix in this style: {self.response_style}'
+		self.prompt = f'Remix this story: "{story}".\nThe twist for this remix: {twist}\nWrite the remix in this style: {self.response_style}. Make it length {self.response_length} words long.'
 		self.prompt += self.manager.inject()
 		response = self.complete()
 		return response
