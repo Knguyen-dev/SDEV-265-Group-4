@@ -1,5 +1,7 @@
 import customtkinter as ctk
-
+import sys 
+sys.path.append("..")
+from classes.utilities import convertStoryObjToJSON
 
 '''
 + storyLibraryPage: Frame that represents the page wherre the user can see all of their saved stories.
@@ -84,6 +86,12 @@ class storyLibraryPage(ctk.CTkFrame):
 		self.master.isSavedStory = True #type: ignore
 		self.master.isRemixedStory = False #type: ignore
 
+		# Convert story into openai json format
+		storyJSON = convertStoryObjToJSON(story)
+
+		# Set AI's knowledge to the selected story's messages and info
+		self.master.storyGPT.populate(storyJSON)
+
 		# Reset unsaved messages since we are continuing a story (starting a new chat), and we don't want old messages 
 		self.master.unsavedStoryMessages = [] #type: ignore
 
@@ -96,20 +104,28 @@ class storyLibraryPage(ctk.CTkFrame):
 	- If currentStory == story, there are two cases:
 	1. The story that the user is deleting is the same saved story that they are continuing
 	2. The story that the user is deleting, is the story that they are currently remixing off of.
+
+	- Else, currentStory != story, so they're deleting a story that's unrelated 
+	to the story that they're current writing/continuing 
 	'''
 	def deleteSavedStory(self, story):
 		if self.master.currentStory == story: #type: ignore
 			# Reset currentStory since it's being deleted from database
 			self.master.currentStory = None #type: ignore
+
+			# Clear the AI's knowledge of the current story, since that's what we're deleting
+			self.master.storyGPT.clear()
+
+			# Reset unsaved messages since they're apart of the story that's being deleted
+			self.master.unsavedStoryMessages = [] #type: ignore
+
 			# 1
 			if self.master.isSavedStory: #type: ignore
 				self.master.isSavedStory = False #type: ignore
 			elif self.master.isRemixedStory: #type: ignore
 			# 2
 				self.master.isRemixedStory = False #type: ignore
-			# Reset unsaved messages since they're apart of the story that's being deleted
-			self.master.unsavedStoryMessages = [] #type: ignore
-		
+
 		# Delete story from database
 		self.master.session.delete(story) #type: ignore
 		self.master.session.commit() #type: ignore

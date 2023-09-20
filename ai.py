@@ -3,7 +3,7 @@ import openai
 from multipledispatch import dispatch
 from typing import Tuple, Dict, Optional, overload
 
-with open('api_key.txt', 'r') as f: # get the current API key from a file so OpenAI doesn't delete it
+with open('./assets/api_key.txt', 'r') as f: # get the current API key from a file so OpenAI doesn't delete it
 	openai.api_key = f.read()
 
 #### WILL BE USED LATER
@@ -227,14 +227,17 @@ class StoryGPT(ModelBase):
 
 		self.manager = InstructionsManager("You will only generate stories, and nothing else", "You will not talk to the user", "You will follow all requirements for story style, length, and topic")
 
-		# self.addMessageAt(prompt, 2, "user")
-		self.addMessageAt({"role": "user", "content": "hello"}, 4)
+		# Default response length and story writing style
+		self.response_length = 50
+		self.response_style = "None"
 
-	def sendStoryPrompt(self, topic: str, length: int = 75, style: str = "None"):
+		self.addMessageAt(prompt, 2, "user")
+
+	def sendStoryPrompt(self, topic: str):
 		'''
 		Modifies the prompt to instruct ChatGPT to create a story
 		'''
-		self.prompt = f"Topic: {topic}\nLength: {length} words\nStyle: {style}"
+		self.prompt = f"Topic: {topic}\nLength: {self.response_length} words\nStyle: {self.response_style}"
 		self.prompt += self.manager.inject()
 		print(self.prompt)
 
@@ -242,11 +245,11 @@ class StoryGPT(ModelBase):
 
 		return response
 
-	def sendRemixPrompt(self, story: str, style: str = "None"):
+	def sendRemixPrompt(self, story: str, twist: str):
 		'''
 		Modifies the prompt to instruct ChatGPT to remix an existing story
 		'''
-		self.prompt = f'Remix this story: "{story}"\nStyle: {style}'
+		self.prompt = f'Remix this story: "{story}".\nThe twist for this remix: {twist}\nWrite the remix in this style: {self.response_style}'
 		self.prompt += self.manager.inject()
 		print(self.prompt)
 
