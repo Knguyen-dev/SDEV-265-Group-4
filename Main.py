@@ -158,12 +158,10 @@ class App(ctk.CTk):
 		self.isSavedStory = False
 		self.isRemixedStory = False
 		self.unsavedStoryMessages = []
-
-
-		
+		self.storyGenObj = None
 
 		# Engine and session constructor that we're going to use 
-		self.engine = create_engine("sqlite:///assets/PyProject.db", echo=True)
+		self.engine = create_engine("sqlite:///assets/PyProject.db")
 		self.Session = sessionmaker(bind=self.engine)
 		self.session = self.Session()
 

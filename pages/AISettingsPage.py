@@ -66,7 +66,7 @@ class AISettingsPage(ctk.CTkFrame):
 			{
 				"text": 'Response Length (in words)',
 				"lower": 25,
-				"upper": 150,
+				"upper": 300,
 				"value": self.master.storyGPT.response_length,
 				"step": 1,
 			},
@@ -101,14 +101,6 @@ class AISettingsPage(ctk.CTkFrame):
 		# Insert/render the AI's current response/writing style 
 		self.responseStyleBox.insert("1.0", self.master.storyGPT.response_style)	
 
-		# Is stream checkbox
-		self.streamCheckVar = ctk.BooleanVar()
-		self.streamCheckVar.set(self.master.storyGPT.is_stream)
-		streamLabel = ctk.CTkLabel(formFieldsSection, text="Stream")
-		streamCheckBox = ctk.CTkCheckBox(formFieldsSection, variable=self.streamCheckVar, onvalue=True, offvalue=False, text="")
-		streamLabel.grid(row=len(formFields) + 1, column=0, pady=10)
-		streamCheckBox.grid(row=len(formFields) + 1, column=1, pady=10)
-
 		# Create the form buttons
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
 		restoreSettingsBtn = ctk.CTkButton(formBtnsSection, text="Restore Settings", command=self.restoreSettingsWidgets)
@@ -127,29 +119,24 @@ class AISettingsPage(ctk.CTkFrame):
 	# Restores the value of the sliders and checkboxes to represent what the AI chat bot is currently using.
 	def restoreSettingsWidgets(self):
 		# Set the variables of the sliders to the ai's current parameter values
-		self.sliderVarList[0].set(self.master.storyGPT.temperature)
-		self.sliderVarList[1].set(self.master.storyGPT.top_p)
-		self.sliderVarList[2].set(self.master.storyGPT.presence_penalty)
-		self.sliderVarList[3].set(self.master.storyGPT.frequency_penalty)
-		self.sliderVarList[4].set(self.master.storyGPT.response_length)
-				
-		# First clear the respnoseStyleBox, and then insert in the ai's current response style
+		self.sliderVarList[0].set(self.master.storyGPT.temperature) #type: ignore
+		self.sliderVarList[1].set(self.master.storyGPT.top_p) #type: ignore
+		self.sliderVarList[2].set(self.master.storyGPT.presence_penalty) #type: ignore
+		self.sliderVarList[3].set(self.master.storyGPT.frequency_penalty) #type: ignore
+		self.sliderVarList[4].set(self.master.storyGPT.response_length) #type: ignore
+		# First clear the responseStyleBox, and then insert in the ai's current response style
 		self.responseStyleBox.delete("1.0", "end-1c")		
-		self.responseStyleBox.insert("1.0", self.master.storyGPT.response_style)	
-
-		# Set the value of the stream check variable to the AI's stream value 
-		self.streamCheckVar.set(self.master.storyGPT.is_stream)
+		self.responseStyleBox.insert("1.0", self.master.storyGPT.response_style) #type: ignore
 
 
 	# Changes the settings of the AI chat bot
 	def changeAISettings(self):
 		# Change attributes of storyGPT using corresponding tkinter-related variables
-		self.master.storyGPT.temperature = self.sliderVarList[0].get()
-		self.master.storyGPT.top_p = self.sliderVarList[1].get()
-		self.master.storyGPT.presence_penalty = self.sliderVarList[2].get()
-		self.master.storyGPT.frequency_penalty = self.sliderVarList[3].get()
-		self.master.storyGPT.response_length = self.sliderVarList[4].get()
-		self.master.storyGPT.response_style = self.responseStyleBox.get("1.0", "end-1c")
-		self.master.storyGPT.is_stream = self.streamCheckVar.get()
+		self.master.storyGPT.temperature = self.sliderVarList[0].get() #type: ignore
+		self.master.storyGPT.top_p = self.sliderVarList[1].get() #type: ignore
+		self.master.storyGPT.presence_penalty = self.sliderVarList[2].get() #type: ignore
+		self.master.storyGPT.frequency_penalty = self.sliderVarList[3].get() #type: ignore
+		self.master.storyGPT.response_length = self.sliderVarList[4].get() #type: ignore
+		self.master.storyGPT.response_style = self.responseStyleBox.get("1.0", "end-1c") #type: ignore
 
 		

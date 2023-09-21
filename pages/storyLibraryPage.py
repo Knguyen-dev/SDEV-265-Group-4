@@ -73,7 +73,6 @@ class storyLibraryPage(ctk.CTkFrame):
 			continueSavedStoryBtn.grid(row=0, column=0, pady=5)
 			openRemixStoryBtn.grid(row=1, column=0, pady=5)
 			deleteSavedStoryBtn.grid(row=2, column=0, pady=5)
-
 			columnIndex += 1
 		
 	'''
@@ -90,7 +89,7 @@ class storyLibraryPage(ctk.CTkFrame):
 		storyJSON = convertStoryObjToJSON(story)
 
 		# Set AI's knowledge to the selected story's messages and info
-		self.master.storyGPT.populate(storyJSON)
+		self.master.storyGPT.populate(storyJSON) #type: ignore
 
 		# Reset unsaved messages since we are continuing a story (starting a new chat), and we don't want old messages 
 		self.master.unsavedStoryMessages = [] #type: ignore
@@ -114,7 +113,7 @@ class storyLibraryPage(ctk.CTkFrame):
 			self.master.currentStory = None #type: ignore
 
 			# Clear the AI's knowledge of the current story, since that's what we're deleting
-			self.master.storyGPT.clear()
+			self.master.storyGPT.clear() #type: ignore
 
 			# Reset unsaved messages since they're apart of the story that's being deleted
 			self.master.unsavedStoryMessages = [] #type: ignore
