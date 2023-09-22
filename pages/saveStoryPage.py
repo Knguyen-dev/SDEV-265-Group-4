@@ -116,10 +116,14 @@ class saveStoryPage(ctk.CTkFrame):
 		# Make the story that the user just saved to be the saved story that they're continuing
 		self.master.currentStory = newStory #type: ignore
 
-		# If the user was saving a remix, make sure the booleans indicate that the user is 
-		# currently continuing a saved story.
+		# After they save their new story, we want the user to be able to immediately continue it if needed
+		# So set isSavedStory to True, so that AIChatPage knows to render the messages of 'newStory'
+		self.master.isSavedStory = True #type: ignore
+
+		# If the user was saving a remix, make to indicate that they aren't remixing anymore since 
+		# their saving their remix. Now since isRemixedStory is false, we know 'currentStory' represents the 
+		# saved story that the user is currently writing instead of a story they're basing an unsaved remix off of.
 		if self.master.isRemixedStory: #type: ignore
-			self.master.isSavedStory = True #type: ignore
 			self.master.isRemixedStory = False #type: ignore 
 
 		# Redirect the user to the storyLibraryPage, which is where their new story should be

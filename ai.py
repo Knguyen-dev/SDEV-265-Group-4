@@ -2,6 +2,7 @@ import openai
 
 from multipledispatch import dispatch
 from typing import Tuple, Dict, Optional, overload
+from classes.utilities import add_testing_functions
 
 with open('./assets/api_key.txt', 'r') as f: # get the current API key from a file so OpenAI doesn't delete it
 	openai.api_key = f.read()
@@ -29,20 +30,34 @@ with open('./assets/api_key.txt', 'r') as f: # get the current API key from a fi
 	
 # vm = VariableManager()
 
+def logger(self, attributeName):
+	def decorator(func):
+		def wrapper(*args, **kwargs):
+			attributeValue = getattr(self, attributeName)
+			print(f"{attributeName}: {attributeValue}")
+			return func(*args, **kwargs)
+		return wrapper
+	return decorator
+
 class ModelBase():
 	'''
 	The base class for generating content. Supports full chat history management from creating and deleting chat entries to clearing and replacing the entire chat.
 	'''
 	def __init__(self, model: str, prompt: str, systemPrompt: str):
-		self.system = systemPrompt
+		self.systemPrompt = systemPrompt
 		self.prompt = prompt
 		self.engine = model
+		
+		# Default starting chat, that self.chat can we reset to if needed
+		self.startingChat = [
+			{"role": "system", "content": self.systemPrompt},
+			{"role": "assistant", "content": "Ok, I will be sure to carefully follow all your instructions as listed"},
+			{"role": "user", "content": self.prompt},			
+		]
 
 		# Chat History
-		self.chat = [
-			{"role": "system", "content": self.system},
-			{"role": "assistant", "content": "Ok, I will be sure to carefully follow all your instructions as listed"}
-		]
+		# NOTE: Using slicing notation to copy startingChat to chat in a way so that the lists are independent of each other. Modifying one shouldn't affect the other
+		self.chat = self.startingChat[:]
 
 		# Default AI Attributes/Parameters
 		self.temperature = 0.8
@@ -110,7 +125,6 @@ class ModelBase():
 		'''
 		if role in ("user", "assistant"):
 			formattedMessage = {"role": role, "content": message}
-
 			self.chat.insert(position, formattedMessage)
 		else:
 			print('Only use "user" and "assistant" when working with roles')
@@ -156,11 +170,16 @@ class ModelBase():
 		Populates an entire chat history with a list of predefined messages
 		`chatHistory` only takes in a list of OpenAI dictionary formats. EX: 
 		>>> {"role": "user", "content": "this is content"}
+
+		- chatHistory: An array of dictionaries, as this will represent the messages associated to a story object in JSON notation. 
+		- NOTE: chatHistory is just the messages of a story in JSON, and it's not going to have the starting messages in 'self.startingChat' because 
+			those aren't related to the user's story but more so the developer side. As a result, whenever we load in the story content in JSON, we make sure 
+			to make it so self.chat also contains messages in the self.startingChat.
 		'''
 		if isinstance(chatHistory, list):
 			try:
 				if isinstance(chatHistory[0], dict):
-					self.chat = chatHistory
+					self.chat = self.startingChat + chatHistory
 				else:
 					print('you have a list created and it\'s populated, but you don\'t have elements of the dictionary type inside')
 			except:
@@ -170,22 +189,13 @@ class ModelBase():
 
 	def clear(self):
 		'''
-		Wipes the entire chat history except for the system prompt and the starting prompt
+		Wipes the entire chat history, and resets it to the startingChat so that the AI is ready to write stories properly
 		'''
-		self.chat = self.chat[:3]
+		self.chat = self.startingChat[:]
 
 	def printChat(self):
 		for message in self.chat:
-			values = message.values()
-
-			if values[0] == "user":
-				print("user: ")
-			elif values[0] == "assistant":
-				print("assistant: ")
-			elif values[0] == "system":
-				print("System Prompt: ")
-			else:
-				print("Some Random Unknown Entity: ")
+			print(f"{message['role']}: {message['content']}")
 
 class InstructionsManager:
 	'''
@@ -226,6 +236,7 @@ class InstructionsManager:
 		'''
 		return "\n\n" + "\n".join([rule for rule in self.ruleList]) + "\n"
 
+@add_testing_functions # allow outside modification of class methods without cluttering up the class here (used for testing only)
 class StoryGPT(ModelBase):
 	'''
 	The main class for story generation and remixing. This class inherits from the `ModelBase` class.
@@ -240,8 +251,6 @@ class StoryGPT(ModelBase):
 		# Default response length and story writing style
 		self.response_length = 50
 		self.response_style = "None"
-
-		self.addMessageAt(prompt, 2, "user")
 
 	def sendStoryPrompt(self, topic: str):
 		'''

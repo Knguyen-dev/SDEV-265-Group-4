@@ -224,6 +224,10 @@ class App(ctk.CTk):
 		self.isSavedStory = False
 		self.isRemixedStory = False
 
+		# Clear AI knowledge of any stories the user is currently writing, if any, which prevents the user from logging back in and getting unexpected output
+		# NOTE: More specifically when they login and 'continue' an unsaved story, it prevents AI from having knowledge of an interaction from another user or session.
+		self.storyGPT.clear()
+
 		# Redirect the user to the login page
 		self.openPage("userLoginPage")
 
