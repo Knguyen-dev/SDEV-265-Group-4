@@ -1,3 +1,4 @@
+import time
 import customtkinter as ctk
 import sys
 sys.path.append("..")
@@ -138,28 +139,27 @@ class AIChatPage(ctk.CTkFrame):
 		messageObj = Message(text="", isAISender=True) 
 		chunkIndex = 0
 
+		# Insert two newlines so that there's a space between the user's message and 
+		# the ai's message 
+
+		self.chatBox.insert("end", "\n\nStoryBot: ")
 		# Iterate through chunks to render and process them
 		for chunk in self.master.storyGenObj: #type: ignore
-			'''
-			- Output Cases:
-			1. First message in chat (chat is empty), and we're rendering the first chunk/part of the message
-			2. First message in chat, but we aren't rendering the first chunk of said message
-			3. Not the first message in chat, but we are rendering the first chunk
-			4. Not the first message in chat, and it isn't the first chunk
-			'''
-			if self.chatBox.get("1.0", "end-1c") == "":
-				if chunkIndex == 0: #type: ignore
-					self.chatBox.insert("1.0", f"StoryBot: {chunk}")
-				else:
-					self.chatBox.insert("end-1c", chunk)
+			if any(chunk.endswith(char) for char in ['.', '?', '!']):
+				punct_marks = ['.', '?', '!']
+				for mark in punct_marks:
+					if chunk.endswith(f'{mark}'):
+						self.chatBox.insert('end', f"{mark}" + " ")
+				self.chatBox.update()
+				time.sleep(0.03)
 			else:
-				if chunkIndex == 0: #type: ignore
-					self.chatBox.insert("end-1c", "\n\n" + f"StoryBot: {chunk}")
-				else:
-					self.chatBox.insert("end-1c", chunk)
+				self.chatBox.insert('end', chunk)
+				self.chatBox.update()
+
 			# add the chunk onto the message object's text since we want to keep track of this message; then increment chunkIndex
 			messageObj.text += chunk
 			chunkIndex += 1
+			time.sleep(0.03)
 			
 
 		# AI response processing is done, so append message object and variables related to processing a message
