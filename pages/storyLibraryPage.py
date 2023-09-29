@@ -75,10 +75,11 @@ class storyLibraryPage(ctk.CTkFrame):
 			deleteSavedStoryBtn.grid(row=2, column=0, pady=5)
 			columnIndex += 1
 		
-	'''
-	- Let the user continue a saved story and takes them to the AIChatPage
-	'''
+	
 	def continueSavedStory(self, story):
+		'''
+		- Let the user continue a saved story and takes them to the AIChatPage
+		'''
 		# Update the currentStory that we are currently continuing 
 		# And set booleans to indicate that currentStory is a saved story, rather than a story we're remixing from
 		self.master.currentStory = story #type: ignore
@@ -98,16 +99,17 @@ class storyLibraryPage(ctk.CTkFrame):
 		self.master.openPage("AIChatPage") #type: ignore
 
 
-	'''
-	- Deletes a story from the user's library
-	- If currentStory == story, there are two cases:
-	1. The story that the user is deleting is the same saved story that they are continuing
-	2. The story that the user is deleting, is the story that they are currently remixing off of.
-
-	- Else, currentStory != story, so they're deleting a story that's unrelated 
-	to the story that they're current writing/continuing 
-	'''
+	
 	def deleteSavedStory(self, story):
+		'''
+		- Deletes a story from the user's library
+		- If currentStory == story, there are two cases:
+		1. The story that the user is deleting is the same saved story that they are continuing
+		2. The story that the user is deleting, is the story that they are currently remixing off of.
+
+		- Else, currentStory != story, so they're deleting a story that's unrelated 
+		to the story that they're current writing/continuing 
+		'''
 		if self.master.currentStory == story: #type: ignore
 			# Reset currentStory since it's being deleted from database
 			self.master.currentStory = None #type: ignore

@@ -24,7 +24,7 @@ Attributes/Variables:
 - sendChatBtn (CTkButton): Button that sends the chat to the AI.
 
 Methods:
-- sendUserChat(self): Sends a user chat message to the AI and gets its response.
+- processUserChat(self): Sends a user chat message to the AI and gets its response.
 - renderChat(self, messageObj): Renders message text onto the screen given a messgae object.
 '''
 class AIChatPage(ctk.CTkFrame):
@@ -44,7 +44,7 @@ class AIChatPage(ctk.CTkFrame):
 		chatInputSection = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
 		self.chatEntry = ctk.CTkEntry(chatInputSection, width=300, placeholder_text="Send a message e.g. 'Once upon a time...'")
 		self.openSaveStoryBtn = ctk.CTkButton(chatInputSection, text="Save Story", command=lambda: self.master.openPage("saveStoryPage")) #type: ignore
-		self.sendChatBtn = ctk.CTkButton(chatInputSection, text="Send", command=self.sendUserChat)
+		self.sendChatBtn = ctk.CTkButton(chatInputSection, text="Send", command=self.processUserChat)
 		
 		# Structure and style widgets accordingly
 		header.grid(row=0, column=0, pady=10)
@@ -86,12 +86,13 @@ class AIChatPage(ctk.CTkFrame):
 			self.processAIChat()
 
 
-	'''
-	- Renders messageObj as chat messages on the screen
-	- NOTE: Only good for rendering saved, unsaved, and user chats because those are easily in message object form.
-		For rendering AI's response, it's a generator so use processAIChat(self).
-	'''
+	
 	def renderChatMessageObj(self, messageObj):
+		'''
+		- Renders messageObj as chat messages on the screen
+		- NOTE: Only good for rendering saved, unsaved, and user chats because those are easily in message object form.
+			For rendering AI's response, it's a generator so use processAIChat(self).
+		'''
 		# Chat window is read and write now
 		self.chatBox.configure(state="normal")
 		messageText = messageObj.text
@@ -113,15 +114,16 @@ class AIChatPage(ctk.CTkFrame):
 		self.chatBox.configure(state="disabled")
 
 
-	'''
-	- Handles the proces of processing the AI's generated chat.
-	1. Enable and disable certain parts of the UI, preventing the user from sending another 
-		message to the AI until the first one is finished. Also prevent the user from being 
-		able to redirect themselves to other pages, so that they don't lose their AI generated message.
-	2. Renders chunks of the messages as they're being obtained from openai. 
-	3. Save the ai's generated message to unsavedStoryMessages so that we can keep track of it
-	'''
+	
 	def processAIChat(self):
+		'''
+		- Handles the proces of processing the AI's generated chat.
+		1. Enable and disable certain parts of the UI, preventing the user from sending another 
+			message to the AI until the first one is finished. Also prevent the user from being 
+			able to redirect themselves to other pages, so that they don't lose their AI generated message.
+		2. Renders chunks of the messages as they're being obtained from openai. 
+		3. Save the ai's generated message to unsavedStoryMessages so that we can keep track of it
+		'''
 		# Disable send chat button as user can't send another chat until the ai is finished
 		self.sendChatBtn.configure(state="disabled")		
 
@@ -139,9 +141,7 @@ class AIChatPage(ctk.CTkFrame):
 		messageObj = Message(text="", isAISender=True) 
 		chunkIndex = 0
 
-		# Insert two newlines so that there's a space between the user's message and 
-		# the ai's message 
-
+		# Insert two newlines so that there's a space between the user's message and the ai's message 
 		self.chatBox.insert("end", "\n\nStoryBot: ")
 		# Iterate through chunks to render and process them
 		for chunk in self.master.storyGenObj: #type: ignore
@@ -150,18 +150,17 @@ class AIChatPage(ctk.CTkFrame):
 				for mark in punct_marks:
 					if chunk.endswith(f'{mark}'):
 						self.chatBox.insert('end', f"{mark}" + " ")
-				self.chatBox.update()
-				time.sleep(0.03)
 			else:
 				self.chatBox.insert('end', chunk)
-				self.chatBox.update()
+				
+			# For smooth rendering
+			self.chatBox.update()
+			time.sleep(0.03)
 
 			# add the chunk onto the message object's text since we want to keep track of this message; then increment chunkIndex
 			messageObj.text += chunk
 			chunkIndex += 1
-			time.sleep(0.03)
 			
-
 		# AI response processing is done, so append message object and variables related to processing a message
 		self.master.unsavedStoryMessages.append(messageObj) #type: ignore
 		self.master.storyGenObj = None #type: ignore
@@ -180,12 +179,18 @@ class AIChatPage(ctk.CTkFrame):
 		
 
 
-	'''
-	- Sends the user chat message to the ai, for the ai to respond, then goes to render both of those chat messages
-	1. userMessage (Message): Message object containing text that the user sent
-	2. AIMessage (Message): Message object containing text that the AI generated in response to the user
-	'''
-	def sendUserChat(self):
+	
+	def processUserChat(self):
+		'''
+		- Sends the user chat message to the ai, for the ai to respond, then goes to render both of those chat messages
+		1. userMessage (Message): Message object containing text that the user sent
+		2. AIResponse (Generator): Generator object containing text that the AI generated in response to the user
+		'''
+		# Check if user actually sent something
+		if (self.chatEntry.get().strip() == ""):
+			self.pageStatusMessage.configure(text="Please enter text before trying to send a message!")
+			return
+
 		# Process and render the user's message
 		userMessage = Message(text=self.chatEntry.get(), isAISender=False)
 		self.renderChatMessageObj(userMessage)
@@ -193,7 +198,7 @@ class AIChatPage(ctk.CTkFrame):
 		
 		# Clear entry widget when user sends a message
 		self.chatEntry.delete(0, "end")
-				
+			
 		AIResponse = self.master.storyGPT.sendStoryPrompt(userMessage.text) #type: ignore
 		self.master.storyGenObj = AIResponse # type: ignore 
 

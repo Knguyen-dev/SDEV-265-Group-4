@@ -37,6 +37,8 @@ class remixStoryPage(ctk.CTkFrame):
 		formHeading = ctk.CTkLabel(formHeader, text="Remix A Story", font=("Helvetica", 32))
 		subHeading = ctk.CTkLabel(formHeader, text=f"Currently Remixing '{story.storyTitle}'!", wraplength=200)
 
+		self.formErrorMessage = ctk.CTkLabel(formHeader, text="")
+
 		formFieldsSection = ctk.CTkFrame(form)
 		remixLabel = ctk.CTkLabel(formFieldsSection, text="Enter your twist on this story!", wraplength=100)
 		self.remixInput = ctk.CTkTextbox(formFieldsSection)
@@ -49,6 +51,7 @@ class remixStoryPage(ctk.CTkFrame):
 		formHeader.grid(row=0, column=0, pady=10, padx=50)
 		formHeading.grid(row=0, column=0)
 		subHeading.grid(row=1, column=0)
+		self.formErrorMessage.grid(row=2, column=0)
 		formFieldsSection.grid(row=1, column=0, pady=10)
 		remixLabel.grid(row=0, column=0, pady=10)
 		self.remixInput.grid(row=1, column=0, pady=10)
@@ -57,13 +60,19 @@ class remixStoryPage(ctk.CTkFrame):
 		remixStoryBtn.grid(row=0, column=1, padx=10)
 
 
-	'''
-	- Remixes a story using an existing story and user's input.
-	1. userRemixMessage (Message): Message object representing the text that the user entered
-	2. AIMessage (Message): Message object representing the text that the AI generated in reply
-		to the user.
-	'''
+	
 	def remixStory(self):
+		'''
+		- Remixes a story using an existing story and user's input.
+		1. userRemixMessage (Message): Message object representing the text that the user entered
+		2. AIMessage (Message): Message object representing the text that the AI generated in reply
+			to the user.
+		'''
+		# Check if user entered text for remixing
+		if self.remixInput.get("1.0", "end-1c").strip() == "":
+			self.formErrorMessage.configure(text="Please at least enter text for the remix!")
+			return
+
 		# If the user is remixing a story, they're choosing not to continue writing on a saved story 
 		self.master.currentStory = self.story #type: ignore 
 

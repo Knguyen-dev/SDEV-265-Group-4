@@ -75,10 +75,11 @@ class saveStoryPage(ctk.CTkFrame):
 			clearFormBtn.grid(row=0, column=0, padx=10)
 			saveNewStoryBtn.grid(row=0, column=1, padx=10)	
 
-	'''
-	- Updates or saves changes to an existing story and redirects user to the library page
-	'''
+	
 	def updateExistingStory(self):
+		'''
+		- Updates or saves changes to an existing story and redirects user to the library page
+		'''
 		# Put all of those unsaved messages into the saved story and save it to the database
 		for unsavedMessage in self.master.unsavedStoryMessages: #type: ignore 
 			self.master.currentStory.messages.append(unsavedMessage) #type: ignore
@@ -91,10 +92,11 @@ class saveStoryPage(ctk.CTkFrame):
 		self.master.openPage("storyLibraryPage") #type: ignore
 	
 
-	'''
-	- Saves a completely new story to the user's library; then redirects the user to the story library page
-	'''
+	
 	def saveNewStory(self):
+		'''
+		- Saves a completely new story to the user's library; then redirects the user to the story library page
+		'''
 		# Check if fields are empty, put the entry widget in an array so that the function works
 		if (isEmptyEntryWidgets([self.storyTitleEntry])):
 			self.formErrorMessage.configure(text="Some fields are empty!")

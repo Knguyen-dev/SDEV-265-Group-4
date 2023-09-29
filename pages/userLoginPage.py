@@ -83,16 +83,17 @@ class userLoginPage(ctk.CTkFrame):
 		openRegisterAccountBtn.grid(row=0, column=1, padx=10, pady=10)
 		confirmLoginBtn.grid(row=0, column=2, padx=10, pady=10)
 		
-	'''
-	- Attempts to log in a user
-	1. username (string): Inputted username
-	2. password (string): Inputted password
-	3. passwordHash (string): Password hash created from the user's inputted password
-	4. retrievedUser (User): If retrievedUser exists, then there is a User with the same username and 
-		password hash that was entered in onto the form. That means the inputted credentials were correct, so 
-		that's a successful login. Else, the username or the password was incorrect. 
-	'''
+	
 	def loginUser(self):
+		'''
+		- Attempts to log in a user
+		1. username (string): Inputted username
+		2. password (string): Inputted password
+		3. passwordHash (string): Password hash created from the user's inputted password
+		4. retrievedUser (User): If retrievedUser exists, then there is a User with the same username and 
+			password hash that was entered in onto the form. That means the inputted credentials were correct, so 
+			that's a successful login. Else, the username or the password was incorrect. 
+		'''
 		# Check if input fields are empty
 		if (isEmptyEntryWidgets(self.formEntryList)):
 			self.formErrorMessage.configure(text="Some fields are empty!")
