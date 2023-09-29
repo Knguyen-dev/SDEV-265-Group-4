@@ -1,11 +1,7 @@
 import unittest
-import re
-
-
-def isValidPassword(password):
-	# 6-20 characters, numbers, letters, symbols: _!@#$%^&*(){}<>,+~-.[]
-	pattern = r'^[\w!@#$%^&*(){}<>\,\+\~\-\.\[\]]{6,20}$'
-	return re.match(pattern, password)
+import sys
+sys.path.append("..")
+from classes.utilities import isValidPassword
 
 class TestIsValidPassword(unittest.TestCase):
 
