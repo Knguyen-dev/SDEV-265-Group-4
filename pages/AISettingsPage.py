@@ -65,7 +65,7 @@ class AISettingsPage(ctk.CTkFrame):
 			},
 			{
 				"text": 'Response Length (in words)',
-				"lower": 25,
+				"lower": 50,
 				"upper": 300,
 				"value": self.master.storyGPT.response_length,
 				"step": 1,
