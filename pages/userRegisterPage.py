@@ -101,20 +101,21 @@ class userRegisterPage(ctk.CTkFrame):
 		openLoginBtn.grid(row=0, column=1, padx=10, pady=10)
 		confirmRegisterBtn.grid(row=0, column=2, padx=10, pady=10)
 
-	'''
-	- Registers a user in the database. If the form is valid, the user is added and redirected to the login page. Else 
-		the form will show an error message telling the user which part of their form is wrong.
-	1. email (string): Value representing the email that the user entered.
-	2. username (string): The value the user representing the username field.
-	3. firstName (string): The value the user representing the first mame field.
-	4. lastName (string): The value the user representing the last name field.
-	5. password (string): The value the user representing the password field.
-	6. confirmPassword (string): The value the user entered for the confirm password field.
-	7. retrievedUser (User): If retrievedUser exists, the username that was entered into the form is already owned
-		by a user in the database. 
-	8. newUser (User): User object with attribute values from the form that is going to be added into the database
-	'''
+	
 	def registerUser(self):
+		'''
+		- Registers a user in the database. If the form is valid, the user is added and redirected to the login page. Else 
+			the form will show an error message telling the user which part of their form is wrong.
+		1. email (string): Value representing the email that the user entered.
+		2. username (string): The value the user representing the username field.
+		3. firstName (string): The value the user representing the first mame field.
+		4. lastName (string): The value the user representing the last name field.
+		5. password (string): The value the user representing the password field.
+		6. confirmPassword (string): The value the user entered for the confirm password field.
+		7. retrievedUser (User): If retrievedUser exists, the username that was entered into the form is already owned
+			by a user in the database. 
+		8. newUser (User): User object with attribute values from the form that is going to be added into the database
+		'''
 		# Check if any fields are empty before moving on
 		if isEmptyEntryWidgets(self.formEntryList):
 			self.formErrorMessage.configure(text="Some fields are empty!")

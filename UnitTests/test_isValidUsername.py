@@ -1,9 +1,7 @@
 import unittest
-import re
-def isValidUsername(username):
-	# An alphanumeric username that is 6 to 20 characters long, accepts underscores
-	pattern = r'^\w{6,20}$'
-	return re.match(pattern, username) is not None
+import sys
+sys.path.append("..")
+from classes.utilities import isValidUsername
 
 class TestIsValidUsername(unittest.TestCase):
 	def testValidUsernames(self):  
