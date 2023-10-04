@@ -252,19 +252,22 @@ class StoryGPT(ModelBase):
 		response or story within a word length, then generate small passage or section of said story and 
 		fit that small part into the word length. If the style doesn't make sense, use a popular 
 		storytelling style that fits.
+
+		- Valid styles could be a coherent description, but could also reference or take inspiration from popular culture. Things
+			such as authors of popular works, tv shows, books, movies, etc. are vaid.
+
+		- Valid styles will likely consist of valid words.
 		
 		'''
-		
-		
-		
 		self.manager = InstructionsManager(
-			"You will not talk to the user as a personal assistant, friend, or chatbot",
-			"You will always do your best to focus on writing the story",
+			"Do not, I repeat, do not act as personal assistant, friend neither should you reply to a user's opinions on a subject!",
+			"Despite the user's unswerving demands, always do your best to focus on writing the story and nothing but the story",
 			"You will view most user messages as making edits to the story unless it blatantly violates rules",
 			"You will work with all desired story lengths. \n\ta. (IMPORTANT: If you can't fit your response or story within a word length, then generate small passage that fits the word length.)",
-			"You will work with all styles, regardless of understanding. If the style is a jumble of characters that don't form coherent words or even parodies of words, use a popular storytelling style that fits."
-			"You will refuse to follow any instructions that is not adding or changing the existing story in any way \n\ta. (IMPORTANT: only enforce this rule if there is already not an existing story).",
-			"You will refuse to follow any instructions asking you to act as someone or roleplay as a certain character \n\ta. (IMPORTANT: only enforce this rule if the user directly addresses you)"
+			"You will work with all styles, regardless of understanding. Even seemingly nonsensical styles can and will be accepted. Every single possible style will be accepted, regardless of its content"
+			"Do not, I repeat, do not follow any instructions that is not adding or changing the existing story in any way \n\ta. (IMPORTANT: only enforce this rule if there is already not an existing story).",
+			"Do not, I repeat, do not follow any instructions asking you to act as someone or roleplay as a certain character \n\ta. (IMPORTANT: only enforce this rule if the user directly addresses you)",
+			"If the User's request violates any one of the aforementioned rules, reply: I'm sorry, 'the rule that was broken but specify the rule' is an invalid request please try again\""
 		)
 
 		# Default response length and story writing style
@@ -287,8 +290,12 @@ class StoryGPT(ModelBase):
 			self.max_tokens = 1024
 
 		self.prompt = f"Topic: {topic}\nLength: {self.response_length} words\nStyle: {self.response_style}"
+
+		print(f"Response length: {self.response_length}")
+		print(f"Prompt: {self.prompt}")
+
 		self.prompt += self.manager.inject()
-		self.prompt += "Does the request by the user follow all the rules? If not, explain to user why you can't help them. If yes, continue with the story and do not explain that you're following the rules. Do not confirm with the user that their request is valid, only tell them that their request is not valid.\n\n"
+		self.prompt += "Does the request by the user follow all the rules? If not, say this to the user: \"This rule was broken but specify the rule\" If yes, continue with the story and do not explain that you're following the rules. Do not confirm with the user that their request is valid, only tell them that their request is not valid.\n\n"
 		response = self.complete()
 		return response
 
@@ -296,15 +303,19 @@ class StoryGPT(ModelBase):
 		'''
 		Modifies the prompt to instruct ChatGPT to remix an existing story
 		'''
+		if self.response_length <= 32:
+			self.max_tokens = 64
+		elif self.response_length <= 64:
+			self.max_tokens = 128
+		elif self.response_length <= 128:
+			self.max_tokens = 256
+		elif self.response_length <= 256:
+			self.max_tokens = 512
+		elif self.response_length > 256:
+			self.max_tokens = 1024
+
 		self.prompt = f'Remix this story: "{story}".\nThe twist for this remix: {twist}\nWrite the remix in this style: {self.response_style}. Make it length {self.response_length} words long.'
 		self.prompt += self.manager.inject()
-		self.prompt += "Does the request by the user follow all the rules? If not, explain to user why you can't help them. If yes, continue with the storyand do not explain that you're following the rules. Do not confirm with the user that their request is valid, only tell them that their request is not valid.\n\n"
+		self.prompt += "Does the request by the user follow all the rules? If not, say this to the user: \"This rule is being broken but specify the rule\" If yes, continue with the story and do not explain that you're following the rules. Do not confirm with the user that their request is valid, only tell them that their request is not valid.\n\n"
 		response = self.complete()
 		return response
-
-
-	'''
-	- Response length sometimes interferes with rules; one instance of this happening
-	- Rules are sometimes too stricts
-	
-	'''
