@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from ai import StoryGPT 
 
 # importing user so we don't have to log in everytime for testing
-from classes.models import User
+# from classes.models import User
 
 
 ctk.set_appearance_mode("Light")  # Modes: "System" (standard), "Dark", "Light"
@@ -170,7 +170,7 @@ class App(ctk.CTk):
 		self.session = self.Session()
 
 		# Log in a knguyen44 for developing purposes, no need to login everytime
-		self.loggedInUser = self.session.query(User).filter_by(username="knguyen44").first()
+		# self.loggedInUser = self.session.query(User).filter_by(username="knguyen44").first()
 
 
 		# Call function to create navbar
@@ -180,7 +180,7 @@ class App(ctk.CTk):
 		footer.pack(fill="x", side="bottom")
 
 		# On load in, direct to AIChatPage for development puropsees with the prompt engineering
-		self.openPage("AIChatPage")
+		self.openPage("userLoginPage")
 
 	'''
 	- Returns a class of a page (a tkinter frame) for the application 
