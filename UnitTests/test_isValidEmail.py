@@ -1,9 +1,7 @@
 import unittest
-import re
-
-def isValidEmail(email):
-	pattern = r'^[\w\.-]+@\w+\.\w+$'
-	return re.match(pattern, email) is not None
+import sys
+sys.path.append("..")
+from classes.utilities import isValidEmail
 
 class TestIsValidEmail(unittest.TestCase):
 	

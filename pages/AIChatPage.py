@@ -1,3 +1,4 @@
+import time
 import customtkinter as ctk
 import sys
 sys.path.append("..")
@@ -9,13 +10,6 @@ from classes.models import Message
 
 Attributes/Variables:
 - master (App): 'App' class instance from 'Main.py' 
-- remixGenObj: Generator object returned from AI that was passed from remixStoryPage.
-	If it exists, the user is remixing a story, and this generator will output the AI's response, which 
-	will be the first message in the user's remix. After it's used to generate the first message, we discard it, 
-	and if the user goes to a different page, and then returns to continue the remix, remixGenObj should be None, but 
-	the application will still correctly know that the user is remixing a story. 
-
-
 - innerPageFrame (CTkFrame): Page frame that contains all of the widgets for the page and is used to center it
 - header (CTkFrame): Header of the page frame
 - heading (CTkLabel): Heading message
@@ -30,11 +24,11 @@ Attributes/Variables:
 - sendChatBtn (CTkButton): Button that sends the chat to the AI.
 
 Methods:
-- sendUserChat(self): Sends a user chat message to the AI and gets its response.
+- processUserChat(self): Sends a user chat message to the AI and gets its response.
 - renderChat(self, messageObj): Renders message text onto the screen given a messgae object.
 '''
 class AIChatPage(ctk.CTkFrame):
-	def __init__(self, master, remixGenObj = None):
+	def __init__(self, master):
 		super().__init__(master)
 		self.master = master
 		innerPageFrame = ctk.CTkFrame(self)
@@ -44,13 +38,13 @@ class AIChatPage(ctk.CTkFrame):
 		storyStateMessage = ctk.CTkLabel(header, text="")
 		self.pageStatusMessage = ctk.CTkLabel(header, text="StoryBot is currently waiting for your input.")
 		
-		self.chatBox = ctk.CTkTextbox(innerPageFrame, state="disabled", width=500, height=250)
+		self.chatBox = ctk.CTkTextbox(innerPageFrame, state="disabled", wrap="word", width=500, height=250)
 
 		# Section with all of the input options the user has for the AIChatPage
 		chatInputSection = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
 		self.chatEntry = ctk.CTkEntry(chatInputSection, width=300, placeholder_text="Send a message e.g. 'Once upon a time...'")
 		self.openSaveStoryBtn = ctk.CTkButton(chatInputSection, text="Save Story", command=lambda: self.master.openPage("saveStoryPage")) #type: ignore
-		self.sendChatBtn = ctk.CTkButton(chatInputSection, text="Send", command=self.sendUserChat)
+		self.sendChatBtn = ctk.CTkButton(chatInputSection, text="Send", command=self.processUserChat)
 		
 		# Structure and style widgets accordingly
 		header.grid(row=0, column=0, pady=10)
@@ -65,10 +59,9 @@ class AIChatPage(ctk.CTkFrame):
 
 		'''
 		- Cases for the initial state:
-
 		1. User is continuing a saved story
-		2. Using is currently writing a remixed story, it's unsaved. If remixGenObj, then the AI would be 
-			generating the remix, which would be the first message of the chat.
+		2. Using is currently writing a remixed story, it's unsaved. If storyGenObj is detected with the constructor's logic then 
+			we're rendering the AI's first response to a user's remixed story, which would be the first message of the chat.
 		3. Using is continuing an unsaved story that isn't a remix.
 		'''
 		if self.master.isSavedStory: #type: ignore
@@ -77,13 +70,7 @@ class AIChatPage(ctk.CTkFrame):
 				self.renderChatMessageObj(messageObj)
 			storyStateMessage.configure(text=f"Currently continuing '{self.master.currentStory.storyTitle}'!")
 		elif self.master.isRemixedStory: #type: ignore
-			'''
-			NOTE: If remixGenObj exists, the user's previous page they were on was the remixStoryPage, and they were just redirected
-			to the AIChatPage. 
-			1. Process remixGenObj right after rendering unsavedStoryMessages to avoid duplication and rendering the content of remixGenObj twice.
-			2. This also allows us to keep the logic for rendering unsaved messages in one place, which fits with all 3 cases very cleanly.
-			'''
-			storyStateMessage.configure(text=f"Currently writing a remix based on {self.master.currentStory.storyTitle}!")
+			storyStateMessage.configure(text=f"Currently writing a remix based on '{self.master.currentStory.storyTitle}'!")
 		else:
 			storyStateMessage.configure(text=f"Currently continuing writing a new story!")
 
@@ -92,17 +79,20 @@ class AIChatPage(ctk.CTkFrame):
 			for messageObj in self.master.unsavedStoryMessages:
 				self.renderChatMessageObj(messageObj)
 
-		# Render the new message from the AI where the AI remixed the user's story
-		if remixGenObj:
-			self.processAIChat(remixGenObj)
+		# if storyGenObj exists, then we have to process a generator that the AI returned
+		# NOTE: In this case, when storyGenObj exists here, that means it was set by the remixStoryPage, 
+		# and this generator contains a response for remixing a story
+		if self.master.storyGenObj:
+			self.processAIChat()
 
 
-	'''
-	- Renders messageObj as chat messages on the screen
-	- NOTE: Only good for rendering saved, unsaved, and user chats because those are easily in message object form.
-		For rendering AI's response, it's a generator so use processAIChat(self).
-	'''
+	
 	def renderChatMessageObj(self, messageObj):
+		'''
+		- Renders messageObj as chat messages on the screen
+		- NOTE: Only good for rendering saved, unsaved, and user chats because those are easily in message object form.
+			For rendering AI's response, it's a generator so use processAIChat(self).
+		'''
 		# Chat window is read and write now
 		self.chatBox.configure(state="normal")
 		messageText = messageObj.text
@@ -111,7 +101,7 @@ class AIChatPage(ctk.CTkFrame):
 		if messageObj.isAISender:
 			messageText = "StoryBot: " + messageText
 		else:
-			messageText = f"{self.master.loggedInUser.username}: " + messageText
+			messageText = f"{self.master.loggedInUser.username}: " + messageText #type: ignore
 
 		# If the chatBox is empty, then it's the first message, else it's not the first message
 		if self.chatBox.get("1.0", "end-1c") == "":
@@ -124,77 +114,93 @@ class AIChatPage(ctk.CTkFrame):
 		self.chatBox.configure(state="disabled")
 
 
-	'''
-	- Handles the proces of processing the AI's generated chat.
-	1. Enable and disable certain parts of the UI, preventing the user from sending another 
-		message to the AI until the first one is finished. Also prevent the user from being 
-		able to redirect themselves to other pages, so that they don't lose their AI generated message.
-	2. Renders chunks of the messages as they're being obtained from openai. 
-	3. Save the ai's generated message to unsavedStoryMessages so that we can keep track of it
-	'''
-	def processAIChat(self, genObj):
-		# Restrict user when AI is generating a response!
-		self.sendChatBtn.configure(state="disabled")
-		self.master.header.disableNavButtons()
-		self.openSaveStoryBtn.configure(state="disabled")
-		self.pageStatusMessage.configure(text="Please wait here until StoryBot is finished!")
+	
+	def processAIChat(self):
+		'''
+		- Handles the proces of processing the AI's generated chat.
+		1. Enable and disable certain parts of the UI, preventing the user from sending another 
+			message to the AI until the first one is finished. Also prevent the user from being 
+			able to redirect themselves to other pages, so that they don't lose their AI generated message.
+		2. Renders chunks of the messages as they're being obtained from openai. 
+		3. Save the ai's generated message to unsavedStoryMessages so that we can keep track of it
+		'''
+		# Disable send chat button as user can't send another chat until the ai is finished
+		self.sendChatBtn.configure(state="disabled")		
 
-		# Render the chunks of messages in the chatBox
+		# Make the chat box writable
 		self.chatBox.configure(state="normal")
-		chunkIndex = 0
-		messageObj = Message(text="", isAISender=True) # message object that's going to represent store the message from the generator object
-		for chunk in genObj:
-			'''
-			- Output Cases:
-			1. First message in chat (chat is empty), and we're rendering the first chunk/part of the message
-			2. First message in chat, but we aren't rendering the first chunk of said message
-			3. Not the first message in chat, but we are rendering the first chunk
-			4. Not the first message in chat, and it isn't the first chunk
-			'''
-			if self.chatBox.get("1.0", "end-1c") == "":
-				if chunkIndex == 0:
-					self.chatBox.insert("1.0", f"StoryBot: {chunk}")
-				else:
-					self.chatBox.insert("end-1c", chunk)
-			else:
-				if chunkIndex == 0:
-					self.chatBox.insert("end-1c", "\n\n" + f"StoryBot: {chunk}")
-				else:
-					self.chatBox.insert("end-1c", chunk)
-			chunkIndex += 1
-			messageObj.text += chunk # add the chunk onto the message object's text since we want to keep track of this message
-		self.master.unsavedStoryMessages.append(messageObj)
+
+		# Ensure user can't navigate to other pages while AI is generating message
+		self.master.header.disableNavButtons() #type: ignore
+		self.openSaveStoryBtn.configure(state="disabled")
+
+		# Update page status message to indicate that AI is currently generating a message 
+		self.pageStatusMessage.configure(text="Please wait here until StoryBot is finished!")
 		
-		# Scroll to bottom and make chatbox read only  
+		# Message object that contains the text from the generator
+		messageObj = Message(text="", isAISender=True) 
+		chunkIndex = 0
+
+		# Insert two newlines so that there's a space between the user's message and the ai's message 
+		self.chatBox.insert("end", "\n\nStoryBot: ")
+		# Iterate through chunks to render and process them
+		for chunk in self.master.storyGenObj: #type: ignore
+			if any(chunk.endswith(char) for char in ['.', '?', '!']):
+				punct_marks = ['.', '?', '!']
+				for mark in punct_marks:
+					if chunk.endswith(f'{mark}'):
+						self.chatBox.insert('end', f"{mark}" + " ")
+			else:
+				self.chatBox.insert('end', chunk)
+				
+			# For smooth rendering
+			self.chatBox.update()
+			time.sleep(0.03)
+
+			# add the chunk onto the message object's text since we want to keep track of this message; then increment chunkIndex
+			messageObj.text += chunk
+			chunkIndex += 1
+			
+		# AI response processing is done, so append message object and variables related to processing a message
+		self.master.unsavedStoryMessages.append(messageObj) #type: ignore
+		self.master.storyGenObj = None #type: ignore
+
+		# Scroll to bottom and make chatbox read only
 		self.chatBox.see("end-1c")
 		self.chatBox.configure(state="disabled")
-		'''
-		- AI is done generating response, so unrestrict user!
-		- After AI chat has been fully generated, allow the user to send a new message
-		and go to other pages.
-		'''
-		self.sendChatBtn.configure(state="normal")
+
+		# Allow the user to send another message and navigate to other pages
 		self.openSaveStoryBtn.configure(state="normal")
-		self.master.header.updateNavButtons()
-		self.pageStatusMessage.configure(text="StoryBot is currently waiting for your input.")
+		self.sendChatBtn.configure(state="normal")
+		self.master.header.updateNavButtons() #type: ignore
+
+		# Update the page status message to indicate the ai is done
+		self.pageStatusMessage.configure(text="StoryBot is currently waiting for you input.")
 		
 
-	'''
-	- Sends the user chat message to the ai, for the ai to respond, then goes to render both of those chat messages
-	1. userMessage (Message): Message object containing text that the user sent
-	2. AIMessage (Message): Message object containing text that the AI generated in response to the user
-	'''
-	def sendUserChat(self):
-		# Get user's message as a message object. Then get AI's response message as a generator
+
+	
+	def processUserChat(self):
+		'''
+		- Sends the user chat message to the ai, for the ai to respond, then goes to render both of those chat messages
+		1. userMessage (Message): Message object containing text that the user sent
+		2. AIResponse (Generator): Generator object containing text that the AI generated in response to the user
+		'''
+		# Check if user actually sent something
+		if (self.chatEntry.get().strip() == ""):
+			self.pageStatusMessage.configure(text="Please enter text before trying to send a message!")
+			return
+
+		# Process and render the user's message
 		userMessage = Message(text=self.chatEntry.get(), isAISender=False)
-		AIResponse = self.master.storyGPT.sendStoryPrompt(userMessage.text)
-
-		# Clear entry widget when user sends a message
-		self.chatEntry.delete(0, "end") 
-		
-		# Process and render user's message
 		self.renderChatMessageObj(userMessage)
 		self.master.unsavedStoryMessages.append(userMessage) #type: ignore	
 		
+		# Clear entry widget when user sends a message
+		self.chatEntry.delete(0, "end")
+			
+		AIResponse = self.master.storyGPT.sendStoryPrompt(userMessage.text) #type: ignore
+		self.master.storyGenObj = AIResponse # type: ignore 
+
 		# Process and render AI's message
-		self.processAIChat(AIResponse)
+		self.processAIChat()

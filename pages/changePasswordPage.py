@@ -80,19 +80,20 @@ class changePasswordPage(ctk.CTkFrame):
 		changePasswordBtn.grid(row=0, column=1, padx=10, pady=10)
 
 
-	'''
-	- Changes the currently logged in user's password on their account. On success, it logs them out and redirects 
-		them to the userLoginPage to login again, now with their new password.
-	1. oldPassword (string): Form input representing the user's current password
-	2. oldPasswordHash (string): Password hash based on oldPassword
-	3. newPassword (string): Form input representing the user's new password, or the password they 
-		want to change to.
-	4. confirmNewPassword (string): Form input that should be the same as newPassword, as this is 
-		here to tell the user to retype newPassword to confirm that it is the password they want to change to.
-	5. retrievedUser (User): If this exists, there exists an account in the database where 
-		the username of the currently logged in user and the password that they entered match.
-	'''
+	
 	def changePassword(self):
+		'''
+		- Changes the currently logged in user's password on their account. On success, it logs them out and redirects 
+			them to the userLoginPage to login again, now with their new password.
+		1. oldPassword (string): Form input representing the user's current password
+		2. oldPasswordHash (string): Password hash based on oldPassword
+		3. newPassword (string): Form input representing the user's new password, or the password they 
+			want to change to.
+		4. confirmNewPassword (string): Form input that should be the same as newPassword, as this is 
+			here to tell the user to retype newPassword to confirm that it is the password they want to change to.
+		5. retrievedUser (User): If this exists, there exists an account in the database where 
+			the username of the currently logged in user and the password that they entered match.
+		'''
 		# Check if fields are empty
 		if (isEmptyEntryWidgets(self.formEntryList)):
 			self.formErrorMessage.configure(text="Some fields are empty!")

@@ -75,10 +75,11 @@ class saveStoryPage(ctk.CTkFrame):
 			clearFormBtn.grid(row=0, column=0, padx=10)
 			saveNewStoryBtn.grid(row=0, column=1, padx=10)	
 
-	'''
-	- Updates or saves changes to an existing story and redirects user to the library page
-	'''
+	
 	def updateExistingStory(self):
+		'''
+		- Updates or saves changes to an existing story and redirects user to the library page
+		'''
 		# Put all of those unsaved messages into the saved story and save it to the database
 		for unsavedMessage in self.master.unsavedStoryMessages: #type: ignore 
 			self.master.currentStory.messages.append(unsavedMessage) #type: ignore
@@ -91,10 +92,11 @@ class saveStoryPage(ctk.CTkFrame):
 		self.master.openPage("storyLibraryPage") #type: ignore
 	
 
-	'''
-	- Saves a completely new story to the user's library; then redirects the user to the story library page
-	'''
+	
 	def saveNewStory(self):
+		'''
+		- Saves a completely new story to the user's library; then redirects the user to the story library page
+		'''
 		# Check if fields are empty, put the entry widget in an array so that the function works
 		if (isEmptyEntryWidgets([self.storyTitleEntry])):
 			self.formErrorMessage.configure(text="Some fields are empty!")
@@ -116,10 +118,14 @@ class saveStoryPage(ctk.CTkFrame):
 		# Make the story that the user just saved to be the saved story that they're continuing
 		self.master.currentStory = newStory #type: ignore
 
-		# If the user was saving a remix, make sure the booleans indicate that the user is 
-		# currently continuing a saved story.
+		# After they save their new story, we want the user to be able to immediately continue it if needed
+		# So set isSavedStory to True, so that AIChatPage knows to render the messages of 'newStory'
+		self.master.isSavedStory = True #type: ignore
+
+		# If the user was saving a remix, make to indicate that they aren't remixing anymore since 
+		# their saving their remix. Now since isRemixedStory is false, we know 'currentStory' represents the 
+		# saved story that the user is currently writing instead of a story they're basing an unsaved remix off of.
 		if self.master.isRemixedStory: #type: ignore
-			self.master.isSavedStory = True #type: ignore
 			self.master.isRemixedStory = False #type: ignore 
 
 		# Redirect the user to the storyLibraryPage, which is where their new story should be

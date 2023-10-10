@@ -83,3 +83,48 @@ def convertStoryObjToJSON(storyObj):
 	for messageObj in storyObj.messages:
 		storyJSON.append(convertMessageObjToJSON(messageObj))
 	return storyJSON
+
+
+def add_testing_functions(Class):
+		'''
+		- Mimics sendStoryPrompt by adding the user's and AI's messages to chat history. Of course while 
+		it's doing this, it'll return a generator that yields the message content.
+		'''
+		def mockSendStoryPrompt(self, userMessage: str):
+			self.addMessageAt(userMessage, len(self.chat), "user")
+			chunks = [
+				"This is a sample message chunk. This",
+				" is the second send story chunk.",
+				" Here is the third one!"
+			]
+			message = ""
+			for chunk in chunks:
+				message += chunk
+				yield chunk
+			self.addMessageAt(message, len(self.chat), "assistant")
+
+
+		'''
+		- Mimics the processes in sendRemixPrompt for chat history. The user sends the ai a message, then AI returns a
+		 generator in response. AI will store the remix message in its chat history.
+		'''
+		def mockRemixStory(self):
+			# Simulate the returning of chunks in a generator
+			chunks = [
+				"This is a remix message chunk. This",
+				" is the second remix chunk.",
+				" This is the last remix chunk we'll have!"
+			]
+			message = ""
+			for chunk in chunks:
+				message += chunk
+				yield chunk
+			self.addMessageAt(message, len(self.chat), "assistant")
+
+		def mockPrint(self):
+			print("Hey it worked!")
+
+		Class.mockSendStoryPrompt = mockSendStoryPrompt
+		Class.mockRemixStory = mockRemixStory
+		Class.mockPrint = mockPrint
+		return Class
