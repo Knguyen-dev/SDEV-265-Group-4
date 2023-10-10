@@ -63,13 +63,6 @@ class AISettingsPage(ctk.CTkFrame):
 				"upper": 2,
 				"value": self.master.storyGPT.frequency_penalty,
 			},
-			{
-				"text": 'Response Length (in words)',
-				"lower": 50,
-				"upper": 300,
-				"value": self.master.storyGPT.response_length,
-				"step": 1,
-			},
 		]
 
 		# Create form sliders and labels iteratively
@@ -123,7 +116,6 @@ class AISettingsPage(ctk.CTkFrame):
 		self.sliderVarList[1].set(self.master.storyGPT.top_p) #type: ignore
 		self.sliderVarList[2].set(self.master.storyGPT.presence_penalty) #type: ignore
 		self.sliderVarList[3].set(self.master.storyGPT.frequency_penalty) #type: ignore
-		self.sliderVarList[4].set(self.master.storyGPT.response_length) #type: ignore
 		# First clear the responseStyleBox, and then insert in the ai's current response style
 		self.responseStyleBox.delete("1.0", "end-1c")		
 		self.responseStyleBox.insert("1.0", self.master.storyGPT.response_style) #type: ignore
@@ -136,7 +128,6 @@ class AISettingsPage(ctk.CTkFrame):
 		self.master.storyGPT.top_p = self.sliderVarList[1].get() #type: ignore
 		self.master.storyGPT.presence_penalty = self.sliderVarList[2].get() #type: ignore
 		self.master.storyGPT.frequency_penalty = self.sliderVarList[3].get() #type: ignore
-		self.master.storyGPT.response_length = self.sliderVarList[4].get() #type: ignore
 		self.master.storyGPT.response_style = self.responseStyleBox.get("1.0", "end-1c") #type: ignore
 
 		
