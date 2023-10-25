@@ -32,7 +32,7 @@ Methods:
 '''
 class storyLibraryPage(ctk.CTkFrame):
 	def __init__(self, master):
-		super().__init__(master)
+		super().__init__(master, fg_color="#EBEBEB")
 		self.master = master
 		innerPageFrame = ctk.CTkScrollableFrame(self, fg_color="transparent", width=625, height=500)
 		innerPageFrame.pack(expand=True)
@@ -50,7 +50,7 @@ class storyLibraryPage(ctk.CTkFrame):
 		columnIndex = 0
 		# iteratively create 'cards' or containers that display their information
 		for story in savedStories:
-			storyCard = ctk.CTkFrame(innerPageFrame, fg_color="#7dd3fc", width=200)
+			storyCard = ctk.CTkFrame(innerPageFrame, fg_color="#CFCFCF", width=200)
 
 			# if true, then columnIndex story cards have already been placed, so reset
 			# the column index, and move on to a new row
@@ -59,11 +59,11 @@ class storyLibraryPage(ctk.CTkFrame):
 				rowIndex += 1
 
 			cardHeader = ctk.CTkFrame(storyCard)
-			cardTitle = ctk.CTkLabel(cardHeader, fg_color="#7dd3fc", text=f"Title: {story.storyTitle}", wraplength=200)
-			cardBody = ctk.CTkFrame(storyCard, fg_color="#7dd3fc")
-			continueSavedStoryBtn = ctk.CTkButton(cardBody, text="Continue", command=lambda story=story: self.continueSavedStory(story))
-			openRemixStoryBtn = ctk.CTkButton(cardBody, text="Remix", command=lambda story=story: self.master.openPage("remixStoryPage", story))  #type: ignore
-			deleteSavedStoryBtn = ctk.CTkButton(cardBody, text="Delete", command=lambda story=story: self.deleteSavedStory(story))
+			cardTitle = ctk.CTkLabel(cardHeader, fg_color="#BABABA", text_color="black", text=f"Title: {story.storyTitle}", wraplength=200)
+			cardBody = ctk.CTkFrame(storyCard, fg_color="transparent")
+			continueSavedStoryBtn = ctk.CTkButton(cardBody, text="Continue", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=lambda story=story: self.continueSavedStory(story))
+			openRemixStoryBtn = ctk.CTkButton(cardBody, text="Remix", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=lambda story=story: self.master.openPage("remixStoryPage", story))  #type: ignore
+			deleteSavedStoryBtn = ctk.CTkButton(cardBody, text="Delete", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=lambda story=story: self.deleteSavedStory(story))
 			
 			# Structure the storyCard and its widgets
 			storyCard.grid(row=rowIndex, column=columnIndex, padx=10, pady=10)

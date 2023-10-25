@@ -33,7 +33,7 @@ Methods:
 '''
 class userRegisterPage(ctk.CTkFrame):
 	def __init__(self, master):
-		super().__init__(master)
+		super().__init__(master, fg_color="#EBEBEB")
 		self.master = master
 		
 		# Create registration form frame
@@ -73,7 +73,7 @@ class userRegisterPage(ctk.CTkFrame):
 
 		# Iterate through object to create fields
 		for x in range(len(formFields)):
-			label = ctk.CTkLabel(formFieldsSection, text=formFields[x]["text"])
+			label = ctk.CTkLabel(formFieldsSection, text=formFields[x]["text"], text_color="#0F3325")
 			entry = ctk.CTkEntry(formFieldsSection)
 			self.formEntryList.append(entry)
 			label.grid(row=x, column=0, padx=10, pady=10)
@@ -87,9 +87,9 @@ class userRegisterPage(ctk.CTkFrame):
 			
 		# Create section to have form buttons/actions
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
-		openLoginBtn = ctk.CTkButton(formBtnsSection, text="Log into an existing account", command=lambda: self.master.openPage("userLoginPage")) #type: ignore
-		confirmRegisterBtn = ctk.CTkButton(formBtnsSection, text="Confirm Registration", command=self.registerUser)
-		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", command=lambda: clearEntryWidgets(self.formEntryList))
+		openLoginBtn = ctk.CTkButton(formBtnsSection, text="Log into an existing account", fg_color="#0E4732", hover_color="#3A6152", command=lambda: self.master.openPage("userLoginPage")) #type: ignore
+		confirmRegisterBtn = ctk.CTkButton(formBtnsSection, text="Confirm Registration", fg_color="#0E4732", hover_color="#3A6152", command=self.registerUser)
+		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", fg_color="#0E4732", hover_color="#3A6152", command=lambda: clearEntryWidgets(self.formEntryList))
 
 		# Structure the remaining elements of the page
 		formHeader.grid(row=0, column=0, pady=10)

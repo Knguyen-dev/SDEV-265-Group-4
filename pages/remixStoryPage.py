@@ -28,7 +28,7 @@ Methods:
 '''
 class remixStoryPage(ctk.CTkFrame):
 	def __init__(self, master, story):
-		super().__init__(master)
+		super().__init__(master, fg_color="#EBEBEB")
 		self.master = master
 		self.story = story
 

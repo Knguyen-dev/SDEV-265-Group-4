@@ -35,10 +35,10 @@ Methods:
 class Header(ctk.CTkFrame):
 	def __init__(self, master):
 		# Put Header in the master frame
-		super().__init__(master, fg_color="#f9a8d4", corner_radius=0)
+		super().__init__(master, fg_color="#0E4732", corner_radius=0)
 		self.master = master
 		navbar = ctk.CTkFrame(self, fg_color="transparent")
-		navLabel = ctk.CTkLabel(navbar, text="Welcome to BookSmart.AI!", text_color="black", font=("Helvetica", 32))
+		navLabel = ctk.CTkLabel(navbar, text="Welcome to BookSmart.AI!", text_color="white", font=("Helvetica", 32))
 		navBtnFrame = ctk.CTkFrame(navbar, fg_color="transparent")
 		self.navBtns = [] 
 		self.navBtnMap = { 
@@ -51,15 +51,15 @@ class Header(ctk.CTkFrame):
 		# Create nav buttons with iteration and use colCount to put them all in a row
 		colCount = 0
 		for key in self.navBtnMap:
-			navBtn = ctk.CTkButton(navBtnFrame, corner_radius=0, text=f"{key}", command=lambda k=key:self.master.openPage(self.navBtnMap[k])) #type: ignore
+			navBtn = ctk.CTkButton(navBtnFrame, corner_radius=0, fg_color="#19543E", hover_color="#3A6152", text=f"{key}", text_color="white", command=lambda k=key:self.master.openPage(self.navBtnMap[k])) #type: ignore
 			navBtn.grid(row=0, column=colCount, padx=10)
 			colCount += 1
 			self.navBtns.append(navBtn)
 
 		# Structure remaining elements
 		navbar.pack(expand=True)
-		navLabel.grid(row=0, column=0)
-		navBtnFrame.grid(row=1, column=0, pady=20)
+		navLabel.grid(row=0, column=0,)
+		navBtnFrame.grid(row=1, column=0, pady=20, sticky='ns')
 
 		# Adjust nav buttons based on user's state. On load, the user isn't logged in, so calling this would 
 		# correctly disable the nav buttons until the user logged in.
@@ -102,7 +102,7 @@ Attributes/Variables:
 class Footer(ctk.CTkFrame):
 	def __init__(self, master):
 		# Put header in master frame
-		super().__init__(master, fg_color="#f9a8d4", corner_radius=0)
+		super().__init__(master, fg_color="#4C4E52", corner_radius=0)
 		currentYear = datetime.datetime.now().year
 		footerLabel = ctk.CTkLabel(self, text=f"BookSmart {currentYear}", text_color="black",	font=("Helvetica", 16))
 		footerLabel.pack()

@@ -32,7 +32,7 @@ Methods
 ##### Page for changing passwords #####
 class changePasswordPage(ctk.CTkFrame):
 	def __init__(self, master):
-		super().__init__(master)
+		super().__init__(master, fg_color="#EBEBEB")
 		self.master = master
 
 		# Create edit form frame
@@ -66,8 +66,8 @@ class changePasswordPage(ctk.CTkFrame):
 
 		# Create section to have form buttons/actions
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
-		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", command=lambda: clearEntryWidgets(self.formEntryList))		
-		changePasswordBtn = ctk.CTkButton(formBtnsSection, text="Confirm Change", command=self.changePassword)
+		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=lambda: clearEntryWidgets(self.formEntryList))		
+		changePasswordBtn = ctk.CTkButton(formBtnsSection, text="Confirm Change", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=self.changePassword)
 
 		# Structure the remaining elements of the page
 		# padx=90; adds enough gray padding so that form looks uniform

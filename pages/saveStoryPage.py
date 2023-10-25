@@ -29,7 +29,7 @@ Methods:
 '''
 class saveStoryPage(ctk.CTkFrame):
 	def __init__(self, master):
-		super().__init__(master)
+		super().__init__(master, fg_color="#EBEBEB")
 		self.master = master
 		form = ctk.CTkFrame(self)	
 

@@ -2,12 +2,13 @@ import customtkinter as ctk
 import sys
 sys.path.append("..")
 from classes.utilities import *
+from classes.models import User
 
 
 ###### The page for editting accounts #####
 class editAccountPage(ctk.CTkFrame):
 	def __init__(self, master):
-		super().__init__(master)
+		super().__init__(master, fg_color="#EBEBEB")
 		self.master = master
 
 		# Create edit form frame
@@ -58,10 +59,10 @@ class editAccountPage(ctk.CTkFrame):
 
 		# Clear form button and then a confirm changes button
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
-		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", command=lambda: clearEntryWidgets(self.formEntryList))
-		confirmEditsBtn = ctk.CTkButton(formBtnsSection, text="Confirm Edits", command=self.editAccount)
-		openChangePasswordBtn = ctk.CTkButton(formBtnsSection, text="Change Password", command=lambda: self.master.openPage("changePasswordPage")) #type: ignore
-		openDeleteAccountBtn = ctk.CTkButton(formBtnsSection, text="Account Deletion", command=lambda: self.master.openPage("deleteAccountPage")) #type: ignore
+		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=lambda: clearEntryWidgets(self.formEntryList))
+		confirmEditsBtn = ctk.CTkButton(formBtnsSection, text="Confirm Edits", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=self.editAccount)
+		openChangePasswordBtn = ctk.CTkButton(formBtnsSection, text="Change Password", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=lambda: self.master.openPage("changePasswordPage")) #type: ignore
+		openDeleteAccountBtn = ctk.CTkButton(formBtnsSection, text="Account Deletion", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=lambda: self.master.openPage("deleteAccountPage")) #type: ignore
 
 		# Structure the remaining page elements accordingly
 		formHeader.grid(row=0, column=0, padx=70, pady=10)

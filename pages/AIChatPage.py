@@ -29,7 +29,7 @@ Methods:
 '''
 class AIChatPage(ctk.CTkFrame):
 	def __init__(self, master):
-		super().__init__(master)
+		super().__init__(master, fg_color="#EBEBEB")
 		self.master = master
 		innerPageFrame = ctk.CTkFrame(self)
 		innerPageFrame.pack(expand=True)
@@ -38,13 +38,13 @@ class AIChatPage(ctk.CTkFrame):
 		storyStateMessage = ctk.CTkLabel(header, text="")
 		self.pageStatusMessage = ctk.CTkLabel(header, text="StoryBot is currently waiting for your input.")
 		
-		self.chatBox = ctk.CTkTextbox(innerPageFrame, state="disabled", wrap="word", width=500, height=250)
+		self.chatBox = ctk.CTkTextbox(innerPageFrame, state="disabled", fg_color="white", wrap="word", width=500, height=250)
 
 		# Section with all of the input options the user has for the AIChatPage
 		chatInputSection = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
 		self.chatEntry = ctk.CTkEntry(chatInputSection, width=300, placeholder_text="Send a message e.g. 'Once upon a time...'")
-		self.openSaveStoryBtn = ctk.CTkButton(chatInputSection, text="Save Story", command=lambda: self.master.openPage("saveStoryPage")) #type: ignore
-		self.sendChatBtn = ctk.CTkButton(chatInputSection, text="Send", command=self.processUserChat)
+		self.openSaveStoryBtn = ctk.CTkButton(chatInputSection, text="Save Story", fg_color="#0E4732", hover_color="#3A6152", command=lambda: self.master.openPage("saveStoryPage")) #type: ignore
+		self.sendChatBtn = ctk.CTkButton(chatInputSection, text="Send", fg_color="#0E4732", hover_color="#3A6152", command=self.processUserChat)
 		
 		# Structure and style widgets accordingly
 		header.grid(row=0, column=0, pady=10)
