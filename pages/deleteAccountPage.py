@@ -9,7 +9,7 @@ from classes.utilities import clearEntryWidgets, isEmptyEntryWidgets, toggleHidd
 # Page for user to delete their account
 class deleteAccountPage(ctk.CTkFrame):
 	def __init__(self, master):
-		super().__init__(master)
+		super().__init__(master, fg_color="#EBEBEB")
 		self.master = master
 		# Create edit form frame
 		form = ctk.CTkFrame(self)
@@ -47,8 +47,8 @@ class deleteAccountPage(ctk.CTkFrame):
 				visibilityCheckBox.grid(row=x, column=2, padx=4, pady=10)
 
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
-		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", command=lambda: clearEntryWidgets(self.formEntryList))
-		deleteAccountBtn = ctk.CTkButton(formBtnsSection, text="Delete Account", command=self.deleteAccount)
+		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=lambda: clearEntryWidgets(self.formEntryList))
+		deleteAccountBtn = ctk.CTkButton(formBtnsSection, text="Delete Account", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=self.deleteAccount)
 		
 		# Structure the remaining elements of the page
 		formHeader.grid(row=0, column=0, padx=40, pady=10)

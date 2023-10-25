@@ -27,7 +27,7 @@ Methods:
 # Ai settings page frame
 class AISettingsPage(ctk.CTkFrame):
 	def __init__(self, master):
-		super().__init__(master)
+		super().__init__(master, fg_color="#EBEBEB")
 		self.master = master
 		form = ctk.CTkFrame(self)
 
@@ -75,7 +75,7 @@ class AISettingsPage(ctk.CTkFrame):
 				sliderVar = tk.IntVar(value=formFields[x]["value"])
 
 			# Slider object itself
-			slider = tk.Scale(formFieldsSection, from_=formFields[x]["lower"], to=formFields[x]["upper"], resolution=0.01, orient="horizontal", bg="#D3D3D3", length=200, variable=sliderVar)
+			slider = tk.Scale(formFieldsSection, from_=formFields[x]["lower"], to=formFields[x]["upper"], resolution=0.01, orient="horizontal", bg="#D3D3D3", variable=sliderVar)
 			
 			# If the 'step' key is defined, then change the resolution or step of the slider
 			if "step" in formFields[x]:
@@ -96,8 +96,8 @@ class AISettingsPage(ctk.CTkFrame):
 
 		# Create the form buttons
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
-		restoreSettingsBtn = ctk.CTkButton(formBtnsSection, text="Restore Settings", command=self.restoreSettingsWidgets)
-		changeSettingsBtn = ctk.CTkButton(formBtnsSection, text="Confirm Changes", command=self.changeAISettings)
+		restoreSettingsBtn = ctk.CTkButton(formBtnsSection, text="Restore Settings", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=self.restoreSettingsWidgets)
+		changeSettingsBtn = ctk.CTkButton(formBtnsSection, text="Confirm Changes", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=self.changeAISettings)
 
 		# Structure the widgets on the page
 		form.pack(expand=True)		

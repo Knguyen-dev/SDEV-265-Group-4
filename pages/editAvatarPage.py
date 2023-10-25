@@ -11,7 +11,7 @@ sys.path.append("..")
 # Page for editing the user's avatar
 class editAvatarPage(ctk.CTkFrame):
 	def __init__(self, master):
-		super().__init__(master)
+		super().__init__(master, fg_color="#EBEBEB")
 		self.master = master
 		innerPageFrame = ctk.CTkFrame(self)
 		
@@ -29,9 +29,9 @@ class editAvatarPage(ctk.CTkFrame):
 
 		# Create container and buttons for the image slider
 		imageBtnsSections = ctk.CTkFrame(innerPageFrame)
-		prevImageBtn = ctk.CTkButton(imageBtnsSections, text="Previous", command=self.loadPreviousImage)
-		nextImageBtn = ctk.CTkButton(imageBtnsSections, text="Next", command=self.loadNextImage)
-		selectImageBtn = ctk.CTkButton(imageBtnsSections, text="Select", command=self.changeAvatar)
+		prevImageBtn = ctk.CTkButton(imageBtnsSections, text="Previous", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=self.loadPreviousImage)
+		nextImageBtn = ctk.CTkButton(imageBtnsSections, text="Next", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=self.loadNextImage)
+		selectImageBtn = ctk.CTkButton(imageBtnsSections, text="Select", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=self.changeAvatar)
 
 		# Structure the widgets 
 		innerPageFrame.pack(expand=True)
