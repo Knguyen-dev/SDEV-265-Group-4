@@ -5,7 +5,9 @@ from typing import Tuple, Dict, Optional, overload
 from classes.utilities import add_testing_functions
 
 # get the current API key from a file so OpenAI doesn't delete it
-openai.api_key = "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"
+# get the current API key from a file so OpenAI doesn't delete it
+with open('./assets/api_key.txt', 'r') as f:
+    openai.api_key = f.read()
 # WILL BE USED LATER
 # class VariableManager:
 # 	'''
