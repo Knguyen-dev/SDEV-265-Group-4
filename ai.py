@@ -5,7 +5,6 @@ from typing import Tuple, Dict, Optional, overload
 from classes.utilities import add_testing_functions
 
 # get the current API key from a file so OpenAI doesn't delete it
-# get the current API key from a file so OpenAI doesn't delete it
 with open('./assets/api_key.txt', 'r') as f:
     openai.api_key = f.read()
 # WILL BE USED LATER
