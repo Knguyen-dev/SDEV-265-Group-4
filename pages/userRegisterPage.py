@@ -33,20 +33,22 @@ Methods:
 '''
 class userRegisterPage(ctk.CTkFrame):
 	def __init__(self, master):
-		super().__init__(master, fg_color="#EBEBEB")
 		self.master = master
+		super().__init__(self.master, fg_color=self.master.mainFGCLR, corner_radius=0)
+		
+		
 		
 		# Create registration form frame
-		form = ctk.CTkFrame(self)
+		form = ctk.CTkFrame(self, fg_color=self.master.subFGCLR)
 		form.pack(expand=True)
 
 		# Create form header and text elements for header
 		formHeader = ctk.CTkFrame(form, fg_color="transparent")
-		formHeading = ctk.CTkLabel(formHeader, text="Register", font=("Helvetica", 32))
-		self.formErrorMessage = ctk.CTkLabel(formHeader, text="")
+		formHeading = ctk.CTkLabel(formHeader, text="Register", text_color=self.master.textCLR, font=("Helvetica", 32))
+		self.formErrorMessage = ctk.CTkLabel(formHeader, text_color=self.master.textCLR, text="")
 
 		# Create input section with form fields
-		formFieldsSection = ctk.CTkFrame(form)
+		formFieldsSection = ctk.CTkFrame(form, fg_color=self.master.subFGCLR)
 		formFields = [
 			{
 				"text": "Email",
@@ -73,8 +75,8 @@ class userRegisterPage(ctk.CTkFrame):
 
 		# Iterate through object to create fields
 		for x in range(len(formFields)):
-			label = ctk.CTkLabel(formFieldsSection, text=formFields[x]["text"], text_color="#0F3325")
-			entry = ctk.CTkEntry(formFieldsSection)
+			label = ctk.CTkLabel(formFieldsSection, text=formFields[x]["text"], text_color=self.master.textCLR)
+			entry = ctk.CTkEntry(formFieldsSection, fg_color=self.master.entryFGCLR, text_color=self.master.entryTextCLR)
 			self.formEntryList.append(entry)
 			label.grid(row=x, column=0, padx=10, pady=10)
 			entry.grid(row=x, column=1, padx=10, pady=10)
@@ -82,14 +84,14 @@ class userRegisterPage(ctk.CTkFrame):
 			# so that we can toggle visibility on the field
 			if (formFields[x].get("toggleHidden")):
 				checkVar = ctk.StringVar(value="off")
-				visibilityCheckBox = ctk.CTkCheckBox(formFieldsSection, variable=checkVar, command=lambda entry=entry, var=checkVar: toggleHidden(entry, var),  text="Hide", onvalue="on", offvalue="off")
+				visibilityCheckBox = ctk.CTkCheckBox(formFieldsSection, variable=checkVar, command=lambda entry=entry, var=checkVar: toggleHidden(entry, var),  text="Hide", text_color=self.master.textCLR, onvalue="on", offvalue="off")
 				visibilityCheckBox.grid(row=x, column=2, padx=4, pady=10)
 			
 		# Create section to have form buttons/actions
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
-		openLoginBtn = ctk.CTkButton(formBtnsSection, text="Log into an existing account", fg_color="#0E4732", hover_color="#3A6152", command=lambda: self.master.openPage("userLoginPage")) #type: ignore
-		confirmRegisterBtn = ctk.CTkButton(formBtnsSection, text="Confirm Registration", fg_color="#0E4732", hover_color="#3A6152", command=self.registerUser)
-		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", fg_color="#0E4732", hover_color="#3A6152", command=lambda: clearEntryWidgets(self.formEntryList))
+		openLoginBtn = ctk.CTkButton(formBtnsSection, text_color=self.master.textCLR, text="Log into an existing account", fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=lambda: self.master.openPage("userLoginPage")) #type: ignore
+		confirmRegisterBtn = ctk.CTkButton(formBtnsSection, text_color=self.master.textCLR, text="Confirm Registration", fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=self.registerUser)
+		clearFormBtn = ctk.CTkButton(formBtnsSection, text_color=self.master.textCLR, text="Clear", fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=lambda: clearEntryWidgets(self.formEntryList))
 
 		# Structure the remaining elements of the page
 		formHeader.grid(row=0, column=0, pady=10)
