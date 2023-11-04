@@ -33,7 +33,7 @@ class userAccountPage(ctk.CTkFrame):
 		innerPageFrame = ctk.CTkFrame(self, fg_color=self.master.subFGCLR)
 		innerPageFrame.pack(expand=True)
 		# Create section to store the user's profile picture
-		userImageSection = tk.Canvas(innerPageFrame, highlightbackground="#eee", highlightthickness=1)
+		userImageSection = tk.Canvas(innerPageFrame)
 		
 		avatarSourcePath = f"./assets/images/{self.master.loggedInUser.avatar}"
 		image = Image.open(avatarSourcePath).resize((300, 300))

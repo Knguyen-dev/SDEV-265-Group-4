@@ -10,9 +10,6 @@ from ai import StoryGPT
 # importing user so we don't have to log in everytime for testing
 # from classes.models import User
 
-
-ctk.set_appearance_mode("Light")  # Modes: "System" (standard), "Dark", "Light"
-
 '''
 + Header: Tkinter frame that represents the header of the application 
 
@@ -269,7 +266,7 @@ class App(ctk.CTk):
 	
 	'''
 	- Loads and opens a page with pageName in the tkinter application
-	1. pageClass: A class for a tkinter frame
+	1. pageName: The name of the class for the page that's being opened
 	'''
 	def openPage(self, pageName, *args):
 		pageClass = self.getPage(pageName)
@@ -288,7 +285,6 @@ class App(ctk.CTk):
 		
 	def reloadCurrentPage(self):
 		'''Re opens the current page; best used in conjunction with render and toggle theme functions'''
-
 		# Replace old header and footer with new header and footer because 
 		self.header.pack_forget()
 		self.footer.pack_forget()
@@ -312,6 +308,7 @@ class App(ctk.CTk):
 			self.entryTextCLR = self.appColors["white"]
 			self.btnFGCLR = self.appColors["light_gray"]
 			self.btnHoverCLR = self.appColors["light_blue"]
+			ctk.set_appearance_mode("Dark")
 		else:
 			self.mainFGCLR = self.appColors["white"]
 			self.subFGCLR = self.appColors["light_gray"]
@@ -320,6 +317,7 @@ class App(ctk.CTk):
 			self.entryTextCLR = self.appColors["black"]
 			self.btnFGCLR = self.appColors["light_blue"]
 			self.btnHoverCLR = self.appColors["light_emerald"]
+			ctk.set_appearance_mode("Light")
 
 	def toggleTheme(self):
 		'''Toggles theme of the application and reloads the page to show the changes '''
