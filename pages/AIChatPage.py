@@ -30,22 +30,22 @@ Methods:
 class AIChatPage(ctk.CTkFrame):
 	def __init__(self, master):
 		self.master = master
-		super().__init__(self.master, fg_color=self.master.mainFGCLR, corner_radius=0)
+		super().__init__(self.master, fg_color=self.master.theme["main_clr"], corner_radius=0)
 		
-		innerPageFrame = ctk.CTkFrame(self, fg_color=self.master.subFGCLR)
+		innerPageFrame = ctk.CTkFrame(self, fg_color=self.master.theme["sub_clr"])
 		innerPageFrame.pack(expand=True)
 		header = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
-		heading = ctk.CTkLabel(header, text="Write Your Story!", font=("Helvetica", 32), text_color=self.master.textCLR)
-		storyStateMessage = ctk.CTkLabel(header, text="", text_color=self.master.textCLR)
-		self.pageStatusMessage = ctk.CTkLabel(header, text="StoryBot is currently waiting for your input.", text_color=self.master.textCLR)
+		heading = ctk.CTkLabel(header, text="Write Your Story!", font=("Helvetica", 32), text_color=self.master.theme["label_clr"])
+		storyStateMessage = ctk.CTkLabel(header, text="", text_color=self.master.theme["label_clr"])
+		self.pageStatusMessage = ctk.CTkLabel(header, text="StoryBot is currently waiting for your input.", text_color=self.master.theme["label_clr"])
 		
-		self.chatBox = ctk.CTkTextbox(innerPageFrame, state="disabled", fg_color=self.master.entryFGCLR, text_color=self.master.entryTextCLR, wrap="word", width=500, height=250)
+		self.chatBox = ctk.CTkTextbox(innerPageFrame, state="disabled", fg_color=self.master.theme["entry_clr"], text_color=self.master.theme["entry_text_clr"], wrap="word", width=500, height=250)
 
 		# Section with all of the input options the user has for the AIChatPage
 		chatInputSection = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
-		self.chatEntry = ctk.CTkEntry(chatInputSection, width=300, placeholder_text="Send a message e.g. 'Once upon a time...'", fg_color=self.master.entryFGCLR, text_color=self.master.entryTextCLR)
-		self.openSaveStoryBtn = ctk.CTkButton(chatInputSection, text="Save Story", fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=lambda: self.master.openPage("saveStoryPage")) #type: ignore
-		self.sendChatBtn = ctk.CTkButton(chatInputSection, text="Send", fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=self.processUserChat)
+		self.chatEntry = ctk.CTkEntry(chatInputSection, width=300, placeholder_text="Send a message e.g. 'Once upon a time...'", fg_color=self.master.theme["entry_clr"], text_color=self.master.theme["entry_text_clr"])
+		self.openSaveStoryBtn = ctk.CTkButton(chatInputSection, text="Save Story", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("saveStoryPage")) #type: ignore
+		self.sendChatBtn = ctk.CTkButton(chatInputSection, text="Send", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.processUserChat)
 		
 		# Structure and style widgets accordingly
 		header.grid(row=0, column=0, pady=10)
