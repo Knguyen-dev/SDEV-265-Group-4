@@ -21,16 +21,16 @@ Methods:
 class homePage(ctk.CTkFrame):
 	def __init__(self, master):
 		self.master = master
-		super().__init__(self.master, fg_color=self.master.mainFGCLR)
+		super().__init__(self.master, fg_color=self.master.theme["main_clr"], corner_radius=0)
 		
-		innerPageFrame = ctk.CTkFrame(self, fg_color=self.master.subFGCLR)
+		innerPageFrame = ctk.CTkFrame(self, fg_color=self.master.theme["sub_clr"])
 
 		pageHeader = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
-		pageHeading = ctk.CTkLabel(pageHeader, text="Home", text_color=self.master.textCLR, font=("Helvetica", 32))
+		pageHeading = ctk.CTkLabel(pageHeader, text="Home", text_color=self.master.theme["label_clr"], font=("Helvetica", 32))
 
 		pageBtnsSection = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
-		newStoryBtn = ctk.CTkButton(pageBtnsSection, font=("Helvetica", 24), text="Start A New Story!", text_color=self.master.textCLR, height=50, width=50, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=self.startNewStory)
-		continuePrevStoryBtn = ctk.CTkButton(pageBtnsSection, font=("Helvetica", 24), text="Continue Previous Story!", text_color=self.master.textCLR, height=50, width=50, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=lambda: self.master.openPage("AIChatPage")) #type: ignore
+		newStoryBtn = ctk.CTkButton(pageBtnsSection, font=("Helvetica", 24), text="Start A New Story!", text_color=self.master.theme["btn_text_clr"], height=50, width=50, fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.startNewStory)
+		continuePrevStoryBtn = ctk.CTkButton(pageBtnsSection, font=("Helvetica", 24), text="Continue Previous Story!", text_color=self.master.theme["btn_text_clr"], height=50, width=50, fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("AIChatPage")) #type: ignore
 
 		innerPageFrame.pack(expand=True)
 		pageHeader.grid(row=0, column=0, pady=10)

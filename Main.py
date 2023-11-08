@@ -33,15 +33,13 @@ class Header(ctk.CTkFrame):
 	def __init__(self, master):
 		# Put Header in the master frame
 		self.master = master
-		super().__init__(self.master, fg_color=self.master.subFGCLR, corner_radius=0)
+		super().__init__(self.master, fg_color=self.master.theme["sub_clr"], corner_radius=0)
 		navbar = ctk.CTkFrame(self, fg_color="transparent")
-		navLabel = ctk.CTkLabel(navbar, text="Welcome to BookSmart.AI!", text_color=self.master.textCLR, font=("Helvetica", 32))
+		navLabel = ctk.CTkLabel(navbar, text="Welcome to BookSmart.AI!", text_color=self.master.theme["label_clr"], font=("Helvetica", 32))
 		navBtnFrame = ctk.CTkFrame(navbar, fg_color="transparent")
 
 		# List of all buttons in the navbar
 		self.navBtns = [] 
-
-
 
 		# Map specifically used for creating buttons that redirect the user to other pages
 		self.navBtnMap = { 
@@ -52,13 +50,13 @@ class Header(ctk.CTkFrame):
 		}
 		colCount = 0
 		for key in self.navBtnMap:
-			navBtn = ctk.CTkButton(navBtnFrame, corner_radius=0, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, text=f"{key}", text_color=self.master.textCLR, command=lambda k=key:self.master.openPage(self.navBtnMap[k])) #type: ignore
+			navBtn = ctk.CTkButton(navBtnFrame, corner_radius=0, fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], text=f"{key}", text_color=self.master.theme["btn_text_clr"], command=lambda k=key:self.master.openPage(self.navBtnMap[k])) #type: ignore
 			navBtn.grid(row=0, column=colCount, padx=10)
 			colCount += 1
 			self.navBtns.append(navBtn)
 
 		# Create nav button that toggles the theme
-		toggleThemeBtn = ctk.CTkButton(navBtnFrame, corner_radius=0, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, text="Toggle Theme", text_color=self.master.textCLR, command=self.master.toggleTheme)
+		toggleThemeBtn = ctk.CTkButton(navBtnFrame, corner_radius=0, fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], text="Toggle Theme", text_color=self.master.theme["btn_text_clr"], command=self.master.toggleTheme)
 		toggleThemeBtn.grid(row=0, column=colCount+1, padx=10)
 		self.navBtns.append(toggleThemeBtn)
 
@@ -121,10 +119,9 @@ Attributes/Variables:
 class Footer(ctk.CTkFrame):
 	def __init__(self, master):
 		self.master = master
-		# Put header in master frame
-		super().__init__(self.master, fg_color=self.master.subFGCLR, corner_radius=0)
+		super().__init__(self.master, fg_color=self.master.theme["sub_clr"], corner_radius=0)
 		currentYear = datetime.datetime.now().year
-		footerLabel = ctk.CTkLabel(self, text=f"BookSmart {currentYear}", text_color=self.master.textCLR, font=("Helvetica", 16))
+		footerLabel = ctk.CTkLabel(self, text=f"BookSmart {currentYear}", text_color=self.master.theme["label_clr"], font=("Helvetica", 16))
 		footerLabel.pack()
 
 
@@ -200,33 +197,23 @@ class App(ctk.CTk):
 		self.remixStoryObj = None
 
 
-		self.isDarkTheme = True
-		self.appColors = {
-			"dark_slate": "#0f172a",
-			"dark_gray": "#030712",
-			"medium_gray": "#374151",
-			"light_gray": "#9ca3af",
-			"white": "#FFFFFF",
-			"black": "#000000",
-			"light_emerald": "#34d399",
-			"light_blue": "#4267B2",
+		'''
+		- Map of colors for the theme. Value in left tuple 
+			is light theme color, while value in right tuple 
+			is dark theme color
+		'''
+		self.theme = {
+			"main_clr": ("#FFFFFF", "#030712"),
+			"sub_clr": ("#9ca3af", "#0f172a"),
+			"label_clr": ("#000000", "#FFFFFF"),
+			"btn_clr": ("#4267B2", "#9ca3af"),
+			"btn_text_clr": "#FFFFFF",
+			"hover_clr": ("#34d399", "#4267B2"),
+			"entry_clr": ("#FFFFFF", "#374151"),
+			"entry_text_clr": ("#000000", "#FFFFFF"),
 		}
-
-		# Color of backround
-		self.mainFGCLR = ""
-		# Color of page content container
-		self.subFGCLR = ""
-		# Color of text
-		self.textCLR = ""
-		# Color of the entry widgets 
-		self.entryFGCLR = ""
-		# Color of text in entry widgets
-		self.entryTextCLR = ""
-
-		# Color of buttons
-		self.btnFGCLR = ""
-		self.btnHoverCLR = ""
-
+		self.isDarkTheme = True
+	
 		# Engine and session constructor that we're going to use 
 		self.engine = create_engine("sqlite:///assets/PyProject.db")
 		self.Session = sessionmaker(bind=self.engine)
@@ -235,7 +222,7 @@ class App(ctk.CTk):
 		# Log in a knguyen44 for developing purposes, no need to login everytime
 		# self.loggedInUser = self.session.query(User).filter_by(username="knguyen44").first()
 
-		# Apply theme of application now
+		# Apply theme of application
 		self.applyTheme()
 
 		# Call function to create navbar
@@ -246,6 +233,7 @@ class App(ctk.CTk):
 
 		# On load in, direct to AIChatPage for development puropsees with the prompt engineering
 		self.openPage("userLoginPage")
+
 
 	'''
 	- Returns a class of a page (a tkinter frame) for the application 
@@ -282,48 +270,17 @@ class App(ctk.CTk):
 		# Pack the new page on the screen
 		self.currentPage.pack(fill="both", expand=True)
 
-		
-	def reloadCurrentPage(self):
-		'''Re opens the current page; best used in conjunction with render and toggle theme functions'''
-		# Replace old header and footer with new header and footer because 
-		self.header.pack_forget()
-		self.footer.pack_forget()
-		self.header = Header(self)
-		self.header.pack(side="top", fill="x")
-		self.footer = Footer(self)
-		self.footer.pack(fill="x", side="bottom")
-
-		# Re-opens the current page
-		pageName = self.currentPage.__class__.__name__
-		self.openPage(pageName)
-
-
 	def applyTheme(self):
 		'''Applies color changes to the application'''
 		if (self.isDarkTheme):
-			self.mainFGCLR = self.appColors["dark_gray"]
-			self.subFGCLR = self.appColors["dark_slate"]
-			self.textCLR = self.appColors["white"]
-			self.entryFGCLR = self.appColors["medium_gray"]
-			self.entryTextCLR = self.appColors["white"]
-			self.btnFGCLR = self.appColors["light_gray"]
-			self.btnHoverCLR = self.appColors["light_blue"]
 			ctk.set_appearance_mode("Dark")
 		else:
-			self.mainFGCLR = self.appColors["white"]
-			self.subFGCLR = self.appColors["light_gray"]
-			self.textCLR = self.appColors["white"]
-			self.entryFGCLR = self.appColors["white"]
-			self.entryTextCLR = self.appColors["black"]
-			self.btnFGCLR = self.appColors["light_blue"]
-			self.btnHoverCLR = self.appColors["light_emerald"]
 			ctk.set_appearance_mode("Light")
 
 	def toggleTheme(self):
 		'''Toggles theme of the application and reloads the page to show the changes '''
 		self.isDarkTheme = not (self.isDarkTheme)
 		self.applyTheme()
-		self.reloadCurrentPage()
 		
 	'''
 	- Log the current user out of the application.

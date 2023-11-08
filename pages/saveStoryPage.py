@@ -31,13 +31,13 @@ class saveStoryPage(ctk.CTkFrame):
 	def __init__(self, master):
 		self.master = master
 
-		super().__init__(self.master, fg_color=self.master.mainFGCLR, corner_radius=0)
-		form = ctk.CTkFrame(self, fg_color=self.master.subFGCLR)
+		super().__init__(self.master, fg_color=self.master.theme["main_clr"], corner_radius=0)
+		form = ctk.CTkFrame(self, fg_color=self.master.theme["sub_clr"])
 
 		# Create and structure form widgets that are guaranteed to be on the page 
 		formHeader = ctk.CTkFrame(form, fg_color="transparent")
-		formHeading = ctk.CTkLabel(formHeader, text="Save Story", font=("Helvetica", 32), text_color=self.master.textCLR)
-		storyStateMessage = ctk.CTkLabel(formHeader, text="", text_color=self.master.textCLR)
+		formHeading = ctk.CTkLabel(formHeader, text="Save Story", font=("Helvetica", 32), text_color=self.master.theme["label_clr"])
+		storyStateMessage = ctk.CTkLabel(formHeader, text="", text_color=self.master.theme["label_clr"])
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
 		form.pack(expand=True)
 		formHeader.grid(row=0, column=0, pady=10, padx=80)
@@ -48,7 +48,7 @@ class saveStoryPage(ctk.CTkFrame):
 		if self.master.isSavedStory: #type: ignore
 			storyStateMessage.configure(text=f"Currently updating '{self.master.currentStory.storyTitle}'!")
 			formBtnsSection.grid(row=1, column=0, pady=10)
-			updateSavedStoryBtn = ctk.CTkButton(formBtnsSection, text="Update Story", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=self.updateExistingStory)
+			updateSavedStoryBtn = ctk.CTkButton(formBtnsSection, text="Update Story", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.updateExistingStory)
 			updateSavedStoryBtn.grid(row=0, column=0)
 		else:
 		# Else the user is saving a new story to the database
@@ -60,12 +60,12 @@ class saveStoryPage(ctk.CTkFrame):
 				storyStateMessage.configure(text="Currently saving a new story!")
 
 			# Create widgets and structure them accrodingly
-			self.formErrorMessage = ctk.CTkLabel(formHeader, text="", text_color=self.master.textCLR)
+			self.formErrorMessage = ctk.CTkLabel(formHeader, text="", text_color=self.master.theme["label_clr"])
 			formFieldsSection = ctk.CTkFrame(form, fg_color="transparent")		
-			storyTitleLabel = ctk.CTkLabel(formFieldsSection, text="Story Title", text_color=self.master.textCLR)
-			self.storyTitleEntry = ctk.CTkEntry(formFieldsSection, fg_color=self.master.entryFGCLR)
-			clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=lambda: clearEntryWidgets([self.storyTitleEntry]))
-			saveNewStoryBtn = ctk.CTkButton(formBtnsSection, text="Save Story", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=self.saveNewStory)
+			storyTitleLabel = ctk.CTkLabel(formFieldsSection, text="Story Title", text_color=self.master.theme["label_clr"])
+			self.storyTitleEntry = ctk.CTkEntry(formFieldsSection, fg_color=self.master.theme["entry_clr"], text_color=self.master.theme["entry_text_clr"])
+			clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: clearEntryWidgets([self.storyTitleEntry]))
+			saveNewStoryBtn = ctk.CTkButton(formBtnsSection, text="Save Story", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.saveNewStory)
 
 			# Structure the widgets
 			self.formErrorMessage.grid(row=2, column=0)
