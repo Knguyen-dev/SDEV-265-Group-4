@@ -36,7 +36,7 @@ class userAccountPage(ctk.CTkFrame):
 		userImageSection = tk.Canvas(innerPageFrame)
 		
 		avatarSourcePath = f"./assets/images/{self.master.loggedInUser.avatar}"
-		image = Image.open(avatarSourcePath).resize((750, 750))
+		image = Image.open(avatarSourcePath).resize((300, 300))
 		imageWidget = ImageTk.PhotoImage(image=image)
 		imageLabel = tk.Label(userImageSection, image=imageWidget)
 		imageLabel.image = imageWidget #type: ignore

@@ -3,7 +3,7 @@ import hashlib
 import sys
 sys.path.append("..")
 from classes.utilities import clearEntryWidgets, isEmptyEntryWidgets, isValidPassword, toggleHidden
-
+from classes.models import User
 '''
 + changePasswordPage: Page where the user can change the password of their account
 

@@ -57,7 +57,7 @@ class editAvatarPage(ctk.CTkFrame):
 	# Loads the current image onto the screen
 	def loadCurrentImage(self):
 		# Put new image on the label to display it
-		newImage = ImageTk.PhotoImage(Image.open(f"{self.imageFolderPath}{self.imageList[self.imageIndex]}").resize((750, 750))) 
+		newImage = ImageTk.PhotoImage(Image.open(f"{self.imageFolderPath}{self.imageList[self.imageIndex]}").resize((300, 300))) 
 		self.imageLabel.configure(image=newImage)
 		self.imageLabel.image = newImage #type: ignore
 
