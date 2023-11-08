@@ -10,9 +10,6 @@ from ai import StoryGPT
 # importing user so we don't have to log in everytime for testing
 # from classes.models import User
 
-
-ctk.set_appearance_mode("Light")  # Modes: "System" (standard), "Dark", "Light"
-
 '''
 + Header: Tkinter frame that represents the header of the application 
 
@@ -35,26 +32,36 @@ Methods:
 class Header(ctk.CTkFrame):
 	def __init__(self, master):
 		# Put Header in the master frame
-		super().__init__(master, fg_color="#0E4732", corner_radius=0)
 		self.master = master
+		super().__init__(self.master, fg_color=self.master.subFGCLR, corner_radius=0)
 		navbar = ctk.CTkFrame(self, fg_color="transparent")
-		navLabel = ctk.CTkLabel(navbar, text="Welcome to BookSmart.AI!", text_color="white", font=("Helvetica", 32))
+		navLabel = ctk.CTkLabel(navbar, text="Welcome to BookSmart.AI!", text_color=self.master.textCLR, font=("Helvetica", 32))
 		navBtnFrame = ctk.CTkFrame(navbar, fg_color="transparent")
+
+		# List of all buttons in the navbar
 		self.navBtns = [] 
+
+
+
+		# Map specifically used for creating buttons that redirect the user to other pages
 		self.navBtnMap = { 
 			"Home": "homePage",
 			"AI Settings": "AISettingsPage",
 			"Library": "storyLibraryPage",
 			"My Account": "userAccountPage",
 		}
-
-		# Create nav buttons with iteration and use colCount to put them all in a row
 		colCount = 0
 		for key in self.navBtnMap:
-			navBtn = ctk.CTkButton(navBtnFrame, corner_radius=0, fg_color="#19543E", hover_color="#3A6152", text=f"{key}", text_color="white", command=lambda k=key:self.master.openPage(self.navBtnMap[k])) #type: ignore
+			navBtn = ctk.CTkButton(navBtnFrame, corner_radius=0, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, text=f"{key}", text_color=self.master.textCLR, command=lambda k=key:self.master.openPage(self.navBtnMap[k])) #type: ignore
 			navBtn.grid(row=0, column=colCount, padx=10)
 			colCount += 1
 			self.navBtns.append(navBtn)
+
+		# Create nav button that toggles the theme
+		toggleThemeBtn = ctk.CTkButton(navBtnFrame, corner_radius=0, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, text="Toggle Theme", text_color=self.master.textCLR, command=self.master.toggleTheme)
+		toggleThemeBtn.grid(row=0, column=colCount+1, padx=10)
+		self.navBtns.append(toggleThemeBtn)
+
 
 		# Structure remaining elements
 		navbar.pack(expand=True)
@@ -65,25 +72,37 @@ class Header(ctk.CTkFrame):
 		# correctly disable the nav buttons until the user logged in.
 		self.updateNavButtons()
 	
-	'''
-	- Update the navigation buttons based on the user's login state.
-	If the user is logged in:
-	1. Enable all navigation buttons.
-	2. Allow users to click on the buttons to navigate to their respective places.
 
-	If the user is not logged in:
-	1. Disable all navigation buttons.
-	2. Prevent users from clicking on the buttons, ensuring they cannot navigate to other pages until they log in.
-	'''
 	def updateNavButtons(self):
+		'''
+		- Update the navigation buttons based on the user's login state.
+		If the user is logged in:
+		1. Enable all navigation buttons.
+		2. Allow users to click on the buttons to navigate to their respective places.
+
+		Else the user is not logged in:
+		1. Disable all navigation buttons that aren't the toggle theme button.
+		2. Prevent users from clicking on those buttons, ensuring they cannot navigate to other pages until they log in.
+
+		NOTE: 
+		- The toggleThemeBtn is special as, it shouldn't be disabled even when the user 
+			is logged out. So we make sure that we exclude it from being disabled. However we 
+			will leave it so that this function can enable this button again in case it 
+			was disabled by disableNavButtons.
+
+		- The reason toggleThemeBtn is also going to be disabled by disableNavButtons is 
+			because toggling the theme re-renders the page. Having a re-render happen when 
+			the ai api is generating a message could break application.
+		'''
 		for button in self.navBtns:
 			if (self.master.loggedInUser): #type: ignore
 				button.configure(state="standard")
-			else:
+			elif button.cget("text") != "Toggle Theme":
 				button.configure(state="disabled")
 		
-	# Disables nav all nav buttons
+	
 	def disableNavButtons(self):
+		'''Disables all nav buttons'''
 		for button in self.navBtns:
 			button.configure(state="disabled")
 
@@ -101,10 +120,11 @@ Attributes/Variables:
 '''
 class Footer(ctk.CTkFrame):
 	def __init__(self, master):
+		self.master = master
 		# Put header in master frame
-		super().__init__(master, fg_color="#4C4E52", corner_radius=0)
+		super().__init__(self.master, fg_color=self.master.subFGCLR, corner_radius=0)
 		currentYear = datetime.datetime.now().year
-		footerLabel = ctk.CTkLabel(self, text=f"BookSmart {currentYear}", text_color="black",	font=("Helvetica", 16))
+		footerLabel = ctk.CTkLabel(self, text=f"BookSmart {currentYear}", text_color=self.master.textCLR, font=("Helvetica", 16))
 		footerLabel.pack()
 
 
@@ -155,7 +175,21 @@ class App(ctk.CTk):
 		# AI model class instance that's going to be used throughout the application
 		self.storyGPT = StoryGPT()
 
-		# Attribute to keep track of the current page
+		'''
+		- currentPage: Tkinter frame class representing the current page the user is on
+		- loggedInUser: User object that represents the user that's currently logged into the application
+		- currentStory: Current story object that the user has selected and is editing with. 
+			Useful for rendering the saved messages for a selected story.
+		- isSavedStory: Boolean indicating whether the story the user is on is already saved into the database or not
+		- isRemixedStory: Boolean indicating whether the stor ythe user is writing is a remix
+		- unsavedStoryMessages: Array of message objects that represent the messages that the 
+			user and ai have written that haven't been saved into a story yet
+		- storyGenObj: Generator object that will yield the AI's response message to the user's query
+		
+		- remixStoryObj: Story object that the user is planning to make a remix on.
+			It's useful to store this in Main, as the user may want to toggle the theme, which'll reload 
+			the page. So we need that same story they wanted to remix when reloading
+		'''
 		self.currentPage = None
 		self.loggedInUser = None 
 		self.currentStory = None
@@ -163,6 +197,35 @@ class App(ctk.CTk):
 		self.isRemixedStory = False
 		self.unsavedStoryMessages = []
 		self.storyGenObj = None
+		self.remixStoryObj = None
+
+
+		self.isDarkTheme = True
+		self.appColors = {
+			"dark_slate": "#0f172a",
+			"dark_gray": "#030712",
+			"medium_gray": "#374151",
+			"light_gray": "#9ca3af",
+			"white": "#FFFFFF",
+			"black": "#000000",
+			"light_emerald": "#34d399",
+			"light_blue": "#4267B2",
+		}
+
+		# Color of backround
+		self.mainFGCLR = ""
+		# Color of page content container
+		self.subFGCLR = ""
+		# Color of text
+		self.textCLR = ""
+		# Color of the entry widgets 
+		self.entryFGCLR = ""
+		# Color of text in entry widgets
+		self.entryTextCLR = ""
+
+		# Color of buttons
+		self.btnFGCLR = ""
+		self.btnHoverCLR = ""
 
 		# Engine and session constructor that we're going to use 
 		self.engine = create_engine("sqlite:///assets/PyProject.db")
@@ -172,12 +235,14 @@ class App(ctk.CTk):
 		# Log in a knguyen44 for developing purposes, no need to login everytime
 		# self.loggedInUser = self.session.query(User).filter_by(username="knguyen44").first()
 
+		# Apply theme of application now
+		self.applyTheme()
 
 		# Call function to create navbar
 		self.header = Header(self)
 		self.header.pack(side="top", fill="x")
-		footer = Footer(self)
-		footer.pack(fill="x", side="bottom")
+		self.footer = Footer(self)
+		self.footer.pack(fill="x", side="bottom")
 
 		# On load in, direct to AIChatPage for development puropsees with the prompt engineering
 		self.openPage("userLoginPage")
@@ -194,14 +259,14 @@ class App(ctk.CTk):
 			# get the page class from the module
 			pageClass = getattr(module, pageName)
 			return pageClass
-		except (ImportError, AttributeError):
-			print(f"Error: Page {pageName} does not exist.")
+		except (ImportError, AttributeError) as e:
+			print(f"Error: Page {pageName} does not exist.", e)
 			return None
 
 	
 	'''
 	- Loads and opens a page with pageName in the tkinter application
-	1. pageClass: A class for a tkinter frame
+	1. pageName: The name of the class for the page that's being opened
 	'''
 	def openPage(self, pageName, *args):
 		pageClass = self.getPage(pageName)
@@ -214,11 +279,52 @@ class App(ctk.CTk):
 		if self.currentPage:
 			self.currentPage.destroy()
 		self.currentPage = pageClass(self, *args)
-
 		# Pack the new page on the screen
 		self.currentPage.pack(fill="both", expand=True)
-		
 
+		
+	def reloadCurrentPage(self):
+		'''Re opens the current page; best used in conjunction with render and toggle theme functions'''
+		# Replace old header and footer with new header and footer because 
+		self.header.pack_forget()
+		self.footer.pack_forget()
+		self.header = Header(self)
+		self.header.pack(side="top", fill="x")
+		self.footer = Footer(self)
+		self.footer.pack(fill="x", side="bottom")
+
+		# Re-opens the current page
+		pageName = self.currentPage.__class__.__name__
+		self.openPage(pageName)
+
+
+	def applyTheme(self):
+		'''Applies color changes to the application'''
+		if (self.isDarkTheme):
+			self.mainFGCLR = self.appColors["dark_gray"]
+			self.subFGCLR = self.appColors["dark_slate"]
+			self.textCLR = self.appColors["white"]
+			self.entryFGCLR = self.appColors["medium_gray"]
+			self.entryTextCLR = self.appColors["white"]
+			self.btnFGCLR = self.appColors["light_gray"]
+			self.btnHoverCLR = self.appColors["light_blue"]
+			ctk.set_appearance_mode("Dark")
+		else:
+			self.mainFGCLR = self.appColors["white"]
+			self.subFGCLR = self.appColors["light_gray"]
+			self.textCLR = self.appColors["white"]
+			self.entryFGCLR = self.appColors["white"]
+			self.entryTextCLR = self.appColors["black"]
+			self.btnFGCLR = self.appColors["light_blue"]
+			self.btnHoverCLR = self.appColors["light_emerald"]
+			ctk.set_appearance_mode("Light")
+
+	def toggleTheme(self):
+		'''Toggles theme of the application and reloads the page to show the changes '''
+		self.isDarkTheme = not (self.isDarkTheme)
+		self.applyTheme()
+		self.reloadCurrentPage()
+		
 	'''
 	- Log the current user out of the application.
 	'''

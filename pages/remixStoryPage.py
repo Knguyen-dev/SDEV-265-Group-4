@@ -27,25 +27,25 @@ Methods:
 - remixStory(self): Let's user remix a story and then redirects the user to the AIChatPage for it.
 '''
 class remixStoryPage(ctk.CTkFrame):
-	def __init__(self, master, story):
-		super().__init__(master, fg_color="#EBEBEB")
+	def __init__(self, master):
 		self.master = master
-		self.story = story
+		super().__init__(self.master, fg_color=self.master.mainFGCLR)
+		self.story = self.master.remixStoryObj
 
-		form = ctk.CTkFrame(self)
+		form = ctk.CTkFrame(self, fg_color=self.master.subFGCLR)
 		formHeader = ctk.CTkFrame(form, fg_color="transparent")
-		formHeading = ctk.CTkLabel(formHeader, text="Remix A Story", font=("Helvetica", 32))
-		subHeading = ctk.CTkLabel(formHeader, text=f"Currently Remixing '{story.storyTitle}'!", wraplength=200)
+		formHeading = ctk.CTkLabel(formHeader, text="Remix A Story", font=("Helvetica", 32), text_color=self.master.textCLR)
+		subHeading = ctk.CTkLabel(formHeader, text=f"Currently Remixing '{self.story.storyTitle}'!", wraplength=200, text_color=self.master.textCLR)
 
-		self.formErrorMessage = ctk.CTkLabel(formHeader, text="")
+		self.formErrorMessage = ctk.CTkLabel(formHeader, text="", text_color=self.master.textCLR)
 
-		formFieldsSection = ctk.CTkFrame(form)
-		remixLabel = ctk.CTkLabel(formFieldsSection, text="Enter your twist on this story!", wraplength=100)
-		self.remixInput = ctk.CTkTextbox(formFieldsSection)
+		formFieldsSection = ctk.CTkFrame(form, fg_color="transparent")
+		remixLabel = ctk.CTkLabel(formFieldsSection, text="Enter your twist on this story!", wraplength=100, text_color=self.master.textCLR)
+		self.remixInput = ctk.CTkTextbox(formFieldsSection, fg_color=self.master.entryFGCLR, text_color=self.master.entryTextCLR)
 
-		formBtnsSection = ctk.CTkFrame(form)
-		clearRemixBtn = ctk.CTkButton(formBtnsSection, text="Clear", command=lambda: self.remixInput.delete("0.0", "end"))
-		remixStoryBtn = ctk.CTkButton(formBtnsSection, text="Confirm Remix", command=self.remixStory)
+		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
+		clearRemixBtn = ctk.CTkButton(formBtnsSection, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, text="Clear", command=lambda: self.remixInput.delete("0.0", "end"))
+		remixStoryBtn = ctk.CTkButton(formBtnsSection, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, text="Confirm Remix", command=self.remixStory)
 
 		form.pack(expand=True)
 		formHeader.grid(row=0, column=0, pady=10, padx=50)

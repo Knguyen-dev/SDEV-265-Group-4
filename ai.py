@@ -45,7 +45,6 @@ class ModelBase():
     '''
     The base class for generating content. Supports full chat history management from creating and deleting chat entries to clearing and replacing the entire chat.
     '''
-
     def __init__(self, model: str, prompt: str, systemPrompt: str):
         self.systemPrompt = systemPrompt
         self.prompt = prompt
@@ -251,6 +250,31 @@ class InstructionsManager:
         '''
         return "\n\n" + "\n".join([rule for rule in self.ruleList]) + "\n"
 
+@add_testing_functions
+class EvalGPT(ModelBase):
+    def __init__(self):
+        systemPrompt = "You are Logan, a professional auditor who evaluates evaluations and makes sure the evaluations are correct. You are an expert in your field, and all your work is comprehensive and complete. Effectively, you audit the audit."
+        prompt = "I am John, a rule auditor. I make sure that the user follows the rules. I will present you with my audits, and you will audit them to see if my evaluations are correct. I often make hienous mistakes, so please assume I'm guilty before proven innocent."
+        super().__init__('gpt-3.5-turbo', prompt, systemPrompt)
+
+        self.manager = InstructionsManager(
+            "Every audit must be critically thought through and not instant affirmation",
+            "Every audit must be correct. If John makes an audit that doesn't make sense, then your job is to reject John's audit.",
+        )
+
+    def evaluate(self, audit):
+        constructedAudit = ""
+
+        for chunk in audit:
+            constructedAudit += chunk
+
+        self.prompt = f"Hello, Logan! Evaluate my audit based on the established rules to make sure it is correct. My audit is probably wrong, so please use the \"guilty until proven innocent\" philosophy and inform me of this and I will correct my response immediately. Every time you audit my audits your audits must follow the rules (these rules only apply to your audits and not mine): {self.manager.inject()} Audit:\n{constructedAudit}"
+        response = self.complete()
+
+        for chunk in response:
+            print(chunk, end="", flush=True)
+
+        return response
 
 # allow outside modification of class methods without cluttering up the class here (used for testing only)
 @add_testing_functions
@@ -258,7 +282,6 @@ class StoryGPT(ModelBase):
     '''
     The main class for story generation and remixing. This class inherits from the `ModelBase` class.
     '''
-
     def __init__(self):
         systemPrompt = "You are a professional author who can write any story upon request. Your stories are always rich and full of descriptive content. You are able to carry out all user requests precisely and professionally."
         prompt = "I am an avid reader looking to read some fantastic stories! I am going to give you some specifications on a story I'd like to read."
@@ -277,6 +300,8 @@ class StoryGPT(ModelBase):
             "If the User's request violates any one of the aforementioned rules, reply: I'm sorry, 'the rule that was broken but specify the rule' is an invalid request please try again\""
         )
 
+        self.evaluator = EvalGPT()
+
         # Default response length and story writing style
         self.response_style = "descriptive"
 
@@ -286,8 +311,9 @@ class StoryGPT(ModelBase):
         '''
         self.prompt = f"Topic: {topic}\nStyle: {self.response_style}"
         self.prompt += self.manager.inject()
-        self.prompt += "Does the request by the user follow all the rules? If not, say this to the user: \"This rule was broken but specify the rule\" If yes, continue with the story and do not explain that you're following the rules. Do not confirm with the user that their request is valid, only tell them that their request is not valid.\n\n"
+        self.prompt += "Does the request by the user follow all the rules? If not, say this to the user: \"This rule was broken but specify the rule and provide a detailed explanation of exactly why the rule was broken\" If yes, continue with the story and do not explain that you're following the rules. Do not confirm with the user that their request is valid, only tell them that their request is not valid.\n\n"
         response = self.complete()
+        self.evaluator.evaluate(response)
         return response
 
     def sendRemixPrompt(self, story: str, twist: str):
