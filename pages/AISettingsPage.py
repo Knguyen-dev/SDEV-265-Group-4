@@ -27,16 +27,17 @@ Methods:
 # Ai settings page frame
 class AISettingsPage(ctk.CTkFrame):
 	def __init__(self, master):
-		super().__init__(master, fg_color="#EBEBEB")
 		self.master = master
-		form = ctk.CTkFrame(self)
+		super().__init__(self.master, fg_color=self.master.mainFGCLR, corner_radius=0)
+		
+		form = ctk.CTkFrame(self, fg_color=self.master.subFGCLR)
 
 		# Form header
 		formHeader = ctk.CTkFrame(form, fg_color="transparent")
-		formHeading = ctk.CTkLabel(formHeader, text="Configure AI Settings!", font=("Helvetica", 32))
+		formHeading = ctk.CTkLabel(formHeader, text="Configure AI Settings!", font=("Helvetica", 32), text_color=self.master.textCLR)
 		
 		# Section for form sliders 
-		formFieldsSection = ctk.CTkFrame(form)
+		formFieldsSection = ctk.CTkFrame(form, fg_color=self.master.subFGCLR)
 		self.sliderVarList = []
 		formFields = [ 
 			{
@@ -68,15 +69,16 @@ class AISettingsPage(ctk.CTkFrame):
 		# Create form sliders and labels iteratively
 		for x in range(len(formFields)):
 			sliderVar = tk.DoubleVar(value=formFields[x]["value"])
-			sliderLabel = ctk.CTkLabel(formFieldsSection, text=formFields[x]["text"]) # label defining what a slider is for
+			sliderLabel = ctk.CTkLabel(formFieldsSection, text=formFields[x]["text"], text_color=self.master.textCLR) # label defining what a slider is for
 			
 			# If the data type for the slider var is defined, then chnage it
 			if formFields[x]['text'] == "Response Length":
 				sliderVar = tk.IntVar(value=formFields[x]["value"])
 
 			# Slider object itself
-			slider = tk.Scale(formFieldsSection, from_=formFields[x]["lower"], to=formFields[x]["upper"], resolution=0.01, orient="horizontal", bg="#D3D3D3", variable=sliderVar)
-			
+			slider = tk.Scale(formFieldsSection, from_=formFields[x]["lower"], to=formFields[x]["upper"], resolution=0.01, orient="horizontal", bg=self.master.entryFGCLR, highlightthickness=0, troughcolor=self.master.entryFGCLR, variable=sliderVar)
+
+
 			# If the 'step' key is defined, then change the resolution or step of the slider
 			if "step" in formFields[x]:
 				slider.configure(resolution=formFields[x]["step"])
@@ -86,8 +88,8 @@ class AISettingsPage(ctk.CTkFrame):
 			self.sliderVarList.append(sliderVar)
 
 		# Response style entry and label
-		responseStyleLabel = ctk.CTkLabel(formFieldsSection, text="Response Style")
-		self.responseStyleBox = ctk.CTkTextbox(formFieldsSection, height=50)
+		responseStyleLabel = ctk.CTkLabel(formFieldsSection, text="Response Style", text_color=self.master.textCLR)
+		self.responseStyleBox = ctk.CTkTextbox(formFieldsSection, height=50, fg_color=self.master.entryFGCLR, text_color=self.master.entryTextCLR)
 		responseStyleLabel.grid(row=len(formFields), column=0)
 		self.responseStyleBox.grid(row=len(formFields), column=1)
 
@@ -96,8 +98,8 @@ class AISettingsPage(ctk.CTkFrame):
 
 		# Create the form buttons
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
-		restoreSettingsBtn = ctk.CTkButton(formBtnsSection, text="Restore Settings", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=self.restoreSettingsWidgets)
-		changeSettingsBtn = ctk.CTkButton(formBtnsSection, text="Confirm Changes", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=self.changeAISettings)
+		restoreSettingsBtn = ctk.CTkButton(formBtnsSection, text="Restore Settings", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=self.restoreSettingsWidgets)
+		changeSettingsBtn = ctk.CTkButton(formBtnsSection, text="Confirm Changes", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=self.changeAISettings)
 
 		# Structure the widgets on the page
 		form.pack(expand=True)		

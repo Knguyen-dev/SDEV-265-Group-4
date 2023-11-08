@@ -8,20 +8,20 @@ from classes.models import User
 ###### The page for editting accounts #####
 class editAccountPage(ctk.CTkFrame):
 	def __init__(self, master):
-		super().__init__(master, fg_color="#EBEBEB")
 		self.master = master
-
+		super().__init__(self.master, fg_color=self.master.mainFGCLR, corner_radius=0)
+		
 		# Create edit form frame
-		form = ctk.CTkFrame(self)
+		form = ctk.CTkFrame(self, fg_color=self.master.subFGCLR)
 		form.pack(expand=True)
 
 		# Create header of the form
 		formHeader = ctk.CTkFrame(form, fg_color="transparent")
-		formHeading = ctk.CTkLabel(formHeader, text="Edit Account", font=("Helvetica", 32))
-		self.formErrorMessage = ctk.CTkLabel(formHeader, text="")
+		formHeading = ctk.CTkLabel(formHeader, text="Edit Account", font=("Helvetica", 32), text_color=self.master.textCLR)
+		self.formErrorMessage = ctk.CTkLabel(formHeader, text="", text_color=self.master.textCLR)
 		
 		# Create the input section with form fields 
-		formFieldsSection = ctk.CTkFrame(form)
+		formFieldsSection = ctk.CTkFrame(form, fg_color=self.master.subFGCLR)
 		formFields = [
 			{
 				"text": "Username",
@@ -45,8 +45,8 @@ class editAccountPage(ctk.CTkFrame):
 		# Then create and position label and entry widgets for form
 		self.formEntryList = []
 		for x in range(len(formFields)):
-			label = ctk.CTkLabel(formFieldsSection, text=formFields[x]["text"])
-			entry = ctk.CTkEntry(formFieldsSection)
+			label = ctk.CTkLabel(formFieldsSection, text=formFields[x]["text"], text_color=self.master.textCLR)
+			entry = ctk.CTkEntry(formFieldsSection, fg_color=self.master.entryFGCLR, text_color=self.master.entryTextCLR)
 			
 			# Insert the current value of a user's attribute into the entry widget to show the user 
 			# their current account information
@@ -59,10 +59,10 @@ class editAccountPage(ctk.CTkFrame):
 
 		# Clear form button and then a confirm changes button
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
-		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=lambda: clearEntryWidgets(self.formEntryList))
-		confirmEditsBtn = ctk.CTkButton(formBtnsSection, text="Confirm Edits", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=self.editAccount)
-		openChangePasswordBtn = ctk.CTkButton(formBtnsSection, text="Change Password", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=lambda: self.master.openPage("changePasswordPage")) #type: ignore
-		openDeleteAccountBtn = ctk.CTkButton(formBtnsSection, text="Account Deletion", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=lambda: self.master.openPage("deleteAccountPage")) #type: ignore
+		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=lambda: clearEntryWidgets(self.formEntryList))
+		confirmEditsBtn = ctk.CTkButton(formBtnsSection, text="Confirm Edits", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=self.editAccount)
+		openChangePasswordBtn = ctk.CTkButton(formBtnsSection, text="Change Password", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=lambda: self.master.openPage("changePasswordPage")) #type: ignore
+		openDeleteAccountBtn = ctk.CTkButton(formBtnsSection, text="Account Deletion", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=lambda: self.master.openPage("deleteAccountPage")) #type: ignore
 
 		# Structure the remaining page elements accordingly
 		formHeader.grid(row=0, column=0, padx=70, pady=10)

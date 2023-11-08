@@ -11,9 +11,10 @@ sys.path.append("..")
 # Page for editing the user's avatar
 class editAvatarPage(ctk.CTkFrame):
 	def __init__(self, master):
-		super().__init__(master, fg_color="#EBEBEB")
 		self.master = master
-		innerPageFrame = ctk.CTkFrame(self)
+		super().__init__(self.master, fg_color=self.master.mainFGCLR, corner_radius=0)
+		
+		innerPageFrame = ctk.CTkFrame(self, fg_color=self.master.subFGCLR)
 		
 		self.imageFolderPath = "./assets/images/" # Path to image folder relative to our script file
 		self.imageIndex = 0 # Index of the current image
@@ -21,17 +22,17 @@ class editAvatarPage(ctk.CTkFrame):
 		self.currentImageFileName = "" # the file name of the current image file the image slider is on
 
 		# Heading of the page
-		header = ctk.CTkFrame(innerPageFrame)
-		heading = ctk.CTkLabel(header, text="Choose your avatar or pfp", font=("Helvetica", 32))
+		header = ctk.CTkFrame(innerPageFrame, fg_color=self.master.subFGCLR)
+		heading = ctk.CTkLabel(header, text="Choose your avatar or pfp", font=("Helvetica", 32), text_color=self.master.textCLR)
 
 		# Create image label where we'll display the image
 		self.imageLabel = tk.Label(innerPageFrame)
 
 		# Create container and buttons for the image slider
-		imageBtnsSections = ctk.CTkFrame(innerPageFrame)
-		prevImageBtn = ctk.CTkButton(imageBtnsSections, text="Previous", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=self.loadPreviousImage)
-		nextImageBtn = ctk.CTkButton(imageBtnsSections, text="Next", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=self.loadNextImage)
-		selectImageBtn = ctk.CTkButton(imageBtnsSections, text="Select", text_color="white", fg_color="#0E4732", hover_color="#3A6152", command=self.changeAvatar)
+		imageBtnsSections = ctk.CTkFrame(innerPageFrame, fg_color=self.master.subFGCLR)
+		prevImageBtn = ctk.CTkButton(imageBtnsSections, text="Previous", text_color=self.master.textCLR, fg_color="#0E4732", hover_color=self.master.btnHoverCLR, command=self.loadPreviousImage)
+		nextImageBtn = ctk.CTkButton(imageBtnsSections, text="Next", text_color=self.master.textCLR, fg_color="#0E4732", hover_color=self.master.btnHoverCLR, command=self.loadNextImage)
+		selectImageBtn = ctk.CTkButton(imageBtnsSections, text="Select", text_color=self.master.textCLR, fg_color="#0E4732", hover_color=self.master.btnHoverCLR, command=self.changeAvatar)
 
 		# Structure the widgets 
 		innerPageFrame.pack(expand=True)

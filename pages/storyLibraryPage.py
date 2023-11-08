@@ -38,8 +38,9 @@ Methods:
 
 class storyLibraryPage(ctk.CTkFrame):
     def __init__(self, master):
-        super().__init__(master, fg_color="#EBEBEB")
         self.master = master
+        super().__init__(self.master, fg_color=self.master.mainFGCLR, corner_radius=0)
+        
         innerPageFrame = ctk.CTkScrollableFrame(
             self, fg_color="transparent", width=625, height=500)
         innerPageFrame.pack(expand=True)
@@ -50,7 +51,7 @@ class storyLibraryPage(ctk.CTkFrame):
         # If there aren't any stories saved, then just show a message, and stop it early
         if not savedStories:
             label = ctk.CTkLabel(
-                innerPageFrame, text="No stories have been saved yet!", font=("Helvetica", 24))
+                innerPageFrame, text="No stories have been saved yet!", font=("Helvetica", 24), text_color=self.master.textCLR)
             label.pack()
             return
 
@@ -59,7 +60,7 @@ class storyLibraryPage(ctk.CTkFrame):
         # iteratively create 'cards' or containers that display their information
         for story in savedStories:
             storyCard = ctk.CTkFrame(
-                innerPageFrame, fg_color="#CFCFCF", width=200)
+                innerPageFrame, fg_color=self.master.subFGCLR)
 
             # if true, then columnIndex story cards have already been placed, so reset
             # the column index, and move on to a new row
@@ -67,18 +68,18 @@ class storyLibraryPage(ctk.CTkFrame):
                 columnIndex = 0
                 rowIndex += 1
 
-            cardHeader = ctk.CTkFrame(storyCard)
-            cardTitle = ctk.CTkLabel(cardHeader, fg_color="#BABABA", text_color="black",
+            cardHeader = ctk.CTkFrame(storyCard, fg_color="transparent")
+            cardTitle = ctk.CTkLabel(cardHeader, text_color=self.master.textCLR,
                                      text=f"Title: {story.storyTitle}", wraplength=200)
             cardBody = ctk.CTkFrame(storyCard, fg_color="transparent")
-            continueSavedStoryBtn = ctk.CTkButton(cardBody, text="Continue", text_color="white", fg_color="#0E4732",
-                                                  hover_color="#3A6152", command=lambda story=story: self.continueSavedStory(story))
-            openRemixStoryBtn = ctk.CTkButton(cardBody, text="Remix", text_color="white", fg_color="#0E4732", hover_color="#3A6152",
-                                              command=lambda story=story: self.master.openPage("remixStoryPage", story))  # type: ignore
-            deleteSavedStoryBtn = ctk.CTkButton(cardBody, text="Delete", text_color="white", fg_color="#0E4732",
-                                                hover_color="#3A6152", command=lambda story=story: self.deleteSavedStory(story))
+            continueSavedStoryBtn = ctk.CTkButton(cardBody, text="Continue", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR,
+                                                  hover_color=self.master.btnHoverCLR, command=lambda story=story: self.continueSavedStory(story))
+            openRemixStoryBtn = ctk.CTkButton(cardBody, text="Remix", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR,
+                                              command=lambda story=story: self.openRemixStoryPage(story))  # type: ignore
+            deleteSavedStoryBtn = ctk.CTkButton(cardBody, text="Delete", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR,
+                                                hover_color=self.master.btnHoverCLR, command=lambda story=story: self.deleteSavedStory(story))
             exportStoryBtn = ctk.CTkButton(
-                cardBody, text="Export", command=lambda story=story: self.exportSavedStory(story), text_color="white", fg_color="#0E4732", hover_color="#3A6152")
+                cardBody, text="Export", command=lambda story=story: self.exportSavedStory(story), text_color=self.master.textCLR, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR)
 
             # Structure the storyCard and its widgets
             storyCard.grid(row=rowIndex, column=columnIndex, padx=10, pady=10)
@@ -90,6 +91,30 @@ class storyLibraryPage(ctk.CTkFrame):
             exportStoryBtn.grid(row=2, column=0, pady=5)
             deleteSavedStoryBtn.grid(row=3, column=0, pady=5)
             columnIndex += 1
+
+
+    def openRemixStoryPage(self, story):
+        '''
+        Prepares the application for remixing a story and also redirects 
+        the user to the remix story page
+        
+        1. Set remixStoryObj so that application remembers what story they were trying to remix.
+            In case the user wants to toggle the theme on the remixStoryPage, which reloads the page,
+            we'll be able to remember the story they were selecting whilst maintaining the theme toggling functionality.
+        
+        2. Then open the remixStoryPage
+
+        NOTE: remixStoryPage can only be accessed by clicking the openRemixStoryBtn,
+            which will always reassign remixStoryObj to a valid/existing remixStoryObj.
+            Meaning, there should be no need to clear remixStoryObj when deleting stories, accounts, etc. as 
+            remixStoryObj will always be assigned to a valid value when it matters.
+        '''
+        self.master.remixStoryObj = story
+        self.master.openPage("remixStoryPage")
+
+
+
+
 
     def continueSavedStory(self, story):
         '''
