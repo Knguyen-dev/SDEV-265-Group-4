@@ -10,19 +10,19 @@ from classes.utilities import clearEntryWidgets, isEmptyEntryWidgets, toggleHidd
 class deleteAccountPage(ctk.CTkFrame):
 	def __init__(self, master):
 		self.master = master
-		super().__init__(self.master, fg_color=self.master.mainFGCLR, corner_radius=0)
+		super().__init__(self.master, fg_color=self.master.theme["main_clr"], corner_radius=0)
 		
 		# Create edit form frame
-		form = ctk.CTkFrame(self, fg_color=self.master.subFGCLR)
+		form = ctk.CTkFrame(self, fg_color=self.master.theme["sub_clr"])
 		form.pack(expand=True)
 		# Create header of the form
 		formHeader = ctk.CTkFrame(form, fg_color="transparent")
-		formHeading = ctk.CTkLabel(formHeader, text="Delete Account", font=("Helvetica", 32), text_color=self.master.textCLR)
-		subHeading = ctk.CTkLabel(formHeader, text=f"Are you sure you want to delete '{self.master.loggedInUser.username}'?", text_color=self.master.textCLR)
-		self.formErrorMessage = ctk.CTkLabel(formHeader, text="", text_color=self.master.textCLR)
+		formHeading = ctk.CTkLabel(formHeader, text="Delete Account", font=("Helvetica", 32), text_color=self.master.theme["label_clr"])
+		subHeading = ctk.CTkLabel(formHeader, text=f"Are you sure you want to delete '{self.master.loggedInUser.username}'?", text_color=self.master.theme["label_clr"])
+		self.formErrorMessage = ctk.CTkLabel(formHeader, text="", text_color=self.master.theme["label_clr"])
 		
 		# Create the input section with form fields 
-		formFieldsSection = ctk.CTkFrame(form, fg_color=self.master.subFGCLR)
+		formFieldsSection = ctk.CTkFrame(form, fg_color="transparent")
 		formFields = [
 			{
 				"text": "Username"
@@ -37,19 +37,19 @@ class deleteAccountPage(ctk.CTkFrame):
 		self.formEntryList = []
 
 		for x in range(len(formFields)):
-			label = ctk.CTkLabel(formFieldsSection, text=formFields[x].get("text"), text_color=self.master.textCLR)
-			entry = ctk.CTkEntry(formFieldsSection, fg_color=self.master.entryFGCLR, text_color=self.master.entryTextCLR)
+			label = ctk.CTkLabel(formFieldsSection, text=formFields[x].get("text"), text_color=self.master.theme["label_clr"])
+			entry = ctk.CTkEntry(formFieldsSection, fg_color=self.master.theme["entry_clr"], text_color=self.master.theme["entry_text_clr"])
 			self.formEntryList.append(entry)
 			label.grid(row=x, column=0, padx=10, pady=10)
 			entry.grid(row=x, column=1, padx=10, pady=10)
 			if (formFields[x].get("toggleHidden")):
 				checkVar = ctk.StringVar(value="off")
-				visibilityCheckBox = ctk.CTkCheckBox(formFieldsSection, variable=checkVar, command=lambda entry=entry, var=checkVar: toggleHidden(entry, var),  text="Hide", text_color=self.master.textCLR, onvalue="on", offvalue="off")
+				visibilityCheckBox = ctk.CTkCheckBox(formFieldsSection, variable=checkVar, command=lambda entry=entry, var=checkVar: toggleHidden(entry, var),  text="Hide", text_color=self.master.theme["label_clr"], onvalue="on", offvalue="off")
 				visibilityCheckBox.grid(row=x, column=2, padx=4, pady=10)
 
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
-		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=lambda: clearEntryWidgets(self.formEntryList))
-		deleteAccountBtn = ctk.CTkButton(formBtnsSection, text="Delete Account", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=self.deleteAccount)
+		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: clearEntryWidgets(self.formEntryList))
+		deleteAccountBtn = ctk.CTkButton(formBtnsSection, text="Delete Account", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.deleteAccount)
 		
 		# Structure the remaining elements of the page
 		formHeader.grid(row=0, column=0, padx=40, pady=10)

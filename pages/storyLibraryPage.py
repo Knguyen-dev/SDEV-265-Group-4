@@ -39,7 +39,7 @@ Methods:
 class storyLibraryPage(ctk.CTkFrame):
     def __init__(self, master):
         self.master = master
-        super().__init__(self.master, fg_color=self.master.mainFGCLR, corner_radius=0)
+        super().__init__(self.master, fg_color=self.master.theme["main_clr"], corner_radius=0)
         
         innerPageFrame = ctk.CTkScrollableFrame(
             self, fg_color="transparent", width=625, height=500)
@@ -51,7 +51,7 @@ class storyLibraryPage(ctk.CTkFrame):
         # If there aren't any stories saved, then just show a message, and stop it early
         if not savedStories:
             label = ctk.CTkLabel(
-                innerPageFrame, text="No stories have been saved yet!", font=("Helvetica", 24), text_color=self.master.textCLR)
+                innerPageFrame, text="No stories have been saved yet!", font=("Helvetica", 24), text_color=self.master.theme["label_clr"])
             label.pack()
             return
 
@@ -60,7 +60,7 @@ class storyLibraryPage(ctk.CTkFrame):
         # iteratively create 'cards' or containers that display their information
         for story in savedStories:
             storyCard = ctk.CTkFrame(
-                innerPageFrame, fg_color=self.master.subFGCLR)
+                innerPageFrame, fg_color=self.master.theme["sub_clr"])
 
             # if true, then columnIndex story cards have already been placed, so reset
             # the column index, and move on to a new row
@@ -69,17 +69,17 @@ class storyLibraryPage(ctk.CTkFrame):
                 rowIndex += 1
 
             cardHeader = ctk.CTkFrame(storyCard, fg_color="transparent")
-            cardTitle = ctk.CTkLabel(cardHeader, text_color=self.master.textCLR,
+            cardTitle = ctk.CTkLabel(cardHeader, text_color=self.master.theme["label_clr"],
                                      text=f"Title: {story.storyTitle}", wraplength=200)
             cardBody = ctk.CTkFrame(storyCard, fg_color="transparent")
-            continueSavedStoryBtn = ctk.CTkButton(cardBody, text="Continue", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR,
-                                                  hover_color=self.master.btnHoverCLR, command=lambda story=story: self.continueSavedStory(story))
-            openRemixStoryBtn = ctk.CTkButton(cardBody, text="Remix", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR,
+            continueSavedStoryBtn = ctk.CTkButton(cardBody, text="Continue", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"],
+                                                  hover_color=self.master.theme["hover_clr"], command=lambda story=story: self.continueSavedStory(story))
+            openRemixStoryBtn = ctk.CTkButton(cardBody, text="Remix", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"],
                                               command=lambda story=story: self.openRemixStoryPage(story))  # type: ignore
-            deleteSavedStoryBtn = ctk.CTkButton(cardBody, text="Delete", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR,
-                                                hover_color=self.master.btnHoverCLR, command=lambda story=story: self.deleteSavedStory(story))
+            deleteSavedStoryBtn = ctk.CTkButton(cardBody, text="Delete", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"],
+                                                hover_color=self.master.theme["hover_clr"], command=lambda story=story: self.deleteSavedStory(story))
             exportStoryBtn = ctk.CTkButton(
-                cardBody, text="Export", command=lambda story=story: self.exportSavedStory(story), text_color=self.master.textCLR, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR)
+                cardBody, text="Export", command=lambda story=story: self.exportSavedStory(story), text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"])
 
             # Structure the storyCard and its widgets
             storyCard.grid(row=rowIndex, column=columnIndex, padx=10, pady=10)
