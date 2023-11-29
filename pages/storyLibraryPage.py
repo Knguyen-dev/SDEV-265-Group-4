@@ -4,6 +4,7 @@ import sys
 from classes.export import StoryPDF
 from tkinter.filedialog import askdirectory
 import os
+import zipfile
 
 sys.path.append("..")
 
@@ -39,8 +40,15 @@ Methods:
 class storyLibraryPage(ctk.CTkFrame):
     def __init__(self, master):
         self.master = master
-        super().__init__(self.master, fg_color=self.master.theme["main_clr"], corner_radius=0)
-        
+        super().__init__(self.master,
+                         fg_color=self.master.theme["main_clr"], corner_radius=0)
+
+        bulkExportBtnFrame = ctk.CTkFrame(
+            self, fg_color="transparent", width=500, height=500)
+        bulkExportStoryBtn = ctk.CTkButton(
+            bulkExportBtnFrame, text="Export All", command=self.exportAllStories, text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"])
+        bulkExportStoryBtn.pack(expand=True)
+        bulkExportBtnFrame.pack(expand=True)
         innerPageFrame = ctk.CTkScrollableFrame(
             self, fg_color="transparent", width=625, height=500)
         innerPageFrame.pack(expand=True)
@@ -92,29 +100,24 @@ class storyLibraryPage(ctk.CTkFrame):
             deleteSavedStoryBtn.grid(row=3, column=0, pady=5)
             columnIndex += 1
 
-
     def openRemixStoryPage(self, story):
         '''
-        Prepares the application for remixing a story and also redirects 
+        Prepares the application for remixing a story and also redirects
         the user to the remix story page
-        
+
         1. Set remixStoryObj so that application remembers what story they were trying to remix.
             In case the user wants to toggle the theme on the remixStoryPage, which reloads the page,
             we'll be able to remember the story they were selecting whilst maintaining the theme toggling functionality.
-        
+
         2. Then open the remixStoryPage
 
         NOTE: remixStoryPage can only be accessed by clicking the openRemixStoryBtn,
             which will always reassign remixStoryObj to a valid/existing remixStoryObj.
-            Meaning, there should be no need to clear remixStoryObj when deleting stories, accounts, etc. as 
+            Meaning, there should be no need to clear remixStoryObj when deleting stories, accounts, etc. as
             remixStoryObj will always be assigned to a valid value when it matters.
         '''
         self.master.remixStoryObj = story
         self.master.openPage("remixStoryPage")
-
-
-
-
 
     def continueSavedStory(self, story):
         '''
@@ -145,8 +148,8 @@ class storyLibraryPage(ctk.CTkFrame):
         1. The story that the user is deleting is the same saved story that they are continuing
         2. The story that the user is deleting, is the story that they are currently remixing off of.
 
-        - Else, currentStory != story, so they're deleting a story that's unrelated 
-        to the story that they're current writing/continuing 
+        - Else, currentStory != story, so they're deleting a story that's unrelated
+        to the story that they're current writing/continuing
         '''
         if self.master.currentStory == story:  # type: ignore
             # Reset currentStory since it's being deleted from database
@@ -188,3 +191,31 @@ class storyLibraryPage(ctk.CTkFrame):
         if save_dir != ():
             file_path = os.path.join(save_dir, story.storyTitle+".pdf")
             pdf.output(file_path, 'F')
+
+    def exportAllStories(self):
+        savedStories = self.master.loggedInUser.stories
+        if not savedStories:
+            return
+        all_stories = []
+        for story in savedStories:
+            pdf = StoryPDF(story_name=story.storyTitle)
+            pdf.alias_nb_pages()
+            pdf.add_page()
+            pdf.set_font('Times', '', 12)
+            for idx, message in enumerate(story.messages):
+                if idx == 0:
+                    # Prompt
+                    pdf.multi_cell(200, 20, str(
+                        "Prompt: " + message.text), 0, 1)
+                else:
+                    # Story
+                    pdf.multi_cell(80, 5, str(message.text), 0, 1)
+            all_stories.append(pdf)
+        save_dir = askdirectory()
+        if save_dir != ():
+            file_path = os.path.join(
+                save_dir, "BookSmartBulkExport" + ".zip")
+            with zipfile.ZipFile(file_path, mode="w") as bulk_export:
+                for pdf_story_file in all_stories:
+                    bulk_export.writestr(
+                        zinfo_or_arcname=pdf_story_file.story_name+".pdf", data=pdf_story_file.output(dest="S").encode('latin-1'))
