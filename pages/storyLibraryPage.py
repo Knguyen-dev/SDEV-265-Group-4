@@ -175,7 +175,19 @@ class storyLibraryPage(ctk.CTkFrame):
         # Open/reload the storyLibraryPage for changes to take effect
         self.master.openPage("storyLibraryPage")  # type: ignore
 
-    def exportSavedStory(self, story):
+
+    '''
+    + Definitely has some issues with saving when the same file name already exists. We should try to fix that
+        and allow the user to "save as" rather than pick a folder
+    
+    '''
+
+
+
+    def getStoryPDF(self, story):
+        '''
+        + Converts a story object into a pdf
+        '''
         pdf = StoryPDF(story_name=story.storyTitle)
         pdf.alias_nb_pages()
         pdf.add_page()
@@ -187,30 +199,33 @@ class storyLibraryPage(ctk.CTkFrame):
             else:
                 # Story
                 pdf.multi_cell(80, 5, str(message.text), 0, 1)
+        return pdf
+
+
+    def exportSavedStory(self, story):
+        '''
+        + Exports a singular story and saves it to the user's computer
+        '''
+        pdf = self.getStoryPDF(story)
         save_dir = askdirectory()
         if save_dir != ():
             file_path = os.path.join(save_dir, story.storyTitle+".pdf")
             pdf.output(file_path, 'F')
 
     def exportAllStories(self):
+        '''
+        + Exports all stories that the user has saved on their account.
+        '''
         savedStories = self.master.loggedInUser.stories
-        if not savedStories:
-            return
+        # If there are no saved stories tied to the account, abort the function
+        if not savedStories: 
+            return        
+        # Turn all of the stories into pdfs and store them
         all_stories = []
         for story in savedStories:
-            pdf = StoryPDF(story_name=story.storyTitle)
-            pdf.alias_nb_pages()
-            pdf.add_page()
-            pdf.set_font('Times', '', 12)
-            for idx, message in enumerate(story.messages):
-                if idx == 0:
-                    # Prompt
-                    pdf.multi_cell(200, 20, str(
-                        "Prompt: " + message.text), 0, 1)
-                else:
-                    # Story
-                    pdf.multi_cell(80, 5, str(message.text), 0, 1)
+            pdf = self.getStoryPDF(story)
             all_stories.append(pdf)
+        # Create zip file "BookSmartBulkExport" and put all pdfs in that zip file, then save to user's computer
         save_dir = askdirectory()
         if save_dir != ():
             file_path = os.path.join(
