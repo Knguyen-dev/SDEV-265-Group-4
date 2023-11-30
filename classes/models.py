@@ -83,4 +83,7 @@ class Message(Base):
     # So through messages, we should be able to access the story.
     story:Mapped["Story"] = relationship(back_populates="messages") 
 
+    def __repr__(self):
+            return f"<Message Text: {self.text}>"
+
 
