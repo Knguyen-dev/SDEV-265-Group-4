@@ -6,6 +6,9 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 # Import the AI model
 from ai import StoryGPT 
+from PIL import Image # Import python image library for the button images
+from tkinter import messagebox
+import os
 
 # importing user so we don't have to log in everytime for testing
 # from classes.models import User
@@ -18,8 +21,8 @@ Constructor:
 
 Attributes/Variables:
 - master (App): 'App' class instance
-- navbar (CTkFrame): Inner frame that that contains the label and the contains the container for the nav buttons
-- navLabel (CTkLabel): Label that shows the text of the navbar 
+- sidebar (CTkFrame): Inner frame that that contains the label and the contains the container for the nav buttons
+- navLabel (CTkLabel): Label that shows the text of the sidebar 
 - navBtnFrame (CTkFrame): Tkinter frame/container that has the buttons in the nav
 - navBtns (Array): List that contains all of the tkinter buttons that are contained in the nav bar
 - navBtnMap (Object/Map): Object/map that contains the text of the buttons (keys) and the name of the class/page that 
@@ -29,53 +32,83 @@ Methods:
 - updateNavBtns(self): Adjusts the accessibility of the nav buttons based on their login state. 
 - disableNavBtns(self): Disables the nav buttons from being used
 '''
-class Header(ctk.CTkFrame):
-	def __init__(self, master):
-		# Put Header in the master frame
-		self.master = master
-		super().__init__(self.master, fg_color=self.master.theme["sub_clr"], corner_radius=0)
-		navbar = ctk.CTkFrame(self, fg_color="transparent")
-		navLabel = ctk.CTkLabel(navbar, text="Welcome to BookSmart.AI!", text_color=self.master.theme["label_clr"], font=("Helvetica", 32))
-		navBtnFrame = ctk.CTkFrame(navbar, fg_color="transparent")
 
-		# List of all buttons in the navbar
+class Sidebar(ctk.CTkFrame):
+	def __init__(self, master):
+		# Put Sidebar in the master frame
+		self.master = master
+		super().__init__(self.master, bg_color="transparent", corner_radius=0)
+		sidebarFrame = ctk.CTkFrame(self, bg_color="transparent", corner_radius=0, height=App.height, width=(App.width / 3))
+		sidebarFrame.pack(expand=True)
+		sidebar_bg = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, "sidebar_bg.jpg")), size=((425), (747)))
+		sidebar_bgPanel = ctk.CTkLabel(sidebarFrame, image=sidebar_bg, height=App.height, width=(App.width / 3))
+		sidebar_bgPanel.grid(row=0, column=0, sticky="ns")
+
+		sidebarInnerFrame = ctk.CTkFrame(sidebarFrame, bg_color="transparent", fg_color="transparent", corner_radius=0, height=App.height, width=(App.width / 3))
+		sidebarInnerFrame.grid(row=0, column=0, pady=20, sticky='ns')
+		sidebarInnerFrame.grid_rowconfigure(7, weight=1)
+		logo_image = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, "logo.jpeg")), size=(108, 108))
+		sidebar_logo = ctk.CTkLabel(sidebarInnerFrame, text=" ", fg_color="transparent", image=logo_image, compound="left", anchor='w', font=ctk.CTkFont(size=30, weight="bold"))
+		sidebar_logo.grid(row=0, column=0, padx=20, pady=20)
+
+		app_icon = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, "icon.jpeg")), size=(20, 20))
+		currentYear = datetime.datetime.now().year
+		copyrightDateLabel = ctk.CTkLabel(sidebarInnerFrame, text=f"BookSmart {currentYear}", bg_color="transparent", text_color=self.master.theme["label_clr"], font=("Helvetica", 16))
+		copyrightDateLabel.grid(row=1, column=0)
+
+		# List of all buttons in the sidebar
 		self.navBtns = [] 
 
-		# Map specifically used for creating buttons that redirect the user to other pages
-		self.navBtnMap = { 
-			"Home": "homePage",
-			"AI Settings": "AISettingsPage",
-			"Library": "storyLibraryPage",
-			"My Account": "userAccountPage",
+		buttons = {
+			"Home": {
+				"image_name": "home.png",
+				"command": lambda: self.master.openPage("homePage")
+			},
+			"AI Settings": {
+				"image_name": "settings.png",
+				"command": lambda: self.master.openPage("AISettingsPage")
+			},
+			"My Library": {
+				"image_name": "library.png",
+				"command": lambda: self.master.openPage("storyLibraryPage")
+			},
+			"My Account": {
+				"image_name": "account.png",
+				"command": lambda: self.master.openPage("userAccountPage")
+			},
+			"Toggle Theme": {
+				"image_name": "switch_theme.png",
+				"command": lambda: self.master.toggleTheme()
+			},
+			"Logout": {
+				"image_name": "logout.png",
+				"command": lambda: self.master.confirmLogout()
+			}
 		}
-		colCount = 0
-		for key in self.navBtnMap:
-			navBtn = ctk.CTkButton(navBtnFrame, corner_radius=0, fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], text=f"{key}", text_color=self.master.theme["btn_text_clr"], command=lambda k=key:self.master.openPage(self.navBtnMap[k])) #type: ignore
-			navBtn.grid(row=0, column=colCount, padx=10)
-			colCount += 1
-			self.navBtns.append(navBtn)
+		
+		for i, (btn_name, btn_info) in enumerate(buttons.items(), start=2):
+			btn_image = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, btn_info["image_name"])),
+				size=(50, 50))
+			
+			navBtn = ctk.CTkButton(sidebarInnerFrame, corner_radius=0, height=10, border_spacing=20,
+				bg_color="transparent", fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"],
+				text=btn_name, text_color=self.master.theme["btn_text_clr"], font=("Helvetica", 20),
+				image=btn_image, anchor="w",
+				command=btn_info["command"])
+			
+			navBtn.grid(row=i+1, column=0, sticky="ew")
+			self.navBtns.append(navBtn)  # Store the button with its name as the key
 
-		# Create nav button that toggles the theme
-		toggleThemeBtn = ctk.CTkButton(navBtnFrame, corner_radius=0, fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], text="Toggle Theme", text_color=self.master.theme["btn_text_clr"], command=self.master.toggleTheme)
-		toggleThemeBtn.grid(row=0, column=colCount+1, padx=10)
-		self.navBtns.append(toggleThemeBtn)
+	def disableSidebarButtons(self):
+		'''Disables all nav buttons'''
+		for button in self.navBtns:
+			button.configure(state="disabled")
 
-
-		# Structure remaining elements
-		navbar.pack(expand=True)
-		navLabel.grid(row=0, column=0,)
-		navBtnFrame.grid(row=1, column=0, pady=20, sticky='ns')
-
-		# Adjust nav buttons based on user's state. On load, the user isn't logged in, so calling this would 
-		# correctly disable the nav buttons until the user logged in.
-		self.updateNavButtons()
-	
-
-	def updateNavButtons(self):
+	def updateSidebar(self):
 		'''
 		- Update the navigation buttons based on the user's login state.
 		If the user is logged in:
-		1. Enable all navigation buttons.
+		1. Enable sidebar.
 		2. Allow users to click on the buttons to navigate to their respective places.
 
 		Else the user is not logged in:
@@ -87,43 +120,30 @@ class Header(ctk.CTkFrame):
 			is logged out. So we make sure that we exclude it from being disabled. However we 
 			will leave it so that this function can enable this button again in case it 
 			was disabled by disableNavButtons.
-
-		- The reason toggleThemeBtn is also going to be disabled by disableNavButtons is 
-			because toggling the theme re-renders the page. Having a re-render happen when 
-			the ai api is generating a message could break application.
 		'''
+
+		# Disable/Re-enable buttons based on login state; toggle theme is an exception as it always stays enabled.
 		for button in self.navBtns:
 			if (self.master.loggedInUser): #type: ignore
 				button.configure(state="standard")
 			elif button.cget("text") != "Toggle Theme":
 				button.configure(state="disabled")
-		
-	
-	def disableNavButtons(self):
-		'''Disables all nav buttons'''
-		for button in self.navBtns:
-			button.configure(state="disabled")
 
-
+		# Render sidebar depending on login state
+		if (self.master.loggedInUser):
+			self.master.sidebar.pack(side="left", fill="y")
+		else:
+		 	self.master.sidebar.pack_forget()
 
 '''
-+ Footer: Tkinter frame that represents the footer of the application
++ Themebar: Tkinter frame that represents the method to change themes of the application
 
 Constructor:
 - master (App): 'App' Class instance
 
 Attributes/Variables:
-- currentYear (int): Integer that represents the current year 
-- footerLabel (CTkLabel): Label that contains the text for the footer
+- toggleThemeBtn (CTkButton): Button that allows user to change themes of the application
 '''
-class Footer(ctk.CTkFrame):
-	def __init__(self, master):
-		self.master = master
-		super().__init__(self.master, fg_color=self.master.theme["sub_clr"], corner_radius=0)
-		currentYear = datetime.datetime.now().year
-		footerLabel = ctk.CTkLabel(self, text=f"BookSmart {currentYear}", text_color=self.master.theme["label_clr"], font=("Helvetica", 16))
-		footerLabel.pack()
-
 
 
 '''
@@ -160,7 +180,10 @@ Methods:
 	It passes, the 'App' class and then any potential arguments that the pageName class may take as parameters
 - logoutUser(self): Logs out the currently logged in user from our application.
 '''
+
 class App(ctk.CTk):
+	width=1280
+	height=800
 	def __init__(self):
 		# Initialize window and resize it based on the user's viewport width and height
 		super().__init__()
@@ -168,8 +191,8 @@ class App(ctk.CTk):
 		self.width = self.winfo_screenwidth()
 		self.height = self.winfo_screenheight()
 		self.geometry(f"{self.width}x{self.height}")
-
 		# AI model class instance that's going to be used throughout the application
+		self.image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "assets\images")
 		self.storyGPT = StoryGPT()
 
 		'''
@@ -188,15 +211,13 @@ class App(ctk.CTk):
 			the page. So we need that same story they wanted to remix when reloading
 		'''
 		self.currentPage = None
-		self.loggedInUser = None 
+		self.loggedInUser = None  
 		self.currentStory = None
 		self.isSavedStory = False
 		self.isRemixedStory = False
 		self.unsavedStoryMessages = []
 		self.storyGenObj = None
 		self.remixStoryObj = None
-
-
 		'''
 		- Map of colors for the theme. Value in left tuple 
 			is light theme color, while value in right tuple 
@@ -225,15 +246,10 @@ class App(ctk.CTk):
 		# Apply theme of application
 		self.applyTheme()
 
-		# Call function to create navbar
-		self.header = Header(self)
-		self.header.pack(side="top", fill="x")
-		self.footer = Footer(self)
-		self.footer.pack(fill="x", side="bottom")
-
+		self.sidebar = Sidebar(self)
+	
 		# On load in, direct to AIChatPage for development puropsees with the prompt engineering
 		self.openPage("userLoginPage")
-
 
 	'''
 	- Returns a class of a page (a tkinter frame) for the application 
@@ -247,9 +263,9 @@ class App(ctk.CTk):
 			# get the page class from the module
 			pageClass = getattr(module, pageName)
 			return pageClass
-		except (ImportError, AttributeError):
-			print(f"Error: Page {pageName} does not exist.")
-			return None
+		except (ImportError, AttributeError) as e:
+			print(e)
+			return None;
 
 	
 	'''
@@ -269,7 +285,6 @@ class App(ctk.CTk):
 		self.currentPage = pageClass(self, *args)
 		# Pack the new page on the screen
 		self.currentPage.pack(fill="both", expand=True)
-
 	def applyTheme(self):
 		'''Applies color changes to the application'''
 		if (self.isDarkTheme):
@@ -285,6 +300,15 @@ class App(ctk.CTk):
 	'''
 	- Log the current user out of the application.
 	'''
+	def confirmLogout(self):
+		response = messagebox.askquestion('Log out?', f'Are you sure you want to logout {self.loggedInUser.username}?')
+		if response == 'yes':
+			self.logoutUser()  # Calls the function for quitting the app
+		elif response == 'no':
+			pass
+		else:
+			messagebox.showwarning('error', 'Something went wrong!')
+
 	def logoutUser(self):
 		# loggedInUser is none because we are logging out the user
 		self.loggedInUser = None 
@@ -303,8 +327,7 @@ class App(ctk.CTk):
 		self.openPage("userLoginPage")
 
 		# Update nav buttons so that user can't access the pages associated with them
-		self.header.updateNavButtons()
-
+		self.sidebar.updateSidebar()
 
 # Make it so application can only be run from this file; 'python Main.py'
 if __name__ == "__main__":

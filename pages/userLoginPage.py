@@ -118,10 +118,11 @@ class userLoginPage(ctk.CTkFrame):
 		
 		# Assign the new logged in user
 		self.master.loggedInUser = retrievedUser #type: ignore
+		self.master.loggedInUsername = username #type: ignore
 
 		# Update the nav buttons now that the user is logged in
 		# so that they actually work and aren't disabled
-		self.master.header.updateNavButtons() #type: ignore
+		self.master.sidebar.updateSidebar() #type: ignore
 
 		# Redirect the user to the 'My Account' or the 'user account page'
 		self.master.openPage("userAccountPage") #type: ignore

@@ -132,7 +132,7 @@ class AIChatPage(ctk.CTkFrame):
 		self.chatBox.configure(state="normal")
 
 		# Ensure user can't navigate to other pages while AI is generating message
-		self.master.header.disableNavButtons() #type: ignore
+		self.master.sidebar.disableSidebarButtons()
 		self.openSaveStoryBtn.configure(state="disabled")
 
 		# Update page status message to indicate that AI is currently generating a message 
@@ -173,7 +173,7 @@ class AIChatPage(ctk.CTkFrame):
 		# Allow the user to send another message and navigate to other pages
 		self.openSaveStoryBtn.configure(state="normal")
 		self.sendChatBtn.configure(state="normal")
-		self.master.header.updateNavButtons() #type: ignore
+		self.master.sidebar.updateSidebar() #type: ignore
 
 		# Update the page status message to indicate the ai is done
 		self.pageStatusMessage.configure(text="StoryBot is currently waiting for you input.")
