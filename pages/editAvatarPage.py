@@ -30,9 +30,9 @@ class editAvatarPage(ctk.CTkFrame):
 
 		# Create container and buttons for the image slider
 		imageBtnsSections = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
-		prevImageBtn = ctk.CTkButton(imageBtnsSections, text="Previous", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.loadPreviousImage)
-		nextImageBtn = ctk.CTkButton(imageBtnsSections, text="Next", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.loadNextImage)
-		selectImageBtn = ctk.CTkButton(imageBtnsSections, text="Select", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.changeAvatar)
+		prevImageBtn = ctk.CTkButton(imageBtnsSections,  text="Previous", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.loadPreviousImage)
+		nextImageBtn = ctk.CTkButton(imageBtnsSections,  text="Next", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.loadNextImage)
+		selectImageBtn = ctk.CTkButton(imageBtnsSections,  text="Select", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.changeAvatar)
 
 		# Structure the widgets 
 		innerPageFrame.pack(expand=True)
@@ -43,8 +43,8 @@ class editAvatarPage(ctk.CTkFrame):
 
 		imageBtnsSections.grid(row=2, column=0, pady=10)
 		prevImageBtn.grid(row=0, column=0, padx=10)
-		nextImageBtn.grid(row=0, column=1, padx=10)
-		selectImageBtn.grid(row=0, column=2, padx=10)
+		selectImageBtn.grid(row=0, column=1, padx=10)
+		nextImageBtn.grid(row=0, column=2, padx=10)
 
 		# Load the current image onto the screen
 		self.loadCurrentImage()

@@ -59,10 +59,10 @@ class editAccountPage(ctk.CTkFrame):
 
 		# Clear form button and then a confirm changes button
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
-		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: clearEntryWidgets(self.formEntryList))
-		confirmEditsBtn = ctk.CTkButton(formBtnsSection, text="Confirm Edits", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.editAccount)
-		openChangePasswordBtn = ctk.CTkButton(formBtnsSection, text="Change Password", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("changePasswordPage")) #type: ignore
-		openDeleteAccountBtn = ctk.CTkButton(formBtnsSection, text="Account Deletion", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("deleteAccountPage")) #type: ignore
+		clearFormBtn = ctk.CTkButton(formBtnsSection,  text="Clear", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: clearEntryWidgets(self.formEntryList))
+		confirmEditsBtn = ctk.CTkButton(formBtnsSection,  text="Confirm Edits", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.editAccount)
+		openChangePasswordBtn = ctk.CTkButton(formBtnsSection,  text="Change Password", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("changePasswordPage")) #type: ignore
+		openDeleteAccountBtn = ctk.CTkButton(formBtnsSection,  text="Account Deletion", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("deleteAccountPage")) #type: ignore
 
 		# Structure the remaining page elements accordingly
 		formHeader.grid(row=0, column=0, padx=70, pady=10)

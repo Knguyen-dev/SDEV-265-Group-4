@@ -48,8 +48,8 @@ class deleteAccountPage(ctk.CTkFrame):
 				visibilityCheckBox.grid(row=x, column=2, padx=4, pady=10)
 
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
-		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: clearEntryWidgets(self.formEntryList))
-		deleteAccountBtn = ctk.CTkButton(formBtnsSection, text="Delete Account", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.deleteAccount)
+		clearFormBtn = ctk.CTkButton(formBtnsSection,  text="Clear", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: clearEntryWidgets(self.formEntryList))
+		deleteAccountBtn = ctk.CTkButton(formBtnsSection,  text="Delete Account", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.deleteAccount)
 		
 		# Structure the remaining elements of the page
 		formHeader.grid(row=0, column=0, padx=40, pady=10)

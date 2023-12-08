@@ -75,9 +75,9 @@ class userLoginPage(ctk.CTkFrame):
 
 		# Create section to have form buttons/actions
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
-		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: clearEntryWidgets(self.formEntryList))
-		confirmLoginBtn = ctk.CTkButton(formBtnsSection, text="Confirm Login", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.loginUser)
-		openRegisterAccountBtn = ctk.CTkButton(formBtnsSection, text="Register New Account", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("userRegisterPage")) #type: ignore
+		clearFormBtn = ctk.CTkButton(formBtnsSection,  text="Clear", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: clearEntryWidgets(self.formEntryList))
+		confirmLoginBtn = ctk.CTkButton(formBtnsSection,  text="Confirm Login", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.loginUser)
+		openRegisterAccountBtn = ctk.CTkButton(formBtnsSection,  text="Register New Account", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("userRegisterPage")) #type: ignore
 		
 		# Structure the remaining elements of the page
 		formHeader.grid(row=0, column=0, pady=10)

@@ -30,20 +30,20 @@ class homePage(ctk.CTkFrame):
 		pageHeading = ctk.CTkLabel(pageHeader, text="Home", text_color=self.master.theme["label_clr"], font=("Helvetica", 32))
 
 		pageBtnsSection = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
-		newStoryBtn_img = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, "addStoryBtn.jpg")),size=(200, 200))
-		newStoryBtn = ctk.CTkButton(pageBtnsSection, image=newStoryBtn_img, height=25, width=25, fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.startNewStory)
-		newStoryBtn_lbl = ctk.CTkLabel(pageBtnsSection, font=("Helvetica", 24), text="Start A New Story!", text_color=self.master.theme["btn_text_clr"])
-		continuePrevStoryBtn_img = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, "previousStoryBtn.jpg")),size=(200, 200))
-		continuePrevStoryBtn = ctk.CTkButton(pageBtnsSection, height=25, width=25, image=continuePrevStoryBtn_img, fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("AIChatPage")) #type: ignore
-		continuePrevStoryBtn_lbl = ctk.CTkLabel(pageBtnsSection, font=("Helvetica", 24), text="Start A New Story!", text_color=self.master.theme["btn_text_clr"])
+		newStoryBtn_img = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, "glass_addStoryBtn.png")),size=(150, 150))
+		newStoryBtn = ctk.CTkButton(pageBtnsSection, image=newStoryBtn_img, text=" ", height=40, width=40, fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.startNewStory)
+		newStoryBtn_lbl = ctk.CTkLabel(pageBtnsSection, font=("Helvetica", 24), text="New Story", text_color=self.master.theme["btn_text_clr"])
+		continuePrevStoryBtn_img = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, "glass_prevStoryBtn.png")),size=(150, 150))
+		continuePrevStoryBtn = ctk.CTkButton(pageBtnsSection, image=continuePrevStoryBtn_img, text=" ", height=40, width=40, fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("AIChatPage")) #type: ignore
+		continuePrevStoryBtn_lbl = ctk.CTkLabel(pageBtnsSection, font=("Helvetica", 24), text="Continue Story", text_color=self.master.theme["btn_text_clr"])
 		innerPageFrame.pack(expand=True)
 		pageHeader.grid(row=0, column=0, pady=10)
 		pageHeading.grid(row=0, column=0)
 
 		pageBtnsSection.grid(row=1, column=0)
-		newStoryBtn.grid(row=1, column=0, padx=20, pady=20)
+		newStoryBtn.grid(row=1, column=0, padx=10, pady=10)
 		newStoryBtn_lbl.grid(row=2, column=0, padx=20, pady=20)
-		continuePrevStoryBtn.grid(row=1, column=1, padx=20, pady=20)
+		continuePrevStoryBtn.grid(row=1, column=1, padx=10, pady=10)
 		continuePrevStoryBtn_lbl.grid(row=2, column=1, padx=20, pady=20)
 
 

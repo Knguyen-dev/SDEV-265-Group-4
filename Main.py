@@ -37,23 +37,25 @@ class Sidebar(ctk.CTkFrame):
 	def __init__(self, master):
 		# Put Sidebar in the master frame
 		self.master = master
-		super().__init__(self.master, bg_color="transparent", corner_radius=0)
-		sidebarFrame = ctk.CTkFrame(self, bg_color="transparent", corner_radius=0, height=App.height, width=(App.width / 3))
+		super().__init__(master, fg_color=self.master.theme["main_clr"], corner_radius=0)
+		sidebarFrame = ctk.CTkFrame(self, fg_color=self.master.theme["main_clr"], corner_radius=0)
 		sidebarFrame.pack(expand=True)
-		sidebar_bg = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, "sidebar_bg.jpg")), size=((425), (747)))
-		sidebar_bgPanel = ctk.CTkLabel(sidebarFrame, image=sidebar_bg, height=App.height, width=(App.width / 3))
+
+		sidebar_bg = ctk.CTkImage(light_image=Image.open(os.path.join(self.master.image_path, "sidebar_bg_light.jpg")),
+                                                     dark_image=Image.open(os.path.join(self.master.image_path, "sidebar_bg_dark.jpg")), size=((300), (850)))
+		sidebar_bgPanel = ctk.CTkLabel(sidebarFrame, image=sidebar_bg, text=" ")
 		sidebar_bgPanel.grid(row=0, column=0, sticky="ns")
 
-		sidebarInnerFrame = ctk.CTkFrame(sidebarFrame, bg_color="transparent", fg_color="transparent", corner_radius=0, height=App.height, width=(App.width / 3))
-		sidebarInnerFrame.grid(row=0, column=0, pady=20, sticky='ns')
-		sidebarInnerFrame.grid_rowconfigure(7, weight=1)
-		logo_image = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, "logo.jpeg")), size=(108, 108))
-		sidebar_logo = ctk.CTkLabel(sidebarInnerFrame, text=" ", fg_color="transparent", image=logo_image, compound="left", anchor='w', font=ctk.CTkFont(size=30, weight="bold"))
+		navbarBGFrame = ctk.CTkFrame(sidebarFrame, fg_color=self.master.theme["sub_clr"])
+		navbarBGFrame.grid(row=0, column=0, sticky='nse')
+		navbarBGFrame.grid_rowconfigure(6, weight=1)
+
+		logo_image = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, "logo.jpeg")), size=(150, 150))
+		sidebar_logo = ctk.CTkLabel(navbarBGFrame, text=" ", fg_color="transparent", image=logo_image, font=ctk.CTkFont(size=40, weight="bold"))
 		sidebar_logo.grid(row=0, column=0, padx=20, pady=20)
 
-		app_icon = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, "icon.jpeg")), size=(20, 20))
 		currentYear = datetime.datetime.now().year
-		copyrightDateLabel = ctk.CTkLabel(sidebarInnerFrame, text=f"BookSmart {currentYear}", bg_color="transparent", text_color=self.master.theme["label_clr"], font=("Helvetica", 16))
+		copyrightDateLabel = ctk.CTkLabel(navbarBGFrame, text=f"BookSmart {currentYear}", bg_color="transparent", fg_color="transparent", text_color=self.master.theme["label_clr"], font=("Helvetica", 20))
 		copyrightDateLabel.grid(row=1, column=0)
 
 		# List of all buttons in the sidebar
@@ -61,42 +63,41 @@ class Sidebar(ctk.CTkFrame):
 
 		buttons = {
 			"Home": {
-				"image_name": "home.png",
-				"command": lambda: self.master.openPage("homePage")
+				"image_name": "glass_home_btn.png",
+				"command": lambda: self.master.openPage("homePage"),
 			},
 			"AI Settings": {
-				"image_name": "settings.png",
-				"command": lambda: self.master.openPage("AISettingsPage")
+				"image_name": "glass_settings_btn.png",
+				"command": lambda: self.master.openPage("AISettingsPage"),
 			},
 			"My Library": {
-				"image_name": "library.png",
-				"command": lambda: self.master.openPage("storyLibraryPage")
+				"image_name": "glass_library_btn.png",
+				"command": lambda: self.master.openPage("storyLibraryPage"),
 			},
 			"My Account": {
-				"image_name": "account.png",
-				"command": lambda: self.master.openPage("userAccountPage")
+				"image_name": "glass_account_btn.png",
+				"command": lambda: self.master.openPage("userAccountPage"),
 			},
 			"Toggle Theme": {
-				"image_name": "switch_theme.png",
-				"command": lambda: self.master.toggleTheme()
+				"image_name": "glass_theme_btn.png",
+				"command": lambda: self.master.toggleTheme(),
 			},
 			"Logout": {
-				"image_name": "logout.png",
-				"command": lambda: self.master.confirmLogout()
+				"image_name": "glass_logout_btn.png",
+				"command": lambda: self.master.confirmLogout(),
 			}
 		}
 		
 		for i, (btn_name, btn_info) in enumerate(buttons.items(), start=2):
 			btn_image = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, btn_info["image_name"])),
-				size=(50, 50))
+				size=(100, 100))
 			
-			navBtn = ctk.CTkButton(sidebarInnerFrame, corner_radius=0, height=10, border_spacing=20,
-				bg_color="transparent", fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"],
-				text=btn_name, text_color=self.master.theme["btn_text_clr"], font=("Helvetica", 20),
-				image=btn_image, anchor="w",
-				command=btn_info["command"])
+			navBtn = ctk.CTkButton(navbarBGFrame, corner_radius=0, hover_color=("gray25", "gray30"), height=20, width=30, border_spacing=5,
+				fg_color="transparent", hover=True, image=btn_image, anchor="w", text=btn_name, 
+				font=ctk.CTkFont(size=16, weight="bold"), text_color=self.master.theme["btn_text_clr"], command=btn_info["command"])
 			
-			navBtn.grid(row=i+1, column=0, sticky="ew")
+			navBtn.grid(row=i, column=0)
+
 			self.navBtns.append(navBtn)  # Store the button with its name as the key
 
 	def disableSidebarButtons(self):
@@ -131,10 +132,10 @@ class Sidebar(ctk.CTkFrame):
 
 		# Render sidebar depending on login state
 		if (self.master.loggedInUser):
-			self.master.sidebar.pack(side="left", fill="y")
+			self.master.enableSidebar()
 		else:
-		 	self.master.sidebar.pack_forget()
-
+		 	self.master.disableSidebar()
+			 
 '''
 + Themebar: Tkinter frame that represents the method to change themes of the application
 
@@ -182,7 +183,7 @@ Methods:
 '''
 
 class App(ctk.CTk):
-	width=1280
+	width = 1280
 	height=800
 	def __init__(self):
 		# Initialize window and resize it based on the user's viewport width and height
@@ -224,15 +225,15 @@ class App(ctk.CTk):
 			is dark theme color
 		'''
 		self.theme = {
-			"main_clr": ("#FFFFFF", "#030712"),
-			"sub_clr": ("#9ca3af", "#0f172a"),
+			"main_clr": ("#C7C7C7", "#45495E"),
+			"sub_clr": ("#DBDBDB", "#585D78"),
 			"label_clr": ("#000000", "#FFFFFF"),
-			"btn_clr": ("#4267B2", "#9ca3af"),
+			"btn_clr": ("#8EC1B0", "#9ca3af"),
 			"btn_text_clr": "#FFFFFF",
-			"hover_clr": ("#34d399", "#4267B2"),
-			"entry_clr": ("#FFFFFF", "#374151"),
+			"hover_clr": ("#4267B2", "#A6ACD2"),
+			"entry_clr": ("#FFFFFF", "#3C3F52"),
 			"entry_text_clr": ("#000000", "#FFFFFF"),
-		}
+			}
 		self.isDarkTheme = True
 	
 		# Engine and session constructor that we're going to use 
@@ -250,6 +251,12 @@ class App(ctk.CTk):
 	
 		# On load in, direct to AIChatPage for development puropsees with the prompt engineering
 		self.openPage("userLoginPage")
+	
+	def enableSidebar(self):
+		self.sidebar.pack(side="left", fill="y")
+	
+	def disableSidebar(self):
+		self.sidebar.pack_forget()
 
 	'''
 	- Returns a class of a page (a tkinter frame) for the application 
