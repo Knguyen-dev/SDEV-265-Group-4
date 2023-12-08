@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import tkinter as tk
+from tkinter import messagebox
 
 '''
 + AISettingsPage: Page where hte user can configure the settings of the AI
@@ -117,6 +118,10 @@ class AISettingsPage(ctk.CTkFrame):
         self.master.storyGPT.top_p = settingsObj["top_p"]
         self.master.storyGPT.presence_penalty = settingsObj["presence_penalty"]
         self.master.storyGPT.frequency_penalty = settingsObj["frequency_penalty"]
+
+        if (self.responseStyleBox.get().strip() == ""):
+            messagebox.showwarning('Empty Entry!', 'Please enter a valid response style!')
+            return
         self.master.storyGPT.response_style = self.responseStyleBox.get(
             "1.0", "end-1c")  # type: ignore
 

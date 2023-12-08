@@ -3,6 +3,7 @@ import customtkinter as ctk
 import sys
 sys.path.append("..")
 from classes.models import Message
+from tkinter import messagebox
 
 '''
 + AIChatPage: Frame that represents the page where the user and AI send chat messages to each other in order to 
@@ -189,7 +190,7 @@ class AIChatPage(ctk.CTkFrame):
 		'''
 		# Check if user actually sent something
 		if (self.chatEntry.get().strip() == ""):
-			self.pageStatusMessage.configure(text="Please enter text before trying to send a message!")
+			messagebox.showwarning('Empty Message!', 'Please enter a valid message!')
 			return
 
 		# Process and render the user's message
