@@ -16,7 +16,7 @@ class editAvatarPage(ctk.CTkFrame):
 		
 		innerPageFrame = ctk.CTkFrame(self, fg_color=self.master.theme["sub_clr"])
 		
-		self.imageFolderPath = "./assets/images/" # Path to image folder relative to our script file
+		self.imageFolderPath = "./assets/images/profile_pics/" # Path to image folder relative to our script file
 		self.imageIndex = 0 # Index of the current image
 		self.imageList = self.getImageFileNames() # list of image file names that we'll use to load images 
 		self.currentImageFileName = "" # the file name of the current image file the image slider is on
@@ -30,9 +30,9 @@ class editAvatarPage(ctk.CTkFrame):
 
 		# Create container and buttons for the image slider
 		imageBtnsSections = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
-		prevImageBtn = ctk.CTkButton(imageBtnsSections, text="Previous", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.loadPreviousImage)
-		nextImageBtn = ctk.CTkButton(imageBtnsSections, text="Next", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.loadNextImage)
-		selectImageBtn = ctk.CTkButton(imageBtnsSections, text="Select", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.changeAvatar)
+		prevImageBtn = ctk.CTkButton(imageBtnsSections,  text="Previous", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.loadPreviousImage)
+		nextImageBtn = ctk.CTkButton(imageBtnsSections,  text="Next", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.loadNextImage)
+		selectImageBtn = ctk.CTkButton(imageBtnsSections,  text="Select", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.changeAvatar)
 
 		# Structure the widgets 
 		innerPageFrame.pack(expand=True)
@@ -43,8 +43,8 @@ class editAvatarPage(ctk.CTkFrame):
 
 		imageBtnsSections.grid(row=2, column=0, pady=10)
 		prevImageBtn.grid(row=0, column=0, padx=10)
-		nextImageBtn.grid(row=0, column=1, padx=10)
-		selectImageBtn.grid(row=0, column=2, padx=10)
+		selectImageBtn.grid(row=0, column=1, padx=10)
+		nextImageBtn.grid(row=0, column=2, padx=10)
 
 		# Load the current image onto the screen
 		self.loadCurrentImage()
@@ -59,7 +59,7 @@ class editAvatarPage(ctk.CTkFrame):
 		# Put new image on the label to display it
 		newImage = ImageTk.PhotoImage(Image.open(f"{self.imageFolderPath}{self.imageList[self.imageIndex]}").resize((300, 300))) 
 		self.imageLabel.configure(image=newImage)
-		self.imageLabel.image = newImage #type: ignore
+		self.imageLabel.image = newImage 
 
 		# Update the file name of the current image
 		self.currentImageFileName = self.imageList[self.imageIndex]
@@ -82,8 +82,8 @@ class editAvatarPage(ctk.CTkFrame):
 	# Changes the avatar of the currently logged in user
 	def changeAvatar(self):
 		# Update the avatar attribute with the image's file name, and persist that change to the database
-		self.master.loggedInUser.avatar = self.currentImageFileName #type: ignore
+		self.master.loggedInUser.avatar = self.currentImageFileName 
 		self.master.session.commit() # type: ignore
 
 		# Redirect the user to the account page to make sure they see their changess
-		self.master.openPage("userAccountPage") #type: ignore
+		self.master.openPage("userAccountPage") 

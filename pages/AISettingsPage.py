@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import tkinter as tk
+from tkinter import messagebox
 
 '''
 + AISettingsPage: Page where hte user can configure the settings of the AI
@@ -130,16 +131,16 @@ class AISettingsPage(ctk.CTkFrame):
         ''' Restores the value of the sliders and checkboxes to represent what the AI chat bot is currently using.'''
         # Set the variables of the sliders to the ai's current parameter values
         self.sliderVarList[0].set(
-            self.master.storyGPT.temperature)  # type: ignore
-        self.sliderVarList[1].set(self.master.storyGPT.top_p)  # type: ignore
+            self.master.storyGPT.temperature)  
+        self.sliderVarList[1].set(self.master.storyGPT.top_p)  
         self.sliderVarList[2].set(
-            self.master.storyGPT.presence_penalty)  # type: ignore
+            self.master.storyGPT.presence_penalty)  
         self.sliderVarList[3].set(
-            self.master.storyGPT.frequency_penalty)  # type: ignore
+            self.master.storyGPT.frequency_penalty)  
         # First clear the responseStyleBox, and then insert in the ai's current response style
         self.responseStyleBox.delete("1.0", "end-1c")
         self.responseStyleBox.insert(
-            "1.0", self.master.storyGPT.response_style)  # type: ignore
+            "1.0", self.master.storyGPT.response_style)
 
     def changeAISettings(self):
         '''Changes the settings of the Story Writer AI'''
@@ -147,13 +148,9 @@ class AISettingsPage(ctk.CTkFrame):
         self.formatSliderVars()
 
         # Change attributes of storyGPT using corresponding tkinter-related variables
-        # type: ignore
         self.master.storyGPT.temperature = self.sliderVarList[0].get()
-        # type: ignore
         self.master.storyGPT.top_p = self.sliderVarList[1].get()
-        # type: ignore
         self.master.storyGPT.presence_penalty = self.sliderVarList[2].get()
-        # type: ignore
         self.master.storyGPT.frequency_penalty = self.sliderVarList[3].get()
-        self.master.storyGPT.response_style = self.responseStyleBox.get(
-            "1.0", "end-1c")  # type: ignore
+        self.master.storyGPT.response_style = self.responseStyleBox.get("1.0", "end-1c")
+        

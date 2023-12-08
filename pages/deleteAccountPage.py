@@ -48,8 +48,8 @@ class deleteAccountPage(ctk.CTkFrame):
 				visibilityCheckBox.grid(row=x, column=2, padx=4, pady=10)
 
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
-		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: clearEntryWidgets(self.formEntryList))
-		deleteAccountBtn = ctk.CTkButton(formBtnsSection, text="Delete Account", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.deleteAccount)
+		clearFormBtn = ctk.CTkButton(formBtnsSection,  text="Clear", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: clearEntryWidgets(self.formEntryList))
+		deleteAccountBtn = ctk.CTkButton(formBtnsSection,  text="Delete Account", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.deleteAccount)
 		
 		# Structure the remaining elements of the page
 		formHeader.grid(row=0, column=0, padx=40, pady=10)
@@ -78,12 +78,12 @@ class deleteAccountPage(ctk.CTkFrame):
 		- Since user is deleting their own account, the username they enter should be the username of the currently logged in user.
 		- As a result, for the form to be valid, the username and password must belong to the currently logged in user.		
 		'''
-		if self.master.loggedInUser.username == username and self.master.loggedInUser.passwordHash == passwordHash: #type: ignore
+		if self.master.loggedInUser.username == username and self.master.loggedInUser.passwordHash == passwordHash: 
 			# Delete the logged in user from the database and save those changes
-			self.master.session.delete(self.master.loggedInUser) #type: ignore
-			self.master.session.commit() #type: ignore
+			self.master.session.delete(self.master.loggedInUser) 
+			self.master.session.commit() 
 			# We can safely do the logout process on the user now, since their account does not exist anymore
-			self.master.logoutUser() #type: ignore
+			self.master.logoutUser() 
 		else:
 			# Else, their username or password is wrong
 			self.formErrorMessage.configure(text="Username or password is incorrect!")

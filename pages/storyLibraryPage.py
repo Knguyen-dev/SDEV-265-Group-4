@@ -55,7 +55,7 @@ class storyLibraryPage(ctk.CTkFrame):
         
         # Render section for exporting all stories in the library
         bulkExportBtnFrame = ctk.CTkFrame(innerPageFrame, fg_color="transparent", width=500, height=500)
-        bulkExportStoryBtn = ctk.CTkButton(bulkExportBtnFrame, text="Export All", command=self.exportAllStories, text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"])
+        bulkExportStoryBtn = ctk.CTkButton(bulkExportBtnFrame,  text="Export All", command=self.exportAllStories, text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"])
         bulkExportStoryBtn.pack(expand=True)
         bulkExportBtnFrame.grid(row=0, column=0)
 
@@ -82,12 +82,12 @@ class storyLibraryPage(ctk.CTkFrame):
             cardBody = ctk.CTkFrame(storyCard, fg_color="transparent")
             continueSavedStoryBtn = ctk.CTkButton(cardBody, text="Continue", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"],
                                                   hover_color=self.master.theme["hover_clr"], command=lambda story=story: self.continueSavedStory(story))
-            openRemixStoryBtn = ctk.CTkButton(cardBody, text="Remix", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"],
+            openRemixStoryBtn = ctk.CTkButton(cardBody,  text="Remix", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"],
                                               command=lambda story=story: self.openRemixStoryPage(story))  # type: ignore
-            deleteSavedStoryBtn = ctk.CTkButton(cardBody, text="Delete", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"],
+            deleteSavedStoryBtn = ctk.CTkButton(cardBody,  text="Delete", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"],
                                                 hover_color=self.master.theme["hover_clr"], command=lambda story=story: self.deleteSavedStory(story))
             exportStoryBtn = ctk.CTkButton(
-                cardBody, text="Export", command=lambda story=story: self.exportSavedStory(story), text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"])
+                cardBody,  text="Export", command=lambda story=story: self.exportSavedStory(story), text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"])
 
             # Structure the storyCard and its widgets
             storyCard.grid(row=rowIndex, column=columnIndex, padx=10, pady=10)

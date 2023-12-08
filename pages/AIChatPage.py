@@ -3,6 +3,7 @@ import customtkinter as ctk
 import sys
 sys.path.append("..")
 from classes.models import Message
+from tkinter import messagebox
 
 '''
 + AIChatPage: Frame that represents the page where the user and AI send chat messages to each other in order to 
@@ -43,9 +44,9 @@ class AIChatPage(ctk.CTkFrame):
 
 		# Section with all of the input options the user has for the AIChatPage
 		chatInputSection = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
-		self.chatEntry = ctk.CTkEntry(chatInputSection, width=300, placeholder_text="Send a message e.g. 'Once upon a time...'", fg_color=self.master.theme["entry_clr"], text_color=self.master.theme["entry_text_clr"])
-		self.openSaveStoryBtn = ctk.CTkButton(chatInputSection, text="Save Story", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("saveStoryPage")) #type: ignore
-		self.sendChatBtn = ctk.CTkButton(chatInputSection, text="Send", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.processUserChat)
+		self.chatEntry = ctk.CTkEntry(chatInputSection, width=300, placeholder_text="Send a message e.g. 'Once upon a time...'", fg_color=self.master.theme["entry_clr"], text_color=self.master.theme["entry_text_clr"], )
+		self.openSaveStoryBtn = ctk.CTkButton(chatInputSection,  text="Save Story", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("saveStoryPage"))
+		self.sendChatBtn = ctk.CTkButton(chatInputSection, text="Send",  text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.processUserChat)
 		
 		# Structure and style widgets accordingly
 		header.grid(row=0, column=0, pady=10)
@@ -65,12 +66,12 @@ class AIChatPage(ctk.CTkFrame):
 			we're rendering the AI's first response to a user's remixed story, which would be the first message of the chat.
 		3. Using is continuing an unsaved story that isn't a remix.
 		'''
-		if self.master.isSavedStory: #type: ignore
+		if self.master.isSavedStory: 
 			# Render saved messages associated with the current story
 			for messageObj in self.master.currentStory.messages:
 				self.renderChatMessageObj(messageObj)
 			storyStateMessage.configure(text=f"Currently continuing '{self.master.currentStory.storyTitle}'!")
-		elif self.master.isRemixedStory: #type: ignore
+		elif self.master.isRemixedStory: 
 			storyStateMessage.configure(text=f"Currently writing a remix based on '{self.master.currentStory.storyTitle}'!")
 		else:
 			storyStateMessage.configure(text=f"Currently continuing writing a new story!")
@@ -102,7 +103,7 @@ class AIChatPage(ctk.CTkFrame):
 		if messageObj.isAISender:
 			messageText = "StoryBot: " + messageText
 		else:
-			messageText = f"{self.master.loggedInUser.username}: " + messageText #type: ignore
+			messageText = f"{self.master.loggedInUser.username}: " + messageText 
 
 		# If the chatBox is empty, then it's the first message, else it's not the first message
 		if self.chatBox.get("1.0", "end-1c") == "":
@@ -132,7 +133,7 @@ class AIChatPage(ctk.CTkFrame):
 		self.chatBox.configure(state="normal")
 
 		# Ensure user can't navigate to other pages while AI is generating message
-		self.master.header.disableNavButtons() #type: ignore
+		self.master.sidebar.disableSidebarButtons()
 		self.openSaveStoryBtn.configure(state="disabled")
 
 		# Update page status message to indicate that AI is currently generating a message 
@@ -145,7 +146,7 @@ class AIChatPage(ctk.CTkFrame):
 		# Insert two newlines so that there's a space between the user's message and the ai's message 
 		self.chatBox.insert("end", "\n\nStoryBot: ")
 		# Iterate through chunks to render and process them
-		for chunk in self.master.storyGenObj: #type: ignore
+		for chunk in self.master.storyGenObj: 
 			if any(chunk.endswith(char) for char in ['.', '?', '!']):
 				punct_marks = ['.', '?', '!']
 				for mark in punct_marks:
@@ -163,8 +164,8 @@ class AIChatPage(ctk.CTkFrame):
 			chunkIndex += 1
 			
 		# AI response processing is done, so append message object and variables related to processing a message
-		self.master.unsavedStoryMessages.append(messageObj) #type: ignore
-		self.master.storyGenObj = None #type: ignore
+		self.master.unsavedStoryMessages.append(messageObj) 
+		self.master.storyGenObj = None 
 
 		# Scroll to bottom and make chatbox read only
 		self.chatBox.see("end-1c")
@@ -173,7 +174,7 @@ class AIChatPage(ctk.CTkFrame):
 		# Allow the user to send another message and navigate to other pages
 		self.openSaveStoryBtn.configure(state="normal")
 		self.sendChatBtn.configure(state="normal")
-		self.master.header.updateNavButtons() #type: ignore
+		self.master.sidebar.updateSidebar() 
 
 		# Update the page status message to indicate the ai is done
 		self.pageStatusMessage.configure(text="StoryBot is currently waiting for you input.")
@@ -189,18 +190,18 @@ class AIChatPage(ctk.CTkFrame):
 		'''
 		# Check if user actually sent something
 		if (self.chatEntry.get().strip() == ""):
-			self.pageStatusMessage.configure(text="Please enter text before trying to send a message!")
+			messagebox.showwarning('Empty Message!', 'Please enter a valid message!')
 			return
 
 		# Process and render the user's message
 		userMessage = Message(text=self.chatEntry.get(), isAISender=False)
 		self.renderChatMessageObj(userMessage)
-		self.master.unsavedStoryMessages.append(userMessage) #type: ignore	
+		self.master.unsavedStoryMessages.append(userMessage) 	
 		
 		# Clear entry widget when user sends a message
 		self.chatEntry.delete(0, "end")
 			
-		AIResponse = self.master.storyGPT.sendStoryPrompt(userMessage.text) #type: ignore
+		AIResponse = self.master.storyGPT.sendStoryPrompt(userMessage.text) 
 		self.master.storyGenObj = AIResponse # type: ignore 
 
 		# Process and render AI's message
