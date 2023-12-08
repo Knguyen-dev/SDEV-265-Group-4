@@ -16,7 +16,7 @@ class editAvatarPage(ctk.CTkFrame):
 		
 		innerPageFrame = ctk.CTkFrame(self, fg_color=self.master.theme["sub_clr"])
 		
-		self.imageFolderPath = "./assets/images/" # Path to image folder relative to our script file
+		self.imageFolderPath = "./assets/images/profile_pics" # Path to image folder relative to our script file
 		self.imageIndex = 0 # Index of the current image
 		self.imageList = self.getImageFileNames() # list of image file names that we'll use to load images 
 		self.currentImageFileName = "" # the file name of the current image file the image slider is on
