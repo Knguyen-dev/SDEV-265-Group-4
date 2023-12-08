@@ -35,7 +35,7 @@ class userAccountPage(ctk.CTkFrame):
 		# Create section to store the user's profile picture
 		userImageSection = tk.Canvas(innerPageFrame)
 		
-		avatarSourcePath = f"./assets/images/{self.master.loggedInUser.avatar}"
+		avatarSourcePath = f"./assets/images/profile_pics/{self.master.loggedInUser.avatar}"
 		image = Image.open(avatarSourcePath).resize((300, 300))
 		imageWidget = ImageTk.PhotoImage(image=image)
 		imageLabel = tk.Label(userImageSection, image=imageWidget)
