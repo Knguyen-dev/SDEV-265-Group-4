@@ -7,6 +7,7 @@ class StoryPDF(FPDF):
     def __init__(self, story_name: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.header_text = "BookSmartAI" + " - " + story_name
+        self.story_name = story_name
 
     def header(self):
         # Logo

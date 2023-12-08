@@ -3,7 +3,7 @@ import hashlib
 import sys
 sys.path.append("..")
 from classes.utilities import clearEntryWidgets, isEmptyEntryWidgets, isValidPassword, toggleHidden
-
+from classes.models import User
 '''
 + changePasswordPage: Page where the user can change the password of their account
 
@@ -33,19 +33,19 @@ Methods
 class changePasswordPage(ctk.CTkFrame):
 	def __init__(self, master):
 		self.master = master
-		super().__init__(self.master, fg_color=self.master.mainFGCLR, corner_radius=0)
+		super().__init__(self.master, fg_color=self.master.theme["main_clr"], corner_radius=0)
 		
 		# Create edit form frame
-		form = ctk.CTkFrame(self, fg_color=self.master.subFGCLR)
+		form = ctk.CTkFrame(self, fg_color=self.master.theme["sub_clr"])
 		form.pack(expand=True)
 
 		# Create header of the form
 		formHeader = ctk.CTkFrame(form, fg_color="transparent")
-		formHeading = ctk.CTkLabel(formHeader, text="Change Password", font=("Helvetica", 32), text_color=self.master.textCLR)
-		self.formErrorMessage = ctk.CTkLabel(formHeader, text="", text_color=self.master.textCLR)
+		formHeading = ctk.CTkLabel(formHeader, text="Change Password", font=("Helvetica", 32), text_color=self.master.theme["label_clr"])
+		self.formErrorMessage = ctk.CTkLabel(formHeader, text="", text_color=self.master.theme["label_clr"])
 		
 		# Create the input section with form fields 
-		formFieldsSection = ctk.CTkFrame(form, fg_color=self.master.subFGCLR)
+		formFieldsSection = ctk.CTkFrame(form, fg_color="transparent")
 		formFields = [
 			"Old Password",
 			"New Password",
@@ -55,10 +55,10 @@ class changePasswordPage(ctk.CTkFrame):
 		# Then create and position label and entry widgets for form
 		self.formEntryList = []
 		for x in range(len(formFields)):
-			label = ctk.CTkLabel(formFieldsSection, text=formFields[x], text_color=self.master.textCLR)
-			entry = ctk.CTkEntry(formFieldsSection, fg_color=self.master.entryFGCLR, text_color=self.master.entryTextCLR)
+			label = ctk.CTkLabel(formFieldsSection, text=formFields[x], text_color=self.master.theme["label_clr"])
+			entry = ctk.CTkEntry(formFieldsSection, fg_color=self.master.theme["entry_clr"], text_color=self.master.theme["entry_text_clr"])
 			checkVar = ctk.StringVar(value="off")
-			visibilityCheckBox = ctk.CTkCheckBox(formFieldsSection, variable=checkVar, command=lambda entry=entry, var=checkVar: toggleHidden(entry, var),  text="Hide", text_color=self.master.textCLR, onvalue="on", offvalue="off")
+			visibilityCheckBox = ctk.CTkCheckBox(formFieldsSection, variable=checkVar, command=lambda entry=entry, var=checkVar: toggleHidden(entry, var),  text="Hide", text_color=self.master.theme["label_clr"], onvalue="on", offvalue="off")
 			self.formEntryList.append(entry)
 			label.grid(row=x, column=0, pady=10, padx=10)
 			entry.grid(row=x, column=1, pady=10, padx=10)
@@ -66,8 +66,8 @@ class changePasswordPage(ctk.CTkFrame):
 
 		# Create section to have form buttons/actions
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
-		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=lambda: clearEntryWidgets(self.formEntryList))		
-		changePasswordBtn = ctk.CTkButton(formBtnsSection, text="Confirm Change", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=self.changePassword)
+		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: clearEntryWidgets(self.formEntryList))		
+		changePasswordBtn = ctk.CTkButton(formBtnsSection, text="Confirm Change", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.changePassword)
 
 		# Structure the remaining elements of the page
 		# padx=90; adds enough gray padding so that form looks uniform

@@ -27,10 +27,10 @@ Attributes/Variables:
 class userAccountPage(ctk.CTkFrame):
 	def __init__(self, master):
 		self.master = master
-		super().__init__(self.master, fg_color=self.master.mainFGCLR, corner_radius=0)
+		super().__init__(self.master, fg_color=self.master.theme["main_clr"], corner_radius=0)
 		
 		# This extra frame just allows stuff to be centered onto the userAccountPage frame
-		innerPageFrame = ctk.CTkFrame(self, fg_color=self.master.subFGCLR)
+		innerPageFrame = ctk.CTkFrame(self, fg_color=self.master.theme["sub_clr"])
 		innerPageFrame.pack(expand=True)
 		# Create section to store the user's profile picture
 		userImageSection = tk.Canvas(innerPageFrame)
@@ -44,9 +44,9 @@ class userAccountPage(ctk.CTkFrame):
 
 		# Create section to store buttons on the user page
 		userBtnsSection = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
-		openEditAvatarBtn = ctk.CTkButton(userBtnsSection, text="Edit Avatar", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=lambda: self.master.openPage("editAvatarPage")) #type: ignore
-		openEditAccountBtn = ctk.CTkButton(userBtnsSection, text="Edit Account", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=lambda: self.master.openPage("editAccountPage")) #type: ignore
-		confirmLogOutBtn = ctk.CTkButton(userBtnsSection, text="Log Out", text_color=self.master.textCLR, fg_color=self.master.btnFGCLR, hover_color=self.master.btnHoverCLR, command=self.master.logoutUser)
+		openEditAvatarBtn = ctk.CTkButton(userBtnsSection, text="Edit Avatar", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("editAvatarPage")) #type: ignore
+		openEditAccountBtn = ctk.CTkButton(userBtnsSection, text="Edit Account", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("editAccountPage")) #type: ignore
+		confirmLogOutBtn = ctk.CTkButton(userBtnsSection, text="Log Out", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.master.logoutUser)
 		openEditAvatarBtn.grid(row=0, column=0, pady=5)
 		openEditAccountBtn.grid(row=1, column=0, pady=5)
 		confirmLogOutBtn.grid(row=2, column=0, pady=5)
@@ -69,7 +69,7 @@ class userAccountPage(ctk.CTkFrame):
 			}
 		]
 		for x in range(len(userInfoFields)):
-			label = ctk.CTkLabel(userInfoSection, text_color=self.master.textCLR, text=f"{userInfoFields[x].get('text')}: {userInfoFields[x].get('value')}", font=("Helvetica", 24))
+			label = ctk.CTkLabel(userInfoSection, text_color=self.master.theme["label_clr"], text=f"{userInfoFields[x].get('text')}: {userInfoFields[x].get('value')}", font=("Helvetica", 24))
 			label.grid(row=x, column=0, sticky="W", pady=10)
 
 		# Structure the 3 main sections of the user account page
