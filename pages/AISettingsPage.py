@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import messagebox
 
 '''
-+ AISettingsPage: Page where hte user can configure the settings of the AI
++ AISettingsPage: Page where the user can configure the settings of the AI
 
 Attributes/Variables:
 - master (App): App class from 'Main.py'
