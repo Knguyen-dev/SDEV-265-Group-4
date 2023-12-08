@@ -45,7 +45,7 @@ class saveStoryPage(ctk.CTkFrame):
 		storyStateMessage.grid(row=1, column=0)
 
 		# If they're making changes to an existing story
-		if self.master.isSavedStory: #type: ignore
+		if self.master.isSavedStory: 
 			storyStateMessage.configure(text=f"Currently updating '{self.master.currentStory.storyTitle}'!")
 			formBtnsSection.grid(row=1, column=0, pady=10)
 			updateSavedStoryBtn = ctk.CTkButton(formBtnsSection,  text="Update Story", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.updateExistingStory)
@@ -82,15 +82,15 @@ class saveStoryPage(ctk.CTkFrame):
 		- Updates or saves changes to an existing story and redirects user to the library page
 		'''
 		# Put all of those unsaved messages into the saved story and save it to the database
-		for unsavedMessage in self.master.unsavedStoryMessages: #type: ignore 
-			self.master.currentStory.messages.append(unsavedMessage) #type: ignore
-		self.master.session.commit() #type: ignore
+		for unsavedMessage in self.master.unsavedStoryMessages:  
+			self.master.currentStory.messages.append(unsavedMessage) 
+		self.master.session.commit() 
 
 		# Reset unsavedStoryMessages since all of the previous messages have been saved
-		self.master.unsavedStoryMessages = [] #type: ignore
+		self.master.unsavedStoryMessages = [] 
 		
 		# Redirect user to the story library page
-		self.master.openPage("storyLibraryPage") #type: ignore
+		self.master.openPage("storyLibraryPage") 
 	
 
 	
@@ -106,28 +106,28 @@ class saveStoryPage(ctk.CTkFrame):
 		# Create story object with the user's inputted title and the current messages
 		newStory = Story(
 			storyTitle=self.storyTitleEntry.get(),
-			messages = self.master.unsavedStoryMessages, #type: ignore
+			messages = self.master.unsavedStoryMessages, 
 		)
 
 		# Reset unsavedStoryMessages since all of the previous messages have been saved
-		self.master.unsavedStoryMessages = [] #type: ignore
+		self.master.unsavedStoryMessages = [] 
 
 		# Add the story to the current user and save the database
-		self.master.loggedInUser.stories.append(newStory) #type: ignore
-		self.master.session.commit() #type: ignore
+		self.master.loggedInUser.stories.append(newStory) 
+		self.master.session.commit() 
 
 		# Make the story that the user just saved to be the saved story that they're continuing
-		self.master.currentStory = newStory #type: ignore
+		self.master.currentStory = newStory 
 
 		# After they save their new story, we want the user to be able to immediately continue it if needed
 		# So set isSavedStory to True, so that AIChatPage knows to render the messages of 'newStory'
-		self.master.isSavedStory = True #type: ignore
+		self.master.isSavedStory = True 
 
 		# If the user was saving a remix, make to indicate that they aren't remixing anymore since 
 		# their saving their remix. Now since isRemixedStory is false, we know 'currentStory' represents the 
 		# saved story that the user is currently writing instead of a story they're basing an unsaved remix off of.
-		if self.master.isRemixedStory: #type: ignore
-			self.master.isRemixedStory = False #type: ignore 
+		if self.master.isRemixedStory: 
+			self.master.isRemixedStory = False  
 
 		# Redirect the user to the storyLibraryPage, which is where their new story should be
-		self.master.openPage("storyLibraryPage") #type: ignore
+		self.master.openPage("storyLibraryPage") 

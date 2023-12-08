@@ -59,7 +59,7 @@ class editAvatarPage(ctk.CTkFrame):
 		# Put new image on the label to display it
 		newImage = ImageTk.PhotoImage(Image.open(f"{self.imageFolderPath}{self.imageList[self.imageIndex]}").resize((300, 300))) 
 		self.imageLabel.configure(image=newImage)
-		self.imageLabel.image = newImage #type: ignore
+		self.imageLabel.image = newImage 
 
 		# Update the file name of the current image
 		self.currentImageFileName = self.imageList[self.imageIndex]
@@ -82,8 +82,8 @@ class editAvatarPage(ctk.CTkFrame):
 	# Changes the avatar of the currently logged in user
 	def changeAvatar(self):
 		# Update the avatar attribute with the image's file name, and persist that change to the database
-		self.master.loggedInUser.avatar = self.currentImageFileName #type: ignore
+		self.master.loggedInUser.avatar = self.currentImageFileName 
 		self.master.session.commit() # type: ignore
 
 		# Redirect the user to the account page to make sure they see their changess
-		self.master.openPage("userAccountPage") #type: ignore
+		self.master.openPage("userAccountPage") 

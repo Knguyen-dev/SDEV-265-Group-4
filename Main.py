@@ -225,15 +225,15 @@ class App(ctk.CTk):
 			is dark theme color
 		'''
 		self.theme = {
-			"main_clr": ("#C7C7C7", "#45495E"),
-			"sub_clr": ("#DBDBDB", "#585D78"),
+			"main_clr": ("#FFFFFF", "#030712"),
+			"sub_clr": ("#9ca3af", "#0f172a"),
 			"label_clr": ("#000000", "#FFFFFF"),
-			"btn_clr": ("#8EC1B0", "#9ca3af"),
+			"btn_clr": ("#4267B2", "#9ca3af"),
 			"btn_text_clr": "#FFFFFF",
-			"hover_clr": ("#4267B2", "#A6ACD2"),
-			"entry_clr": ("#FFFFFF", "#3C3F52"),
+			"hover_clr": ("#34d399", "#4267B2"),
+			"entry_clr": ("#FFFFFF", "#374151"),
 			"entry_text_clr": ("#000000", "#FFFFFF"),
-			}
+		}
 		self.isDarkTheme = True
 	
 		# Engine and session constructor that we're going to use 

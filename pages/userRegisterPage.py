@@ -87,7 +87,7 @@ class userRegisterPage(ctk.CTkFrame):
 			
 		# Create section to have form buttons/actions
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
-		openLoginBtn = ctk.CTkButton(formBtnsSection, text_color=self.master.theme["btn_text_clr"],  text="Log into an existing account", fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("userLoginPage")) #type: ignore
+		openLoginBtn = ctk.CTkButton(formBtnsSection, text_color=self.master.theme["btn_text_clr"],  text="Log into an existing account", fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("userLoginPage")) 
 		confirmRegisterBtn = ctk.CTkButton(formBtnsSection, text_color=self.master.theme["btn_text_clr"],  text="Confirm Registration", fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.registerUser)
 		clearFormBtn = ctk.CTkButton(formBtnsSection, text_color=self.master.theme["btn_text_clr"],  text="Clear", fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: clearEntryWidgets(self.formEntryList))
 
@@ -150,7 +150,7 @@ class userRegisterPage(ctk.CTkFrame):
 			return
 		
 		# Check if there are any users with the inputted username
-		retrievedUser = self.master.session.query(User).filter_by(username=username).first() #type: ignore
+		retrievedUser = self.master.session.query(User).filter_by(username=username).first() 
 		if retrievedUser:
 			self.formErrorMessage.configure(text="Usename already taken!")
 			return
@@ -166,9 +166,9 @@ class userRegisterPage(ctk.CTkFrame):
 		)
 
 		# Add new user to the database
-		self.master.session.add(newUser) #type: ignore
-		self.master.session.commit() #type: ignore
-		self.master.session.close() #type: ignore
+		self.master.session.add(newUser) 
+		self.master.session.commit() 
+		self.master.session.close() 
 
 		# Redirect user to login screen after they've successfully registered
-		self.master.openPage("userLoginPage") #type: ignore
+		self.master.openPage("userLoginPage") 

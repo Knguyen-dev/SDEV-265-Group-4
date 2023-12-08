@@ -39,13 +39,13 @@ class userAccountPage(ctk.CTkFrame):
 		image = Image.open(avatarSourcePath).resize((300, 300))
 		imageWidget = ImageTk.PhotoImage(image=image)
 		imageLabel = tk.Label(userImageSection, image=imageWidget)
-		imageLabel.image = imageWidget #type: ignore
+		imageLabel.image = imageWidget 
 		imageLabel.grid(row=0, column=0)
 
 		# Create section to store buttons on the user page
 		userBtnsSection = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
-		openEditAvatarBtn = ctk.CTkButton(userBtnsSection,  text="Edit Avatar", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("editAvatarPage")) #type: ignore
-		openEditAccountBtn = ctk.CTkButton(userBtnsSection,  text="Edit Account", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("editAccountPage")) #type: ignore
+		openEditAvatarBtn = ctk.CTkButton(userBtnsSection,  text="Edit Avatar", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("editAvatarPage")) 
+		openEditAccountBtn = ctk.CTkButton(userBtnsSection,  text="Edit Account", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("editAccountPage")) 
 		confirmLogOutBtn = ctk.CTkButton(userBtnsSection,  text="Log Out", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.master.confirmLogout)
 		openEditAvatarBtn.grid(row=0, column=0, pady=5)
 		openEditAccountBtn.grid(row=1, column=0, pady=5)

@@ -74,17 +74,17 @@ class remixStoryPage(ctk.CTkFrame):
 			return
 
 		# If the user is remixing a story, they're choosing not to continue writing on a saved story 
-		self.master.currentStory = self.story #type: ignore 
+		self.master.currentStory = self.story  
 
 		# User is remixing a story, so change the booleans to indicate that the user
 		# is currently remixing a story rather than continuing a saved one
-		self.master.isSavedStory = False #type: ignore
-		self.master.isRemixedStory = True #type: ignore
+		self.master.isSavedStory = False 
+		self.master.isRemixedStory = True 
 
 		# They are also starting a new chat, so we should remove all old unsaved story messages
 		# Also clear AI of any past knowledge, they should only know about the inputted story and its twist
-		self.master.unsavedStoryMessages = [] #type: ignore
-		self.master.storyGPT.clear() #type: ignore
+		self.master.unsavedStoryMessages = [] 
+		self.master.storyGPT.clear() 
 
 		# Concatenate that messages of the story into one string, that represents the content of the selected story
 		storyText = ""
@@ -92,8 +92,8 @@ class remixStoryPage(ctk.CTkFrame):
 			storyText += messageObj.text
 
 		# Get AI's response, which will be our generator object, set it storyGenObj
-		AIResponse = self.master.storyGPT.sendRemixPrompt(storyText, self.remixInput.get("1.0", "end-1c")) #type: ignore
-		self.master.storyGenObj = AIResponse #type: ignore
+		AIResponse = self.master.storyGPT.sendRemixPrompt(storyText, self.remixInput.get("1.0", "end-1c")) 
+		self.master.storyGenObj = AIResponse 
 
 		# Redirect user to the ai chat page
-		self.master.openPage("AIChatPage") #type: ignore
+		self.master.openPage("AIChatPage") 
