@@ -2,7 +2,7 @@ from fpdf import FPDF
 
 
 class StoryPDF(FPDF):
-    HEADER_IMAGE = 'assets/images/BookSmartLogo.jpeg'
+    HEADER_IMAGE = 'assets/images/BookSmartLogo.png'
 
     def __init__(self, story_name: str, *args, **kwargs):
         super().__init__(*args, **kwargs)

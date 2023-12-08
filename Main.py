@@ -45,7 +45,7 @@ class Sidebar(ctk.CTkFrame):
 		navbarBGFrame.grid(row=0, column=0, sticky='nse')
 		navbarBGFrame.grid_rowconfigure(6, weight=1)
 
-		logo_image = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, "logo.jpeg")), size=(150, 150))
+		logo_image = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, "BookSmartLogo.png")), size=(150, 150))
 		sidebar_logo = ctk.CTkLabel(navbarBGFrame, text=" ", fg_color="transparent", image=logo_image, font=ctk.CTkFont(size=40, weight="bold"))
 		sidebar_logo.grid(row=0, column=0, padx=20, pady=20)
 
@@ -214,6 +214,9 @@ class App(ctk.CTk):
 		self.unsavedStoryMessages = []
 		self.storyGenObj = None
 		self.remixStoryObj = None
+        #Initialize current AI mode Balanced at startup
+		self.currentMode='Balanced'
+		self.currentModeKey=0
 		'''
 		- Map of colors for the theme. Value in left tuple 
 			is light theme color, while value in right tuple 
