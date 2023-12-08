@@ -1,6 +1,4 @@
 import customtkinter as ctk
-import tkinter as tk
-from tkinter import messagebox
 
 '''
 + AISettingsPage: Page where hte user can configure the settings of the AI

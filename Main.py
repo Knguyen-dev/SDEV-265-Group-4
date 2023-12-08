@@ -1,17 +1,12 @@
-import customtkinter as ctk # custom tkinter gui library  
-import importlib # For importing pages 
-import datetime # For creating a dynamic footer 
-# Import sqlalchemy to do our operations
-from sqlalchemy import create_engine, text
+import customtkinter as ctk
+import importlib 
+import datetime  
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-# Import the AI model
 from ai import StoryGPT 
-from PIL import Image # Import python image library for the button images
+from PIL import Image 
 from tkinter import messagebox
 import os
-
-# importing user so we don't have to log in everytime for testing
-# from classes.models import User
 
 '''
 + Header: Tkinter frame that represents the header of the application 
@@ -125,7 +120,7 @@ class Sidebar(ctk.CTkFrame):
 
 		# Disable/Re-enable buttons based on login state; toggle theme is an exception as it always stays enabled.
 		for button in self.navBtns:
-			if (self.master.loggedInUser): #type: ignore
+			if (self.master.loggedInUser): 
 				button.configure(state="standard")
 			elif button.cget("text") != "Toggle Theme":
 				button.configure(state="disabled")
@@ -240,9 +235,6 @@ class App(ctk.CTk):
 		self.engine = create_engine("sqlite:///assets/PyProject.db")
 		self.Session = sessionmaker(bind=self.engine)
 		self.session = self.Session()
-
-		# Log in a knguyen44 for developing purposes, no need to login everytime
-		# self.loggedInUser = self.session.query(User).filter_by(username="knguyen44").first()
 
 		# Apply theme of application
 		self.applyTheme()
