@@ -194,7 +194,9 @@ class AIChatPage(ctk.CTkFrame):
 			return
 
 		# Process and render the user's message
-		userMessage = Message(text=self.chatEntry.get(), isAISender=False)
+		# The .strip() method ensures that a user cannot type whitespaces 
+		# before the message content which has been known to cause an openAI api exception
+		userMessage = Message(text=self.chatEntry.get().strip(), isAISender=False)
 		self.renderChatMessageObj(userMessage)
 		self.master.unsavedStoryMessages.append(userMessage) 	
 		

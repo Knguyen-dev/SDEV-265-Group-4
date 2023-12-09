@@ -92,7 +92,7 @@ class remixStoryPage(ctk.CTkFrame):
 			storyText += messageObj.text
 
 		# Get AI's response, which will be our generator object, set it storyGenObj
-		AIResponse = self.master.storyGPT.sendRemixPrompt(storyText, self.remixInput.get("1.0", "end-1c")) 
+		AIResponse = self.master.storyGPT.sendRemixPrompt(storyText, self.remixInput.get("1.0", "end-1c").strip()) 
 		self.master.storyGenObj = AIResponse 
 
 		# Redirect user to the ai chat page
