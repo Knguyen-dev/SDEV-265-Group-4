@@ -6,7 +6,8 @@ from sqlalchemy.orm import sessionmaker
 from ai import StoryGPT 
 from PIL import Image 
 from tkinter import messagebox
-import os
+import pickle, os
+from classes.models import User
 
 '''
 + Header: Tkinter frame that represents the header of the application 
@@ -243,9 +244,20 @@ class App(ctk.CTk):
 		self.applyTheme()
 
 		self.sidebar = Sidebar(self)
-	
-		# On load in, direct to AIChatPage for development puropsees with the prompt engineering
-		self.openPage("userLoginPage")
+
+		self.checkForPrevUser()
+
+	def saveLoginAs(self, userAccount, Username):	
+		# Assign the new logged in user
+		self.loggedInUser = userAccount
+		self.loggedInUser.username = Username
+
+		# Update the nav buttons now that the user is logged in
+		# so that they actually work and aren't disabled
+		self.sidebar.updateSidebar() 
+
+		# Redirect the user to the 'My Account' or the 'user account page'
+		self.openPage("userAccountPage") 
 	
 	def enableSidebar(self):
 		self.sidebar.pack(side="left", fill="y")
@@ -287,6 +299,7 @@ class App(ctk.CTk):
 		self.currentPage = pageClass(self, *args)
 		# Pack the new page on the screen
 		self.currentPage.pack(fill="both", expand=True)
+
 	def applyTheme(self):
 		'''Applies color changes to the application'''
 		if (self.isDarkTheme):
@@ -298,6 +311,17 @@ class App(ctk.CTk):
 		'''Toggles theme of the application and reloads the page to show the changes '''
 		self.isDarkTheme = not (self.isDarkTheme)
 		self.applyTheme()
+
+	def checkForPrevUser(self):
+		if os.path.exists('last_user.pkl'):
+			with open('last_user.pkl', 'rb') as f:
+				last_username = pickle.load(f) # Now you can use `last_username` to log in
+				last_User = self.session.query(User).filter_by(username=last_username).first()
+				if last_User:
+					self.saveLoginAs(last_User, last_username)
+		else:
+			# If no previous user found or the previosly logged in user logged out, direct them to the login page
+			self.openPage("userLoginPage")
 		
 	'''
 	- Log the current user out of the application.
@@ -314,6 +338,8 @@ class App(ctk.CTk):
 	def logoutUser(self):
 		# loggedInUser is none because we are logging out the user
 		self.loggedInUser = None 
+		# Remove the login authentication token because we are logging out the user
+		os.remove('last_user.pkl')
 		
 		# Wipe currentStory and reset booleans for the new user. This is so the new user starts on a blank slate
 		self.unsavedStoryMessages = [] 

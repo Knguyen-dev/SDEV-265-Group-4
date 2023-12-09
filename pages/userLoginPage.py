@@ -4,7 +4,7 @@ import sys
 sys.path.append("..")
 from classes.utilities import clearEntryWidgets, isEmptyEntryWidgets, toggleHidden
 from classes.models import User
-
+import pickle
 '''
 + userLoginPage: Tkinter frame that represents the login page of the application. This is where users would 
 	log into the accounts that they've created/registered.
@@ -88,7 +88,6 @@ class userLoginPage(ctk.CTkFrame):
 		clearFormBtn.grid(row=0, column=0, padx=10, pady=10)
 		openRegisterAccountBtn.grid(row=0, column=1, padx=10, pady=10)
 		confirmLoginBtn.grid(row=0, column=2, padx=10, pady=10)
-		
 	
 	def loginUser(self):
 		'''
@@ -116,13 +115,8 @@ class userLoginPage(ctk.CTkFrame):
 			self.formErrorMessage.configure(text="Username or password is incorrect!")
 			return
 		
-		# Assign the new logged in user
-		self.master.loggedInUser = retrievedUser 
-		self.master.loggedInUsername = username 
+		# Save the last logged-in user
+		with open('last_user.pkl', 'wb') as f:
+			pickle.dump(username, f)
 
-		# Update the nav buttons now that the user is logged in
-		# so that they actually work and aren't disabled
-		self.master.sidebar.updateSidebar() 
-
-		# Redirect the user to the 'My Account' or the 'user account page'
-		self.master.openPage("userAccountPage") 
+		self.master.saveLoginAs(retrievedUser, username)
