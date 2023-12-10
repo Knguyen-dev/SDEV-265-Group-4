@@ -229,7 +229,7 @@ class StoryGPT(ModelBase):
     '''
 
     def __init__(self):
-        systemPrompt = "You are a professional author who can write any story upon request. Your stories are always rich and full of descriptive content. You are able to carry out all user requests precisely and professionally."
+        systemPrompt = "You are a professional author who can write any story upon request. Your stories are always rich and full of descriptive content. You are able to carry out all user requests but only those that follow the rules, precisely and professionally."
         prompt = "I am an avid reader looking to read some fantastic stories! I am going to give you some specifications on a story I'd like to read."
         super().__init__('gpt-3.5-turbo', prompt, systemPrompt)
 
@@ -250,7 +250,7 @@ class StoryGPT(ModelBase):
         '''
         self.prompt = f"Topic: {topic}\nStyle: {self.response_style}"
         self.prompt += self.manager.inject()
-        self.prompt += "Does the request by the user follow all the rules? If not, say this to the user: \"This rule was broken but specify the rule\" If yes, continue with the story and do not explain that you're following the rules. Do not confirm with the user that their request is valid, only tell them that their request is not valid.\n\n"
+        self.prompt += "Does the User's request violate any of the rules? If yes, say this to the user: \"This rule was broken and specify the rule broken\" If not, continue with the story and do not I repeat, Do not explain that you're following the rules. Do not confirm with the user that their request is valid. Rather, only tell them when their request is not valid.\n\n"
         response = self.complete()
         return response
 
@@ -260,6 +260,6 @@ class StoryGPT(ModelBase):
         '''
         self.prompt = f'Remix this story: "{story}".\nThe twist for this remix: {twist}\nWrite the remix in this style: {self.response_style}.'
         self.prompt += self.manager.inject()
-        self.prompt += "Does the request by the user follow all the rules? If not, say this to the user: \"This rule is being broken but specify the rule\" If yes, continue with the story and do not explain that you're following the rules. Do not confirm with the user that their request is valid, only tell them that their request is not valid.\n\n"
+        self.prompt += "Does the User's request violate any of the rules? If yes, say this to the user: \"This rule was broken and specify the rule broken\" If not, continue with the story and do not I repeat, Do not explain that you're following the rules. Do not confirm with the user that their request is valid. Rather, only tell them when their request is not valid.\n\n"
         response = self.complete()
         return response

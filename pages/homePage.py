@@ -51,6 +51,7 @@ class homePage(ctk.CTkFrame):
 	def startNewStory(self):
 		# Clear previous chat messages and wipe story data since the user is starting a brand new slate
 		self.master.unsavedStoryMessages = [] 
+		self.master.msgboxes = [] 
 		self.master.currentStory = None 
 		self.master.isSavedStory = False 
 		self.master.isRemixedStory = False 

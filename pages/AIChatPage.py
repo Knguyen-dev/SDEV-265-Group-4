@@ -32,6 +32,10 @@ class AIChatPage(ctk.CTkFrame):
 	def __init__(self, master):
 		self.master = master
 		super().__init__(self.master, fg_color=self.master.theme["main_clr"], corner_radius=0)
+
+		# This logic prevents the dynamically resizing msgbox from overexpanding - Nuke The Dev
+		self.msgbox_height=20
+		self.max_msgbox_height = 300
 		
 		innerPageFrame = ctk.CTkFrame(self, fg_color=self.master.theme["sub_clr"])
 		innerPageFrame.pack(expand=True)
@@ -39,15 +43,14 @@ class AIChatPage(ctk.CTkFrame):
 		heading = ctk.CTkLabel(header, text="Write Your Story!", font=("Helvetica", 32), text_color=self.master.theme["label_clr"])
 		storyStateMessage = ctk.CTkLabel(header, text="", text_color=self.master.theme["label_clr"])
 		self.pageStatusMessage = ctk.CTkLabel(header, text="StoryBot is currently waiting for your input.", text_color=self.master.theme["label_clr"])
-		
-		self.chatBox = ctk.CTkTextbox(innerPageFrame, state="disabled", fg_color=self.master.theme["entry_clr"], text_color=self.master.theme["entry_text_clr"], wrap="word", width=500, height=250)
 
 		# Section with all of the input options the user has for the AIChatPage
 		chatInputSection = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
 		self.chatEntry = ctk.CTkEntry(chatInputSection, width=300, placeholder_text="Send a message e.g. 'Once upon a time...'", fg_color=self.master.theme["entry_clr"], text_color=self.master.theme["entry_text_clr"], )
+		self.chatBox = ctk.CTkScrollableFrame(innerPageFrame, fg_color=self.master.theme["main_clr"], width=500, height=250)
 		self.openSaveStoryBtn = ctk.CTkButton(chatInputSection,  text="Save Story", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("saveStoryPage"))
 		self.sendChatBtn = ctk.CTkButton(chatInputSection, text="Send",  text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.processUserChat)
-		
+	
 		# Structure and style widgets accordingly
 		header.grid(row=0, column=0, pady=10)
 		heading.grid(row=0, column=0)
@@ -96,92 +99,37 @@ class AIChatPage(ctk.CTkFrame):
 			For rendering AI's response, it's a generator so use processAIChat(self).
 		'''
 		# Chat window is read and write now
-		self.chatBox.configure(state="normal")
 		messageText = messageObj.text
 
+
+		# If there are messages write the response in the current msgbox, if not create one then write to it
+		if self.master.msgboxes:
+			msgbox = self.master.msgboxes[len(self.master.msgboxes)]
+			msgbox.insert("1.0", messageText)
+		else:
+			# access the last msgbox to print to
+			msgbox = self.drawMsgBox()
+			msgbox.insert("1.0", messageText)
+
+		num_chars = len(messageObj.text)  # The number of characters in the text
+
+		# Calculate the number of lines at 61 characters per line of text onscreen
+		num_lines = num_chars // 61  # Use integer division to get the number of full lines
+		if num_chars % 61 > 0:  # If there are any remaining characters, they will form an additional line
+			num_lines += 1
+
+		# Calculate the height
+		height = num_lines * 10  # Each line is 10 units high
+
+		# Now you can use `height` to set the height of your CTkTextbox
+		msgbox.configure(height=height)
+		
 		# If it's an AI message, else it was a message sent by the user
 		if messageObj.isAISender:
-			messageText = "StoryBot: " + messageText
+			self.drawSenderTag(sender='Story Bot:')
 		else:
-			messageText = f"{self.master.loggedInUser.username}: " + messageText 
+			self.drawSenderTag(sender=f'{self.master.loggedInUser.username}') 
 
-		# If the chatBox is empty, then it's the first message, else it's not the first message
-		if self.chatBox.get("1.0", "end-1c") == "":
-			self.chatBox.insert("1.0", messageText)
-		else:
-			self.chatBox.insert("end-1c", "\n\n" + messageText)
-
-		# Scroll the chat window to the most recent message and make it read-only
-		self.chatBox.see("end-1c")
-		self.chatBox.configure(state="disabled")
-
-
-	
-	def processAIChat(self):
-		'''
-		- Handles the proces of processing the AI's generated chat.
-		1. Enable and disable certain parts of the UI, preventing the user from sending another 
-			message to the AI until the first one is finished. Also prevent the user from being 
-			able to redirect themselves to other pages, so that they don't lose their AI generated message.
-		2. Renders chunks of the messages as they're being obtained from openai. 
-		3. Save the ai's generated message to unsavedStoryMessages so that we can keep track of it
-		'''
-		# Disable send chat button as user can't send another chat until the ai is finished
-		self.sendChatBtn.configure(state="disabled")		
-
-		# Make the chat box writable
-		self.chatBox.configure(state="normal")
-
-		# Ensure user can't navigate to other pages while AI is generating message
-		self.master.sidebar.disableSidebarButtons()
-		self.openSaveStoryBtn.configure(state="disabled")
-
-		# Update page status message to indicate that AI is currently generating a message 
-		self.pageStatusMessage.configure(text="Please wait here until StoryBot is finished!")
-		
-		# Message object that contains the text from the generator
-		messageObj = Message(text="", isAISender=True) 
-		chunkIndex = 0
-
-		# Insert two newlines so that there's a space between the user's message and the ai's message 
-		self.chatBox.insert("end", "\n\nStoryBot: ")
-		# Iterate through chunks to render and process them
-		for chunk in self.master.storyGenObj: 
-			if any(chunk.endswith(char) for char in ['.', '?', '!']):
-				punct_marks = ['.', '?', '!']
-				for mark in punct_marks:
-					if chunk.endswith(f'{mark}'):
-						self.chatBox.insert('end', f"{mark}" + " ")
-			else:
-				self.chatBox.insert('end', chunk)
-				
-			# For smooth rendering
-			self.chatBox.update()
-			time.sleep(0.03)
-
-			# add the chunk onto the message object's text since we want to keep track of this message; then increment chunkIndex
-			messageObj.text += chunk
-			chunkIndex += 1
-			
-		# AI response processing is done, so append message object and variables related to processing a message
-		self.master.unsavedStoryMessages.append(messageObj) 
-		self.master.storyGenObj = None 
-
-		# Scroll to bottom and make chatbox read only
-		self.chatBox.see("end-1c")
-		self.chatBox.configure(state="disabled")
-
-		# Allow the user to send another message and navigate to other pages
-		self.openSaveStoryBtn.configure(state="normal")
-		self.sendChatBtn.configure(state="normal")
-		self.master.sidebar.updateSidebar() 
-
-		# Update the page status message to indicate the ai is done
-		self.pageStatusMessage.configure(text="StoryBot is currently waiting for you input.")
-		
-
-
-	
 	def processUserChat(self):
 		'''
 		- Sends the user chat message to the ai, for the ai to respond, then goes to render both of those chat messages
@@ -208,3 +156,90 @@ class AIChatPage(ctk.CTkFrame):
 
 		# Process and render AI's message
 		self.processAIChat()
+
+	def drawMsgBox(self):
+		msgbox = ctk.CTkTextbox(self.chatBox, fg_color=self.master.theme["entry_clr"], width=450, height=10, wrap="word", activate_scrollbars=True)
+		msgbox.configure(font=("Helvetica", 16))
+		self.master.msgboxes.append(msgbox)
+		msgbox.grid(row=len(self.master.msgboxes), column=0, padx=5, pady=5, sticky="nsew")
+		return msgbox
+	
+	def drawSenderTag(self, sender):
+		sender_lbl = ctk.CTkLabel(self.chatBox, font=("Helvetica", 12), text=sender)
+		sender_lbl.grid(row=[len(self.master.msgboxes)-1], column=0, padx=10, pady=5, sticky="w")
+		return
+
+	def processAIChat(self):
+		'''
+		- Handles the proces of processing the AI's generated chat.
+		1. Enable and disable certain parts of the UI, preventing the user from sending another 
+			message to the AI until the first one is finished. Also prevent the user from being 
+			able to redirect themselves to other pages, so that they don't lose their AI generated message.
+		2. Renders chunks of the messages as they're being obtained from openai. 
+		3. Save the ai's generated message to unsavedStoryMessages so that we can keep track of it
+		'''
+
+		# Access the current messagebox at it's index
+		# Disable send chat button as user can't send another chat until the ai is finished
+		self.sendChatBtn.configure(state="disabled")		
+
+		# Ensure user can't navigate to other pages while AI is generating message
+		self.master.sidebar.disableSidebarButtons()
+		self.openSaveStoryBtn.configure(state="disabled")
+
+		# Update page status message to indicate that AI is currently generating a message 
+		self.pageStatusMessage.configure(text="Please wait here until StoryBot is finished!")
+		
+		# Message object that contains the text from the generator
+		messageObj = Message(text="", isAISender=True) 
+		chunkIndex = 0
+
+		
+		# Create a new real-time dynamically resizing msg bubble to display AI response in
+		msgbox = self.drawMsgBox()
+		# Make the chat box writable
+		msgbox.configure(state="normal")
+
+		self.drawSenderTag(sender='Story Bot:')
+		# Iterate through chunks to render and process them
+		for chunk in self.master.storyGenObj: 
+			if any(chunk.endswith(char) for char in ['.', '?', '!']):
+				punct_marks = ['.', '?', '!']
+				for mark in punct_marks:
+					if chunk.endswith(f'{mark}'):
+						msgbox.insert('end', f"{mark}" + " ")
+				# Increment the height of the textbox in real-time
+				inc_height=4
+			else:
+				msgbox.insert('end', chunk)
+				inc_height=2
+			
+			# Enables smooth real time typing
+			if (self.msgbox_height <= self.max_msgbox_height):
+					self.msgbox_height += inc_height
+
+			# Dynamically resize the height of the current msgbox
+			msgbox.update()
+			msgbox.configure(height=self.msgbox_height)
+			# add the chunk onto the message object's text since we want to keep track of this message; then increment chunkIndex
+			messageObj.text += chunk
+			chunkIndex += 1
+
+		#reset the msgbox height after each message
+		self.msgbox_height=20
+			
+		# AI response processing is done, so append message object and variables related to processing a message
+		self.master.unsavedStoryMessages.append(messageObj) 
+		self.master.storyGenObj = None 
+
+		# Scroll to bottom and make chatbox read only
+		msgbox.see("end-1c")
+		msgbox.configure(state="disabled")
+
+		# Allow the user to send another message and navigate to other pages
+		self.openSaveStoryBtn.configure(state="normal")
+		self.sendChatBtn.configure(state="normal")
+		self.master.sidebar.updateSidebar() 
+
+		# Update the page status message to indicate the ai is done
+		self.pageStatusMessage.configure(text="StoryBot is currently waiting for you input.")

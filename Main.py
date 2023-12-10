@@ -90,7 +90,7 @@ class Sidebar(ctk.CTkFrame):
 			
 			navBtn = ctk.CTkButton(navbarBGFrame, corner_radius=0, hover_color=("gray25", "gray30"), height=20, width=30, border_spacing=5,
 				fg_color="transparent", hover=True, image=btn_image, anchor="w", text=btn_name, 
-				font=ctk.CTkFont(size=16, weight="bold"), text_color=self.master.theme["btn_text_clr"], command=btn_info["command"])
+				font=("Helvetica", 16, "bold"), text_color=self.master.theme["btn_text_clr"], command=btn_info["command"])
 			
 			navBtn.grid(row=i, column=0)
 
@@ -185,6 +185,7 @@ class App(ctk.CTk):
 		# Initialize window and resize it based on the user's viewport width and height
 		super().__init__()
 		self.title("BookSmart.Ai")
+		self.iconbitmap('assets\images\BookSmartLogo.ico')
 		self.width = self.winfo_screenwidth()
 		self.height = self.winfo_screenheight()
 		self.geometry(f"{self.width}x{self.height}")
@@ -218,6 +219,7 @@ class App(ctk.CTk):
         #Initialize current AI mode Balanced at startup
 		self.currentMode='Balanced'
 		self.currentModeKey=0
+		self.msgboxes=[]
 		'''
 		- Map of colors for the theme. Value in left tuple 
 			is light theme color, while value in right tuple 
