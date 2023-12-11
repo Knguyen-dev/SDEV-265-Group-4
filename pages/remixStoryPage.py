@@ -2,6 +2,7 @@ import customtkinter as ctk
 import sys
 sys.path.append("..")
 from classes.models import Message
+from tkinter import messagebox
 
 '''
 + remixStoryPage: Frame that represents the page that allows the user to remix a story. User will be able 
@@ -68,6 +69,7 @@ class remixStoryPage(ctk.CTkFrame):
 		2. AIMessage (Message): Message object representing the text that the AI generated in reply
 			to the user.
 		'''
+		messagebox.showinfo('Remix Loading', f'Please wait your story is currently being remixed...') 
 		# Check if user entered text for remixing
 		if self.remixInput.get("1.0", "end-1c").strip() == "":
 			self.formErrorMessage.configure(text="Please at least enter text for the remix!")
