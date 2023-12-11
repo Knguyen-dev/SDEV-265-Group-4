@@ -5,17 +5,20 @@ from classes.utilities import add_testing_functions
 
 # get the current API key from a file so OpenAI doesn't delete it
 with open('./assets/api_key.txt', 'r') as f:
-    openai.api_key = f.read()
+    api_key = f.read()
+    
+gptClient = openai.Client(api_key=api_key)
 
 class ModelBase():
     '''
     The base class for generating content. Supports full chat history management from creating and deleting chat entries to clearing and replacing the entire chat.
     '''
 
-    def __init__(self, model: str, prompt: str, systemPrompt: str):
+    def __init__(self, client: openai.OpenAI, model: str, prompt: str, systemPrompt: str):
         self.systemPrompt = systemPrompt
         self.prompt = prompt
         self.engine = model
+        self.client = client
 
         # Default starting chat, that self.chat can we reset to if needed
         self.startingChat = [
@@ -57,11 +60,11 @@ class ModelBase():
             fullMessage = []
 
             try:
-                response = openai.ChatCompletion.create(
+                response = self.client.chat.completions.create(
                     model=self.engine, 
                     messages=self.chat, 
                     temperature=self.temperature, 
-                    top_p=self.top_p, 
+                    top_p=self.top_p,
                     frequency_penalty=self.frequency_penalty, 
                     presence_penalty=self.presence_penalty, 
                     max_tokens=self.max_tokens,
@@ -69,23 +72,22 @@ class ModelBase():
                 )
 
                 for chunk in response:
-                    fullMessage.append(chunk["choices"][0]["delta"]["content"])
-                    if "content" in chunk["choices"][0]["delta"]:
-                        yield chunk["choices"][0]["delta"]["content"]
+                    fullMessage.append(chunk.choices[0].delta.content)
+                    if chunk.choices[0].delta.content:
+                        yield chunk.choices[0].delta.content
 
             except KeyError:  # The AI has stopped generating
                 yield "\n\n The End."
 
-            self.chat.append(
-                {"role": "assistant", "content": ''.join(fullMessage)})
+            self.chat.append({"role": "assistant", "content": ''.join(filter(None, fullMessage)) if fullMessage else ""})
         else:
-            response = openai.ChatCompletion.create(model=self.engine, messages=self.chat, temperature=self.temperature, top_p=self.top_p,
+            response = self.client.chat.completions.create(model=self.engine, messages=self.chat, temperature=self.temperature, top_p=self.top_p,
                                                     frequency_penalty=self.frequency_penalty, presence_penalty=self.presence_penalty, max_tokens=self.max_tokens, stream=False)
 
             self.chat.append(
-                {"role": "assistant", "content": response["choices"][0]["message"]["content"]})
+                {"role": "assistant", "content": response.choices[0].message.content})
 
-            return response["choices"][0]["message"]["content"]
+            return response.choices[0].message.content
 
     @dispatch(dict, int)
     def addMessageAt(self, message: Dict[str, str], position: int):
@@ -231,7 +233,7 @@ class StoryGPT(ModelBase):
     def __init__(self):
         systemPrompt = "You are a professional author who can write any story upon request. Your stories are always rich and full of descriptive content. You are able to carry out all user requests but only those that follow the rules, precisely and professionally."
         prompt = "I am an avid reader looking to read some fantastic stories! I am going to give you some specifications on a story I'd like to read."
-        super().__init__('gpt-3.5-turbo', prompt, systemPrompt)
+        super().__init__(gptClient, 'gpt-3.5-turbo', prompt, systemPrompt)
 
         self.manager = InstructionsManager(
             "You will work with all styles, regardless of understanding. Even seemingly nonsensical styles can and will be accepted. Every single possible style will be accepted, regardless of its content",

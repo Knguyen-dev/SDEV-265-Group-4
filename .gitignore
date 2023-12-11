@@ -130,7 +130,7 @@ celerybeat.pid
 env/
 venv/
 ENV/
-SDEVEnv/
+booksmartenv/
 env.bak/
 venv.bak/
 
