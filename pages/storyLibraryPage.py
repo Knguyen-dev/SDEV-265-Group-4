@@ -194,10 +194,10 @@ class storyLibraryPage(ctk.CTkFrame):
         for idx, message in enumerate(story.messages):
             if idx == 0:
                 # Prompt
-                pdf.multi_cell(200, 20, str("Prompt: " + message.text), 0, 1)
+                pdf.multi_cell(200, 5, str("Prompt: " + message.text), 0, 1)
             else:
                 # Story
-                pdf.multi_cell(80, 5, str(message.text), 0, 1)
+                pdf.multi_cell(200, 5, str(message.text), 0, 1)
         return pdf
     
     def exportSavedStory(self, story):
@@ -226,14 +226,14 @@ class storyLibraryPage(ctk.CTkFrame):
         4. If path for zip file is valid, create zip file and write all pdf data into that file.
             Finally, download the file to the user's entered path.
         '''
-        # Msgbox pop-up to reassure our user that their story is exporting
-        messagebox.showinfo('Export Loading', f'Please wait your stories are loading...') 
         if not self.master.loggedInUser.stories:
             return
         all_stories_pdfs = []
         for story in self.master.loggedInUser.stories:
             pdf = self.getStoryPDF(story)
             all_stories_pdfs.append(pdf)
+        # Msgbox pop-up to reassure our user that their story is exporting
+        messagebox.showinfo('Export Loading', f'Please wait your stories are loading...')
         zipPath = asksaveasfilename(
             defaultextension=".zip",
             initialfile="BookSmartBulkExport",
