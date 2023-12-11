@@ -59,10 +59,10 @@ class editAccountPage(ctk.CTkFrame):
 
 		# Clear form button and then a confirm changes button
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
-		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: clearEntryWidgets(self.formEntryList))
-		confirmEditsBtn = ctk.CTkButton(formBtnsSection, text="Confirm Edits", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.editAccount)
-		openChangePasswordBtn = ctk.CTkButton(formBtnsSection, text="Change Password", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("changePasswordPage")) #type: ignore
-		openDeleteAccountBtn = ctk.CTkButton(formBtnsSection, text="Account Deletion", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("deleteAccountPage")) #type: ignore
+		clearFormBtn = ctk.CTkButton(formBtnsSection,  text="Clear", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: clearEntryWidgets(self.formEntryList))
+		confirmEditsBtn = ctk.CTkButton(formBtnsSection,  text="Confirm Edits", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.editAccount)
+		openChangePasswordBtn = ctk.CTkButton(formBtnsSection,  text="Change Password", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("changePasswordPage")) 
+		openDeleteAccountBtn = ctk.CTkButton(formBtnsSection,  text="Account Deletion", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("deleteAccountPage")) 
 
 		# Structure the remaining page elements accordingly
 		formHeader.grid(row=0, column=0, padx=70, pady=10)
@@ -109,17 +109,17 @@ class editAccountPage(ctk.CTkFrame):
 			As a result, the user is able to submit the form when they don't change their username, and the system
 			correctly detects when a separate user has their inputted username
 		'''
-		retrievedUser = self.master.session.query(User).filter_by(username=username).first() #type: ignore
-		if retrievedUser and (self.master.loggedInUser != retrievedUser): #type: ignore
+		retrievedUser = self.master.session.query(User).filter_by(username=username).first() 
+		if retrievedUser and (self.master.loggedInUser != retrievedUser): 
 			self.formErrorMessage.configure(text="Username is already taken!")
 			return
 		
 		# All form checks passed, so apply changes
-		self.master.loggedInUser.username = username #type: ignore
-		self.master.loggedInUser.email = email #type: ignore
-		self.master.loggedInUser.firstName = firstName #type: ignore
-		self.master.loggedInUser.lastName = lastName #type: ignore
-		self.master.session.commit() #type: ignore
+		self.master.loggedInUser.username = username 
+		self.master.loggedInUser.email = email 
+		self.master.loggedInUser.firstName = firstName 
+		self.master.loggedInUser.lastName = lastName 
+		self.master.session.commit() 
 
 		# Then redirect user to the account page, so that they can see their changes
-		self.master.openPage("userAccountPage") #type: ignore
+		self.master.openPage("userAccountPage") 

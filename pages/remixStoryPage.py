@@ -2,6 +2,7 @@ import customtkinter as ctk
 import sys
 sys.path.append("..")
 from classes.models import Message
+from tkinter import messagebox
 
 '''
 + remixStoryPage: Frame that represents the page that allows the user to remix a story. User will be able 
@@ -44,8 +45,8 @@ class remixStoryPage(ctk.CTkFrame):
 		self.remixInput = ctk.CTkTextbox(formFieldsSection, fg_color=self.master.theme["entry_clr"], text_color=self.master.theme["entry_text_clr"])
 
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
-		clearRemixBtn = ctk.CTkButton(formBtnsSection, fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], text="Clear", command=lambda: self.remixInput.delete("0.0", "end"))
-		remixStoryBtn = ctk.CTkButton(formBtnsSection, fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], text="Confirm Remix", command=self.remixStory)
+		clearRemixBtn = ctk.CTkButton(formBtnsSection, fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"],  text="Clear", command=lambda: self.remixInput.delete("0.0", "end"))
+		remixStoryBtn = ctk.CTkButton(formBtnsSection, fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"],  text="Confirm Remix", command=self.remixStory)
 
 		form.pack(expand=True)
 		formHeader.grid(row=0, column=0, pady=10, padx=50)
@@ -68,23 +69,24 @@ class remixStoryPage(ctk.CTkFrame):
 		2. AIMessage (Message): Message object representing the text that the AI generated in reply
 			to the user.
 		'''
+		messagebox.showinfo('Remix Loading', f'Please wait your story is currently being remixed...') 
 		# Check if user entered text for remixing
 		if self.remixInput.get("1.0", "end-1c").strip() == "":
 			self.formErrorMessage.configure(text="Please at least enter text for the remix!")
 			return
 
 		# If the user is remixing a story, they're choosing not to continue writing on a saved story 
-		self.master.currentStory = self.story #type: ignore 
+		self.master.currentStory = self.story  
 
 		# User is remixing a story, so change the booleans to indicate that the user
 		# is currently remixing a story rather than continuing a saved one
-		self.master.isSavedStory = False #type: ignore
-		self.master.isRemixedStory = True #type: ignore
+		self.master.isSavedStory = False 
+		self.master.isRemixedStory = True 
 
 		# They are also starting a new chat, so we should remove all old unsaved story messages
 		# Also clear AI of any past knowledge, they should only know about the inputted story and its twist
-		self.master.unsavedStoryMessages = [] #type: ignore
-		self.master.storyGPT.clear() #type: ignore
+		self.master.unsavedStoryMessages = [] 
+		self.master.storyGPT.clear() 
 
 		# Concatenate that messages of the story into one string, that represents the content of the selected story
 		storyText = ""
@@ -92,8 +94,8 @@ class remixStoryPage(ctk.CTkFrame):
 			storyText += messageObj.text
 
 		# Get AI's response, which will be our generator object, set it storyGenObj
-		AIResponse = self.master.storyGPT.sendRemixPrompt(storyText, self.remixInput.get("1.0", "end-1c")) #type: ignore
-		self.master.storyGenObj = AIResponse #type: ignore
+		AIResponse = self.master.storyGPT.sendRemixPrompt(storyText, self.remixInput.get("1.0", "end-1c").strip()) 
+		self.master.storyGenObj = AIResponse 
 
 		# Redirect user to the ai chat page
-		self.master.openPage("AIChatPage") #type: ignore
+		self.master.openPage("AIChatPage") 

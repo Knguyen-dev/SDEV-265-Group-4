@@ -66,7 +66,7 @@ class changePasswordPage(ctk.CTkFrame):
 
 		# Create section to have form buttons/actions
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
-		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: clearEntryWidgets(self.formEntryList))		
+		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear",  text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: clearEntryWidgets(self.formEntryList))		
 		changePasswordBtn = ctk.CTkButton(formBtnsSection, text="Confirm Change", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.changePassword)
 
 		# Structure the remaining elements of the page
@@ -116,7 +116,7 @@ class changePasswordPage(ctk.CTkFrame):
 		
 		# User can only change the password of the account that they're currently logged into.
 		# So query in the user's table for a matching username, and a matching password hash
-		retrievedUser = self.master.session.query(User).filter_by(username=self.master.loggedInUser.username, passwordHash=oldPasswordHash).first() #type: ignore
+		retrievedUser = self.master.session.query(User).filter_by(username=self.master.loggedInUser.username, passwordHash=oldPasswordHash).first() 
 		
 		# If we didn't find a user with the current usernmae and password hash to current password, then they had to have gotten the password input wrong
 		if not retrievedUser:
@@ -125,8 +125,8 @@ class changePasswordPage(ctk.CTkFrame):
 		
 		# Save new password to user and commit it to the database
 		retrievedUser.passwordHash = hashlib.md5(newPassword.encode("utf-8")).hexdigest()
-		self.master.session.commit() #type: ignore
-		self.master.session.close() #type: ignore
+		self.master.session.commit() 
+		self.master.session.close() 
 
 		# After a password is changed we log out our user
-		self.master.logoutUser() #type: ignore
+		self.master.logoutUser() 

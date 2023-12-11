@@ -1,9 +1,11 @@
 from classes.utilities import convertStoryObjToJSON
 import customtkinter as ctk
-import sys
+import sys, os
 from classes.export import StoryPDF
 from tkinter.filedialog import asksaveasfilename
 import zipfile
+from PIL import Image 
+from tkinter import messagebox
 
 sys.path.append("..")
 
@@ -55,7 +57,9 @@ class storyLibraryPage(ctk.CTkFrame):
         
         # Render section for exporting all stories in the library
         bulkExportBtnFrame = ctk.CTkFrame(innerPageFrame, fg_color="transparent", width=500, height=500)
-        bulkExportStoryBtn = ctk.CTkButton(bulkExportBtnFrame, text="Export All", command=self.exportAllStories, text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"])
+        bulkExportStoryBtn_image = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, 'glass_bulk_export_btn.png')),
+				size=(75, 75))
+        bulkExportStoryBtn = ctk.CTkButton(bulkExportBtnFrame, image=bulkExportStoryBtn_image, text="Export all to .zip ", height=10, width=5, command=self.exportAllStories, text_color=self.master.theme["btn_text_clr"], fg_color='transparent', hover_color=self.master.theme["hover_clr"])
         bulkExportStoryBtn.pack(expand=True)
         bulkExportBtnFrame.grid(row=0, column=0)
 
@@ -82,12 +86,13 @@ class storyLibraryPage(ctk.CTkFrame):
             cardBody = ctk.CTkFrame(storyCard, fg_color="transparent")
             continueSavedStoryBtn = ctk.CTkButton(cardBody, text="Continue", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"],
                                                   hover_color=self.master.theme["hover_clr"], command=lambda story=story: self.continueSavedStory(story))
-            openRemixStoryBtn = ctk.CTkButton(cardBody, text="Remix", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"],
+            openRemixStoryBtn = ctk.CTkButton(cardBody,  text="Remix", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"],
                                               command=lambda story=story: self.openRemixStoryPage(story))  # type: ignore
-            deleteSavedStoryBtn = ctk.CTkButton(cardBody, text="Delete", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"],
+            deleteSavedStoryBtn = ctk.CTkButton(cardBody,  text="Delete", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"],
                                                 hover_color=self.master.theme["hover_clr"], command=lambda story=story: self.deleteSavedStory(story))
-            exportStoryBtn = ctk.CTkButton(
-                cardBody, text="Export", command=lambda story=story: self.exportSavedStory(story), text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"])
+            exportStoryBtn_image = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, 'glass_single_export_btn.png')),
+				size=(50, 50))
+            exportStoryBtn = ctk.CTkButton(cardBody, image=exportStoryBtn_image, text="Export", height=10, width=5, command=lambda story=story: self.exportSavedStory(story), text_color=self.master.theme["btn_text_clr"], fg_color='transparent', hover_color=self.master.theme["hover_clr"])
 
             # Structure the storyCard and its widgets
             storyCard.grid(row=rowIndex, column=columnIndex, padx=10, pady=10)
@@ -221,6 +226,8 @@ class storyLibraryPage(ctk.CTkFrame):
         4. If path for zip file is valid, create zip file and write all pdf data into that file.
             Finally, download the file to the user's entered path.
         '''
+        # Msgbox pop-up to reassure our user that their story is exporting
+        messagebox.showinfo('Export Loading', f'Please wait your stories are loading...') 
         if not self.master.loggedInUser.stories:
             return
         all_stories_pdfs = []

@@ -4,7 +4,7 @@ import sys
 sys.path.append("..")
 from classes.utilities import clearEntryWidgets, isEmptyEntryWidgets, toggleHidden
 from classes.models import User
-
+import pickle
 '''
 + userLoginPage: Tkinter frame that represents the login page of the application. This is where users would 
 	log into the accounts that they've created/registered.
@@ -75,9 +75,9 @@ class userLoginPage(ctk.CTkFrame):
 
 		# Create section to have form buttons/actions
 		formBtnsSection = ctk.CTkFrame(form, fg_color="transparent")
-		clearFormBtn = ctk.CTkButton(formBtnsSection, text="Clear", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: clearEntryWidgets(self.formEntryList))
-		confirmLoginBtn = ctk.CTkButton(formBtnsSection, text="Confirm Login", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.loginUser)
-		openRegisterAccountBtn = ctk.CTkButton(formBtnsSection, text="Register New Account", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("userRegisterPage")) #type: ignore
+		clearFormBtn = ctk.CTkButton(formBtnsSection,  text="Clear", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: clearEntryWidgets(self.formEntryList))
+		confirmLoginBtn = ctk.CTkButton(formBtnsSection,  text="Confirm Login", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.loginUser)
+		openRegisterAccountBtn = ctk.CTkButton(formBtnsSection,  text="Register New Account", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("userRegisterPage")) 
 		
 		# Structure the remaining elements of the page
 		formHeader.grid(row=0, column=0, pady=10)
@@ -88,7 +88,6 @@ class userLoginPage(ctk.CTkFrame):
 		clearFormBtn.grid(row=0, column=0, padx=10, pady=10)
 		openRegisterAccountBtn.grid(row=0, column=1, padx=10, pady=10)
 		confirmLoginBtn.grid(row=0, column=2, padx=10, pady=10)
-		
 	
 	def loginUser(self):
 		'''
@@ -111,17 +110,13 @@ class userLoginPage(ctk.CTkFrame):
 		passwordHash = hashlib.md5(password.encode("utf-8")).hexdigest()
 
 		# Now check if the inputted username and password hash matches a record from the User table 
-		retrievedUser = self.master.session.query(User).filter_by(username=username, passwordHash=passwordHash).first() #type: ignore
+		retrievedUser = self.master.session.query(User).filter_by(username=username, passwordHash=passwordHash).first() 
 		if not retrievedUser:
 			self.formErrorMessage.configure(text="Username or password is incorrect!")
 			return
 		
-		# Assign the new logged in user
-		self.master.loggedInUser = retrievedUser #type: ignore
+		# Save the last logged-in user
+		with open('last_user.pkl', 'wb') as f:
+			pickle.dump(username, f)
 
-		# Update the nav buttons now that the user is logged in
-		# so that they actually work and aren't disabled
-		self.master.header.updateNavButtons() #type: ignore
-
-		# Redirect the user to the 'My Account' or the 'user account page'
-		self.master.openPage("userAccountPage") #type: ignore
+		self.master.saveLoginAs(retrievedUser, username)
