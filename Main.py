@@ -88,11 +88,11 @@ class Sidebar(ctk.CTkFrame):
 			btn_image = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, btn_info["image_name"])),
 				size=(100, 100))
 			
-			navBtn = ctk.CTkButton(navbarBGFrame, corner_radius=0, hover_color=("gray25", "gray30"), height=20, width=30, border_spacing=5,
-				fg_color="transparent", hover=True, image=btn_image, anchor="w", text=btn_name, 
+			navBtn = ctk.CTkButton(navbarBGFrame, image=btn_image, bg_color='transparent', fg_color='transparent', 
+						  text=btn_name, hover_color=self.master.theme["hover_clr"], anchor="w", corner_radius=0, height=5, border_spacing=5,
 				font=("Helvetica", 16, "bold"), text_color=self.master.theme["btn_text_clr"], command=btn_info["command"])
 			
-			navBtn.grid(row=i, column=0)
+			navBtn.grid(row=i+1, column=0)
 
 			self.navBtns.append(navBtn)  # Store the button with its name as the key
 
@@ -226,7 +226,7 @@ class App(ctk.CTk):
 			is dark theme color
 		'''
 		self.theme = {
-			"main_clr": ("#FFFFFF", "#030712"),
+			"main_clr": ("#E9EDEF", "#030712"),
 			"sub_clr": ("#9ca3af", "#0f172a"),
 			"label_clr": ("#000000", "#FFFFFF"),
 			"btn_clr": ("#4267B2", "#9ca3af"),

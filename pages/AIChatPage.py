@@ -1,9 +1,11 @@
 import time
 import customtkinter as ctk
-import sys
+import sys, os
 sys.path.append("..")
 from classes.models import Message
 from tkinter import messagebox
+from customtkinter import CTkCanvas
+from PIL import Image 
 
 '''
 + AIChatPage: Frame that represents the page where the user and AI send chat messages to each other in order to 
@@ -33,23 +35,32 @@ class AIChatPage(ctk.CTkFrame):
 		self.master = master
 		super().__init__(self.master, fg_color=self.master.theme["main_clr"], corner_radius=0)
 
-		# This logic prevents the dynamically resizing msgbox from overexpanding - Nuke The Dev
+		self.chatEntry_height=20
+		self.max_chatEntry_height = 400 # 4 line max view space
+		# This logic prevents the dynamically resizing msgbox from overexpanding - Powered by Nuke The Dev
 		self.msgbox_height=20
-		self.max_msgbox_height = 300
-		
+		self.max_msgbox_height = 1200 # 12 line max view space
+
 		innerPageFrame = ctk.CTkFrame(self, fg_color=self.master.theme["sub_clr"])
 		innerPageFrame.pack(expand=True)
 		header = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
 		heading = ctk.CTkLabel(header, text="Write Your Story!", font=("Helvetica", 32), text_color=self.master.theme["label_clr"])
 		storyStateMessage = ctk.CTkLabel(header, text="", text_color=self.master.theme["label_clr"])
-		self.pageStatusMessage = ctk.CTkLabel(header, text="StoryBot is currently waiting for your input.", text_color=self.master.theme["label_clr"])
+		self.pageStatusMessage = ctk.CTkLabel(header, text="StoryBot is currently waiting for your input.", font=("Helvetica", 24), text_color=self.master.theme["label_clr"])
+
+		# This is where we view the messages sent from the AI and the User
+		self.chatBox = ctk.CTkScrollableFrame(innerPageFrame, fg_color=self.master.theme["main_clr"], width=800, height=400)
 
 		# Section with all of the input options the user has for the AIChatPage
 		chatInputSection = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
-		self.chatEntry = ctk.CTkEntry(chatInputSection, width=300, placeholder_text="Send a message e.g. 'Once upon a time...'", fg_color=self.master.theme["entry_clr"], text_color=self.master.theme["entry_text_clr"], )
-		self.chatBox = ctk.CTkScrollableFrame(innerPageFrame, fg_color=self.master.theme["main_clr"], width=500, height=250)
-		self.openSaveStoryBtn = ctk.CTkButton(chatInputSection,  text="Save Story", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("saveStoryPage"))
-		self.sendChatBtn = ctk.CTkButton(chatInputSection, text="Send",  text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.processUserChat)
+		self.chatEntry = ctk.CTkTextbox(chatInputSection, height=50, width=600, fg_color=self.master.theme["entry_clr"], text_color=self.master.theme["entry_text_clr"], font=("Helvetica", 16), wrap="word", activate_scrollbars=True)
+		openSaveStoryBtn_image = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, 'glass_save_btn.png')),
+				size=(50, 50))
+		self.openSaveStoryBtn = ctk.CTkButton(chatInputSection, image=openSaveStoryBtn_image, height=10, width=20, text="Save Story", font=("Helvetica", 16, "bold"), text_color=self.master.theme["btn_text_clr"], fg_color='transparent', hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("saveStoryPage"))
+		
+		sendChatBtn_image = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, 'glass_send_btn.png')),
+				size=(50, 50))
+		self.sendChatBtn = ctk.CTkButton(chatInputSection, corner_radius=0, image=sendChatBtn_image, height=10, width=20, text="Send", font=("Helvetica", 16, "bold"), text_color=self.master.theme["btn_text_clr"], fg_color='transparent', hover_color=self.master.theme["hover_clr"], hover=True, anchor="e", command=self.processUserChat)
 	
 		# Structure and style widgets accordingly
 		header.grid(row=0, column=0, pady=10)
@@ -59,8 +70,8 @@ class AIChatPage(ctk.CTkFrame):
 		self.chatBox.grid(row=1, column=0, pady=10)
 		chatInputSection.grid(row=2, column=0, pady=20)
 		self.chatEntry.grid(row=0, column=0, padx=10, pady=5)
-		self.sendChatBtn.grid(row=0, column=1, padx=10)
-		self.openSaveStoryBtn.grid(row=0, column=2, padx=10)
+		self.sendChatBtn.grid(row=0, column=1, padx=5)
+		self.openSaveStoryBtn.grid(row=0, column=2, padx=5)
 
 		'''
 		- Cases for the initial state:
@@ -69,6 +80,7 @@ class AIChatPage(ctk.CTkFrame):
 			we're rendering the AI's first response to a user's remixed story, which would be the first message of the chat.
 		3. Using is continuing an unsaved story that isn't a remix.
 		'''
+		
 		if self.master.isSavedStory: 
 			# Render saved messages associated with the current story
 			for messageObj in self.master.currentStory.messages:
@@ -90,7 +102,8 @@ class AIChatPage(ctk.CTkFrame):
 		if self.master.storyGenObj:
 			self.processAIChat()
 
-
+		# call the function once to start the periodic check
+		self.check_length_and_resize()
 	
 	def renderChatMessageObj(self, messageObj):
 		'''
@@ -101,35 +114,32 @@ class AIChatPage(ctk.CTkFrame):
 		# Chat window is read and write now
 		messageText = messageObj.text
 
-
-		# If there are messages write the response in the current msgbox, if not create one then write to it
-		if self.master.msgboxes:
-			msgbox = self.master.msgboxes[len(self.master.msgboxes)]
-			msgbox.insert("1.0", messageText)
-		else:
-			# access the last msgbox to print to
-			msgbox = self.drawMsgBox()
-			msgbox.insert("1.0", messageText)
-
-		num_chars = len(messageObj.text)  # The number of characters in the text
-
-		# Calculate the number of lines at 61 characters per line of text onscreen
-		num_lines = num_chars // 61  # Use integer division to get the number of full lines
-		if num_chars % 61 > 0:  # If there are any remaining characters, they will form an additional line
-			num_lines += 1
-
-		# Calculate the height
-		height = num_lines * 10  # Each line is 10 units high
-
-		# Now you can use `height` to set the height of your CTkTextbox
-		msgbox.configure(height=height)
-		
 		# If it's an AI message, else it was a message sent by the user
 		if messageObj.isAISender:
-			self.drawSenderTag(sender='Story Bot:')
+			messageText = "StoryBot: " + messageText
 		else:
-			self.drawSenderTag(sender=f'{self.master.loggedInUser.username}') 
+			messageText = f"{self.master.loggedInUser.username}: " + messageText 
 
+		# access the last msgbox to print to
+		msgbox = self.drawMsgBox()
+		msgbox.insert("1.0", messageText)
+
+		# Calculate the required height of the message
+		height = self.expandEntryBox(msgLength=messageText)
+		# Now we use the calculated `height` parameter to set the height of the msgbox
+		print('height=', height)
+		msgbox.configure(height=height)
+
+    # Check for the length of text in the entry field and adjust entry field height accordingly
+	def check_length_and_resize(self):
+		# get the text in the CTkTextbox
+		if self.chatEntry_height <= self.max_chatEntry_height:
+			new_height=self.expandEntryBox(self.chatEntry.get('1.0', 'end'))
+			self.chatEntry.configure(height=new_height)
+
+		# schedule the next check in 5000 milliseconds (1 second)
+		self.after(2000, self.check_length_and_resize)
+		
 	def processUserChat(self):
 		'''
 		- Sends the user chat message to the ai, for the ai to respond, then goes to render both of those chat messages
@@ -137,19 +147,19 @@ class AIChatPage(ctk.CTkFrame):
 		2. AIResponse (Generator): Generator object containing text that the AI generated in response to the user
 		'''
 		# Check if user actually sent something
-		if (self.chatEntry.get().strip() == ""):
+		if (self.chatEntry.get('1.0', 'end').strip() == ""):
 			messagebox.showwarning('Empty Message!', 'Please enter a valid message!')
 			return
 
 		# Process and render the user's message
 		# The .strip() method ensures that a user cannot type whitespaces 
 		# before the message content which has been known to cause an openAI api exception
-		userMessage = Message(text=self.chatEntry.get().strip(), isAISender=False)
+		userMessage = Message(text=self.chatEntry.get('1.0', 'end').strip(), isAISender=False)
 		self.renderChatMessageObj(userMessage)
 		self.master.unsavedStoryMessages.append(userMessage) 	
 		
 		# Clear entry widget when user sends a message
-		self.chatEntry.delete(0, "end")
+		self.chatEntry.delete(1.0, "end")
 			
 		AIResponse = self.master.storyGPT.sendStoryPrompt(userMessage.text) 
 		self.master.storyGenObj = AIResponse # type: ignore 
@@ -158,16 +168,23 @@ class AIChatPage(ctk.CTkFrame):
 		self.processAIChat()
 
 	def drawMsgBox(self):
-		msgbox = ctk.CTkTextbox(self.chatBox, fg_color=self.master.theme["entry_clr"], width=450, height=10, wrap="word", activate_scrollbars=True)
-		msgbox.configure(font=("Helvetica", 16))
-		self.master.msgboxes.append(msgbox)
+		msgbox = ctk.CTkTextbox(self.chatBox, fg_color=self.master.theme["entry_clr"], font=("Helvetica", 16), width=750, height=20, wrap="word", activate_scrollbars=False)
 		msgbox.grid(row=len(self.master.msgboxes), column=0, padx=5, pady=5, sticky="nsew")
+		self.master.msgboxes.append(msgbox)
 		return msgbox
 	
-	def drawSenderTag(self, sender):
-		sender_lbl = ctk.CTkLabel(self.chatBox, font=("Helvetica", 12), text=sender)
-		sender_lbl.grid(row=[len(self.master.msgboxes)-1], column=0, padx=10, pady=5, sticky="w")
-		return
+	def expandEntryBox(self, msgLength):
+		num_chars = len(msgLength)  # The number of characters in the text box at hand
+		print('num_chars=', num_chars)
+		# Calculate the number of lines at 100 characters per line of text onscreen
+		num_lines = num_chars // 100  # Use integer division to get the number of full lines
+		print('num_lines=', num_lines)
+		if num_chars % 100 > 0:  # If there are any remaining characters, they will form an additional line
+			num_lines += 1
+		# Calculate the height
+		height = num_lines * 25  # Each line is 25 units high
+		# Now you can use `height` to set the height of your widget
+		return height
 
 	def processAIChat(self):
 		'''
@@ -200,27 +217,25 @@ class AIChatPage(ctk.CTkFrame):
 		# Make the chat box writable
 		msgbox.configure(state="normal")
 
-		self.drawSenderTag(sender='Story Bot:')
-		# Iterate through chunks to render and process them
+		msgbox.insert('end', 'Story Bot: ')
 		for chunk in self.master.storyGenObj: 
 			if any(chunk.endswith(char) for char in ['.', '?', '!']):
 				punct_marks = ['.', '?', '!']
 				for mark in punct_marks:
 					if chunk.endswith(f'{mark}'):
 						msgbox.insert('end', f"{mark}" + " ")
-				# Increment the height of the textbox in real-time
-				inc_height=4
 			else:
 				msgbox.insert('end', chunk)
-				inc_height=2
 			
 			# Enables smooth real time typing
 			if (self.msgbox_height <= self.max_msgbox_height):
-					self.msgbox_height += inc_height
+					new_height=self.expandEntryBox(msgbox.get('1.0', 'end'))
+					self.msgbox_height = new_height
 
 			# Dynamically resize the height of the current msgbox
 			msgbox.update()
 			msgbox.configure(height=self.msgbox_height)
+			time.sleep(0.02)
 			# add the chunk onto the message object's text since we want to keep track of this message; then increment chunkIndex
 			messageObj.text += chunk
 			chunkIndex += 1
@@ -233,6 +248,7 @@ class AIChatPage(ctk.CTkFrame):
 		self.master.storyGenObj = None 
 
 		# Scroll to bottom and make chatbox read only
+		# This allows the user to view the latest text
 		msgbox.see("end-1c")
 		msgbox.configure(state="disabled")
 
@@ -242,4 +258,4 @@ class AIChatPage(ctk.CTkFrame):
 		self.master.sidebar.updateSidebar() 
 
 		# Update the page status message to indicate the ai is done
-		self.pageStatusMessage.configure(text="StoryBot is currently waiting for you input.")
+		self.pageStatusMessage.configure(text="StoryBot is currently waiting for your input.")

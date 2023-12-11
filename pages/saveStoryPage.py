@@ -1,8 +1,9 @@
 import customtkinter as ctk
-import sys
+import sys, os
 sys.path.append("..")
 from classes.models import Story
 from classes.utilities import isEmptyEntryWidgets, clearEntryWidgets
+from PIL import Image 
 
 '''
 + saveStoryPage: Page where the user will save a a story. If we load the frame, that means the we're loading 
@@ -65,7 +66,9 @@ class saveStoryPage(ctk.CTkFrame):
 			storyTitleLabel = ctk.CTkLabel(formFieldsSection, text="Story Title", text_color=self.master.theme["label_clr"])
 			self.storyTitleEntry = ctk.CTkEntry(formFieldsSection, fg_color=self.master.theme["entry_clr"], text_color=self.master.theme["entry_text_clr"])
 			clearFormBtn = ctk.CTkButton(formBtnsSection,  text="Clear", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: clearEntryWidgets([self.storyTitleEntry]))
-			saveNewStoryBtn = ctk.CTkButton(formBtnsSection,  text="Save Story", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.saveNewStory)
+			saveNewStoryBtn_image = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, 'glass_save_btn.png')),
+				size=(50, 50))
+			saveNewStoryBtn = ctk.CTkButton(formBtnsSection, image=saveNewStoryBtn_image, height=10, width=5, text="Save Story", text_color=self.master.theme["btn_text_clr"], fg_color='transparent', hover_color=self.master.theme["hover_clr"], command=self.saveNewStory)
 
 			# Structure the widgets
 			self.formErrorMessage.grid(row=2, column=0)

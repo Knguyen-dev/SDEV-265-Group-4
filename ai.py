@@ -242,13 +242,13 @@ class StoryGPT(ModelBase):
         )
 
         # Default response length and story writing style
-        self.response_style = "descriptive"
+        self.response_style = "entertaining"
 
     def sendStoryPrompt(self, topic: str):
         '''
         Modifies the prompt to instruct ChatGPT to create a story
         '''
-        self.prompt = f"Topic: {topic}\nStyle: {self.response_style}"
+        self.prompt = f"Topic: Write a story about {topic}\n in the Style of: {self.response_style}"
         self.prompt += self.manager.inject()
         self.prompt += "Does the User's request violate any of the rules? If yes, say this to the user: \"This rule was broken and specify the rule broken\" If not, continue with the story and do not I repeat, Do not explain that you're following the rules. Do not confirm with the user that their request is valid. Rather, only tell them when their request is not valid.\n\n"
         response = self.complete()
