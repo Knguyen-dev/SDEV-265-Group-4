@@ -9,86 +9,19 @@ with open('./assets/api_key.txt', 'r') as f:
     
 gptClient = openai.Client(api_key=api_key)
 
-class ModelBase():
-    '''
-    The base class for generating content. Supports full chat history management from creating and deleting chat entries to clearing and replacing the entire chat.
-    '''
-
-    def __init__(self, client: openai.OpenAI, model: str, prompt: str, systemPrompt: str):
-        self.systemPrompt = systemPrompt
-        self.prompt = prompt
-        self.engine = model
-        self.client = client
-
+class ChatHistoryManager:
+    def __init__(self, prompt: str, systemPrompt: str):
         # Default starting chat, that self.chat can we reset to if needed
         self.startingChat = [
-            {"role": "system", "content": self.systemPrompt},
+            {"role": "system", "content": systemPrompt},
             {"role": "assistant", "content": "Ok, I will be sure to carefully follow all your instructions as listed"},
-            {"role": "user", "content": self.prompt},
+            {"role": "user", "content": prompt},
         ]
 
         # Chat History
         # NOTE: Using slicing notation to copy startingChat to chat in a way so that the lists are independent of each other. Modifying one shouldn't affect the other
         self.chat = self.startingChat[:]
-
-        # Default AI Attributes/Parameters
-        self.temperature = 0.8
-        self.top_p = 1
-        self.presence_penalty = 0
-        self.frequency_penalty = 0
-        self.max_tokens = 512
-        self.is_stream = True
-
-    def complete(self):
-        '''
-        This is the method needed to get AI output. This includes all the settings needed to run the AI
-                Parameters:
-
-                `temperature` - `float` | What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
-
-                `top_p` | - `float` An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-
-                `frequency_penalty` - `float` | Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
-
-                `presence_penalty` - `float` | Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
-
-                `stream` - `bool` | If set, partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only server-sent events as they become available, with the stream terminated by a data: [DONE] message.
-        '''
-        self.chat.append({"role": "user", "content": self.prompt})
-
-        if self.is_stream:
-            fullMessage = []
-
-            try:
-                response = self.client.chat.completions.create(
-                    model=self.engine, 
-                    messages=self.chat, 
-                    temperature=self.temperature, 
-                    top_p=self.top_p,
-                    frequency_penalty=self.frequency_penalty, 
-                    presence_penalty=self.presence_penalty, 
-                    max_tokens=self.max_tokens,
-                    stream=True
-                )
-
-                for chunk in response:
-                    fullMessage.append(chunk.choices[0].delta.content)
-                    if chunk.choices[0].delta.content:
-                        yield chunk.choices[0].delta.content
-
-            except KeyError:  # The AI has stopped generating
-                yield "\n\n The End."
-
-            self.chat.append({"role": "assistant", "content": ''.join(filter(None, fullMessage)) if fullMessage else ""})
-        else:
-            response = self.client.chat.completions.create(model=self.engine, messages=self.chat, temperature=self.temperature, top_p=self.top_p,
-                                                    frequency_penalty=self.frequency_penalty, presence_penalty=self.presence_penalty, max_tokens=self.max_tokens, stream=False)
-
-            self.chat.append(
-                {"role": "assistant", "content": response.choices[0].message.content})
-
-            return response.choices[0].message.content
-
+    
     @dispatch(dict, int)
     def addMessageAt(self, message: Dict[str, str], position: int):
         '''
@@ -180,8 +113,7 @@ class ModelBase():
     def printChat(self):
         for message in self.chat:
             print(f"{message['role']}: {message['content']}")
-
-
+            
 class InstructionsManager:
     '''
     A class for managing rules for the AI to follow. Supports adding, removing, and injecting rules
@@ -222,6 +154,80 @@ class InstructionsManager:
         '''
         return "\n\n" + "\n".join([rule for rule in self.ruleList]) + "\n"
 
+class ModelBase():
+    '''
+    The base class for generating content. Supports full chat history management from creating and deleting chat entries to clearing and replacing the entire chat.
+    '''
+
+    def __init__(self, client: openai.OpenAI, model: str, prompt: str, systemPrompt: str):
+        self.systemPrompt = systemPrompt
+        self.prompt = prompt
+        self.engine = model
+        self.client = client
+
+        self.chatHistory = ChatHistoryManager(prompt, systemPrompt)
+
+        # Default AI Attributes/Parameters
+        self.temperature = 0.8
+        self.top_p = 1
+        self.presence_penalty = 0
+        self.frequency_penalty = 0
+        self.max_tokens = 512
+        self.is_stream = True
+
+    def complete(self):
+        '''
+        This is the method needed to get AI output. This includes all the settings needed to run the AI
+                Parameters:
+
+                `temperature` - `float` | What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
+
+                `top_p` | - `float` An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
+
+                `frequency_penalty` - `float` | Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
+
+                `presence_penalty` - `float` | Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
+
+                `stream` - `bool` | If set, partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only server-sent events as they become available, with the stream terminated by a data: [DONE] message.
+        '''
+        self.chatHistory.chat.append({"role": "user", "content": self.prompt})
+
+        if self.is_stream:
+            fullMessage = []
+
+            try:
+                response = self.client.chat.completions.create(
+                    model=self.engine, 
+                    messages=self.chatHistory.chat, 
+                    temperature=self.temperature, 
+                    top_p=self.top_p,
+                    frequency_penalty=self.frequency_penalty, 
+                    presence_penalty=self.presence_penalty, 
+                    max_tokens=self.max_tokens,
+                    stream=True
+                )
+
+                for chunk in response:
+                    fullMessage.append(chunk.choices[0].delta.content)
+                    if chunk.choices[0].delta.content:
+                        yield chunk.choices[0].delta.content
+
+            except KeyError:  # The AI has stopped generating
+                yield "\n\n The End."
+            except openai.error.OpenAIError as e:
+                yield f"\n\n An error occurred with OpenAI: {e}"
+            except Exception as e:
+                yield f"\n\n Unexpected error: {e}"
+
+            self.chatHistory.chat.append({"role": "assistant", "content": ''.join(filter(None, fullMessage)) if fullMessage else ""})
+        else:
+            response = self.client.chat.completions.create(model=self.engine, messages=self.chatHistory.chat, temperature=self.temperature, top_p=self.top_p,
+                                                    frequency_penalty=self.frequency_penalty, presence_penalty=self.presence_penalty, max_tokens=self.max_tokens, stream=False)
+
+            self.chatHistory.chat.append(
+                {"role": "assistant", "content": response.choices[0].message.content})
+
+            return response.choices[0].message.content
 
 # allow outside modification of class methods without cluttering up the class here (used for testing only)
 @add_testing_functions
@@ -246,13 +252,17 @@ class StoryGPT(ModelBase):
         # Default response length and story writing style
         self.response_style = "entertaining"
 
+    def buildPrompt(self, topic: str):
+        prompt = f"Topic: Write a story about {topic}\n in the Style of: {self.response_style}"
+        prompt += self.manager.inject()
+        prompt += ("Does the User's request violate any of the rules? If yes, say this to the user: "
+                "\"This rule was broken and specify the rule broken\" If not, continue with the story and do not I repeat, "
+                "Do not explain that you're following the rules. Do not confirm with the user that their request is valid. "
+                "Rather, only tell them when their request is not valid.\n\n")
+        return prompt
+
     def sendStoryPrompt(self, topic: str):
-        '''
-        Modifies the prompt to instruct ChatGPT to create a story
-        '''
-        self.prompt = f"Topic: Write a story about {topic}\n in the Style of: {self.response_style}"
-        self.prompt += self.manager.inject()
-        self.prompt += "Does the User's request violate any of the rules? If yes, say this to the user: \"This rule was broken and specify the rule broken\" If not, continue with the story and do not I repeat, Do not explain that you're following the rules. Do not confirm with the user that their request is valid. Rather, only tell them when their request is not valid.\n\n"
+        self.prompt = self.buildPrompt(topic)
         response = self.complete()
         return response
 
