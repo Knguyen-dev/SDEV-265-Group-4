@@ -38,7 +38,7 @@ class AIChatPage(ctk.CTkFrame):
 		self.chatEntry_height=20
 		self.max_chatEntry_height = 400 # 4 line max view space
 		# This logic prevents the dynamically resizing msgbox from overexpanding - Powered by Nuke The Dev
-		self.msgbox_height=20
+		self.msgbox_height=30
 		self.max_msgbox_height = 1200 # 12 line max view space
 
 		innerPageFrame = ctk.CTkFrame(self, fg_color=self.master.theme["sub_clr"])
@@ -182,7 +182,7 @@ class AIChatPage(ctk.CTkFrame):
 		if num_chars % 100 > 0:  # If there are any remaining characters, they will form an additional line
 			num_lines += 1
 		# Calculate the height
-		height = num_lines * 25  # Each line is 25 units high
+		height = num_lines * 30  # Each line is 30 units high
 		# Now you can use `height` to set the height of your widget
 		return height
 
@@ -241,7 +241,7 @@ class AIChatPage(ctk.CTkFrame):
 			chunkIndex += 1
 
 		#reset the msgbox height after each message
-		self.msgbox_height=20
+		self.msgbox_height=30
 			
 		# AI response processing is done, so append message object and variables related to processing a message
 		self.master.unsavedStoryMessages.append(messageObj) 
