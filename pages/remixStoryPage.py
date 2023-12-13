@@ -69,7 +69,6 @@ class remixStoryPage(ctk.CTkFrame):
 		2. AIMessage (Message): Message object representing the text that the AI generated in reply
 			to the user.
 		'''
-		messagebox.showinfo('Remix Loading', f'Please wait your story is currently being remixed...') 
 		# Check if user entered text for remixing
 		if self.remixInput.get("1.0", "end-1c").strip() == "":
 			self.formErrorMessage.configure(text="Please at least enter text for the remix!")
@@ -87,7 +86,7 @@ class remixStoryPage(ctk.CTkFrame):
 		# Also clear AI of any past knowledge, they should only know about the inputted story and its twist
 		self.master.unsavedStoryMessages = [] 
 		self.master.storyGPT.clear() 
-
+		messagebox.showinfo('Remix Loading', f'Please wait your story is currently being remixed...') 
 		# Concatenate that messages of the story into one string, that represents the content of the selected story
 		storyText = ""
 		for messageObj in self.story.messages:
