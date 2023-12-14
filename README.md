@@ -1,28 +1,46 @@
-# SDEV-265-Group-4
-Shared repo for sdev 265 group
+# BookSmart.ai
 
-# Description
--   Introducing an innovative library application that harnesses the power of AI to empower users in the art of storytelling. Imagine a world where your creativity meets cutting-edge technology, where crafting your narrative is made not just easier, but also more inspiring. Meet BookSmart.ai, an AI-powered library and story-writing application that helps you write and store your stories.
--   Our library application seamlessly integrates AI to assist users in shaping the stories of their dreams. Whether you're a seasoned storyteller or a budding author, our platform offers a helping hand at every turn. By having an AI assistant helping you draft up your stories and save them to the personal library. Then users are able to access their stories anytime to continue them. Users cannot only dive back into their old stories like mentioned before, but they are also able to have the AI make a spinoff or remix of their story. The user just has to enter in the basic twist or new plot of the spin-off, and the AI will use that as a springboard to create the beginnings of a new story!
--   In this brave new world of storytelling, we bridge the gap between imagination and innovation. Our library application, powered by AI, invites you to embark on a journey where imagination is your only limit. With our application, you’ll find it easier and more inspiring when writing your story. Join us in redefining storytelling, and work together with tools such as AI to take your writing to new heights!
+Welcome to BookSmart.ai, an AI-powered library and story-writing application designed to revolutionize the way you craft and store your stories. This project is a fork of a collaborative college project, now evolved into an innovative platform blending creativity with cutting-edge technology.
 
-# Installation Instructions
+## Description
 
-- Step 1: Install Python 3.11
-1. Go to https://www.python.org/downloads/release/python-3110/
-2. Download the Windows x64 installer if on Windows
-3. Download the macOS 64-bit universal2 installer if on Mac
-4. Follow the following installation instructions
-- Step 2: Clone Repository
-5. Go to https://github.com/Knguyen-dev/SDEV-265-Group-4
-6. Click the “code” drop-down
-7. Click Download Zip
-8. Extract the folder into the desired location
-- Step 3: Add OpenAI API Key
-9. Get an API key at https://openai.com/.
-10. Write the API key to a text file at project_root/assets/api_key.txt
-- Step 4: Install Necessary Libraries and Run
-11. Open Terminal on Mac or Windows.
-12. Change the target directory to the program directory in the zip file previously extracted.
-13. Type pip install -r requirements.txt to install the required libraries.
-14. Python should complete the process for you. Type python Main.py and hit ‘Enter’
+BookSmart.ai is not just a library application; it's a storytelling companion. It's designed for everyone from seasoned storytellers to budding authors. Here's what makes BookSmart.ai unique:
+
+- **AI-Powered Storytelling**: With an AI assistant at your side, drafting and saving stories becomes not only easier but also more inspiring.
+- **Access and Continue Stories**: Easily access your saved stories to continue them whenever inspiration strikes.
+- **Creative Spinoffs and Remixes**: Provide a new twist or plot, and let the AI create a spinoff or remix of your original story, opening new avenues for your narrative journey.
+
+In this world of storytelling, your imagination is the limit. Join us and redefine storytelling with AI as your co-author!
+
+## Installation Instructions
+
+### Step 1: Install Python 3.12
+
+1. Visit [Python 3.12 Download Page](https://www.python.org/downloads/release/python-3120/).
+2. Download the appropriate installer:
+   - Windows: Windows x64 installer
+   - macOS: macOS 64-bit universal2 installer
+3. Follow the on-screen installation instructions.
+
+### Step 2: Clone the Repository
+
+1. Navigate to [BookSmart.ai GitHub Repository](https://github.com/Knguyen-dev/SDEV-265-Group-4).
+2. Click the “Code” drop-down button.
+3. Select "Download ZIP".
+4. Extract the folder to your desired location.
+
+### Step 3: Add OpenAI API Key
+
+1. Obtain an API key from [OpenAI](https://openai.com/).
+2. Save the API key in a text file at `project_root/assets/api_key.txt`.
+
+### Step 4: Install Necessary Libraries and Run the Application
+
+1. Open Terminal (macOS) or Command Prompt (Windows).
+2. Change the directory to the program directory in the extracted ZIP file.
+3. Run `pip install -r requirements.txt` to install required libraries.
+4. After installation, execute `python Main.py` to start the application.
+
+## Join Us
+
+Dive into the world of AI-assisted storytelling with BookSmart.ai. Your journey into the future of narrative creativity starts here!

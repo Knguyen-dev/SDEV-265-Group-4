@@ -34,9 +34,16 @@ class userAccountPage(ctk.CTkFrame):
 		innerPageFrame.pack(expand=True)
 		# Create section to store the user's profile picture
 		userImageSection = tk.Canvas(innerPageFrame)
-		
-		avatarSourcePath = f"./assets/images/profile_pics/{self.master.loggedInUser.avatar}"
-		image = Image.open(avatarSourcePath).resize((300, 300))
+
+		avatarSourcePath = f"./assets/images/profile_pics/{self.master.loggedInUser.avatar}"		
+  
+		try:
+			image = Image.open(avatarSourcePath).resize((300, 300))
+		except (FileNotFoundError, OSError): # if the user has a custom profile picture...
+			avatarSourcePath = self.master.loggedInUser.avatar
+			# avatarSourcePath = f"./assets/images/profile_pics/default_user.jpg"
+			image = Image.open(avatarSourcePath).resize((300, 300))
+   		
 		imageWidget = ImageTk.PhotoImage(image=image)
 		imageLabel = tk.Label(userImageSection, image=imageWidget)
 		imageLabel.image = imageWidget 
@@ -46,14 +53,14 @@ class userAccountPage(ctk.CTkFrame):
 		userBtnsSection = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
 		openEditAvatarBtn = ctk.CTkButton(userBtnsSection,  text="Edit Avatar", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("editAvatarPage")) 
 		openEditAccountBtn = ctk.CTkButton(userBtnsSection,  text="Edit Account", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("editAccountPage")) 
-		confirmLogOutBtn = ctk.CTkButton(userBtnsSection,  text="Log Out", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.master.confirmLogout)
+		confirmLogOutBtn = ctk.CTkButton(userBtnsSection,  text="Log Out", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.master.userSessionManager.confirmLogout)
 		openEditAvatarBtn.grid(row=0, column=0, pady=5)
 		openEditAccountBtn.grid(row=1, column=0, pady=5)
 		confirmLogOutBtn.grid(row=2, column=0, pady=5)
 
 		# Create section to display user information
 		# Get user information, and iteratively create labels to show that user information
-		userInfoSection = ctk.CTkFrame(innerPageFrame, fg_color=self.master.subFGCLR)
+		userInfoSection = ctk.CTkFrame(innerPageFrame, fg_color=self.master.theme["sub_clr"])
 		userInfoFields = [
 			{
 				"text": "Username",

@@ -39,7 +39,7 @@ class Sidebar(ctk.CTkFrame):
 		sidebarFrame.pack(expand=True)
 
 		sidebar_bg = ctk.CTkImage(light_image=Image.open(os.path.join(self.master.image_path, "sidebar_bg_light.jpg")),
-                                                     dark_image=Image.open(os.path.join(self.master.image_path, "sidebar_bg_dark.jpg")), size=((300), (850)))
+													 dark_image=Image.open(os.path.join(self.master.image_path, "sidebar_bg_dark.jpg")), size=((300), (850)))
 		sidebar_bgPanel = ctk.CTkLabel(sidebarFrame, image=sidebar_bg, text=" ")
 		sidebar_bgPanel.grid(row=0, column=0, sticky="ns")
 
@@ -77,11 +77,11 @@ class Sidebar(ctk.CTkFrame):
 			},
 			"Toggle Theme": {
 				"image_name": "glass_theme_btn.png",
-				"command": lambda: self.master.toggleTheme(),
+				"command": lambda: self.master.themeManager.toggleTheme(),
 			},
 			"Logout": {
 				"image_name": "glass_logout_btn.png",
-				"command": lambda: self.master.confirmLogout(),
+				"command": lambda: self.master.userSessionManager.confirmLogout(),
 			}
 		}
 		
@@ -179,6 +179,89 @@ Methods:
 - logoutUser(self): Logs out the currently logged in user from our application.
 '''
 
+class UserSessionManager:
+	def __init__(self, app):
+		self.app = app
+		self.loggedInUser = None
+		
+	def saveLoginAs(self, userAccount, Username):	
+		# Assign the new logged in user
+		self.app.loggedInUser = userAccount
+		self.app.loggedInUser.username = Username
+
+		# Update the nav buttons now that the user is logged in
+		# so that they actually work and aren't disabled
+		self.app.sidebar.updateSidebar() 
+
+		# Redirect the user to the 'My Account' or the 'user account page'
+		self.app.openPage("userAccountPage") 
+  
+	def logoutUser(self):
+		# loggedInUser is none because we are logging out the user
+		self.loggedInUser = None
+		# Remove the login authentication token because we are logging out the user
+		os.remove('last_user.pkl')
+		
+		# Wipe currentStory and reset booleans for the new user. This is so the new user starts on a blank slate
+		self.app.unsavedStoryMessages = [] 
+		self.app.currentStory = None
+		self.app.isSavedStory = False
+		self.app.isRemixedStory = False
+
+		# Clear AI knowledge of any stories the user is currently writing, if any, which prevents the user from logging back in and getting unexpected output
+		# NOTE: More specifically when they login and 'continue' an unsaved story, it prevents AI from having knowledge of an interaction from another user or session.
+		self.app.storyGPT.chatHistory.clear()
+
+		# Redirect the user to the login page
+		self.app.openPage("userLoginPage")
+
+		# Update nav buttons so that user can't access the pages associated with them
+		self.app.sidebar.updateSidebar()
+  
+	def confirmLogout(self):
+		response = messagebox.askquestion('Log out?', f'Are you sure you want to logout {self.app.loggedInUser.username}?')
+		if response == 'yes':
+			self.logoutUser()  # Calls the function for quitting the app
+		elif response == 'no':
+			pass
+		else:
+			messagebox.showwarning('error', 'Something went wrong!')
+   
+	def checkForPrevUser(self):
+		try:
+			if os.path.exists('last_user.pkl'):
+				with open('last_user.pkl', 'rb') as f:
+					last_username = pickle.load(f) # Now you can use `last_username` to log in
+					last_User = self.app.session.query(User).filter_by(username=last_username).first()
+					if last_User:
+						self.saveLoginAs(last_User, last_username)
+			else:
+				# If no previous user found or the previosly logged in user logged out, direct them to the login page
+				self.app.openPage("userLoginPage")
+		except (OSError, IOError, pickle.UnpicklingError) as e:
+			print(f"Error reading 'last_user.pkl': {e}")
+			# Handle error or fallback
+		except Exception as e:
+			print(f"Unexpected error: {e}")
+			# Handle unexpected exceptions
+
+class ThemeManager:
+	def __init__(self, app):
+		self.app = app
+		self.isDarkTheme = True
+		
+	def applyTheme(self):
+		'''Applies color changes to the application'''
+		if (self.isDarkTheme):
+			ctk.set_appearance_mode("Dark")
+		else:
+			ctk.set_appearance_mode("Light")
+
+	def toggleTheme(self):
+		'''Toggles theme of the application and reloads the page to show the changes '''
+		self.isDarkTheme = not (self.isDarkTheme)
+		self.applyTheme()
+
 class App(ctk.CTk):
 	width = 1280
 	height=800
@@ -186,12 +269,11 @@ class App(ctk.CTk):
 		# Initialize window and resize it based on the user's viewport width and height
 		super().__init__()
 		self.title("BookSmart.Ai")
-		self.iconbitmap('assets\images\BookSmartLogo.ico')
+		self.iconbitmap(r'assets\images\BookSmartLogo.ico')
 		self.width = self.winfo_screenwidth()
-		self.height = self.winfo_screenheight()
-		self.geometry(f"{self.width}x{self.height}")
+		self.geometry(f"{self.width}x{self.winfo_screenheight()}")
 		# AI model class instance that's going to be used throughout the application
-		self.image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "assets\images")
+		self.image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "assets/images")
 		self.storyGPT = StoryGPT()
 
 		'''
@@ -209,6 +291,9 @@ class App(ctk.CTk):
 			It's useful to store this in Main, as the user may want to toggle the theme, which'll reload 
 			the page. So we need that same story they wanted to remix when reloading
 		'''
+		self.themeManager = ThemeManager(self)
+		self.userSessionManager = UserSessionManager(self)
+		self.loadedPages = {}
 		self.currentPage = None
 		self.loggedInUser = None  
 		self.currentStory = None
@@ -217,7 +302,7 @@ class App(ctk.CTk):
 		self.unsavedStoryMessages = []
 		self.storyGenObj = None
 		self.remixStoryObj = None
-        #Initialize current AI mode Balanced at startup
+		#Initialize current AI mode Balanced at startup
 		self.currentMode='Balanced'
 		self.currentModeKey=0
 		self.msgboxes=[]
@@ -244,23 +329,11 @@ class App(ctk.CTk):
 		self.session = self.Session()
 
 		# Apply theme of application
-		self.applyTheme()
+		self.themeManager.applyTheme()
 
 		self.sidebar = Sidebar(self)
 
-		self.checkForPrevUser()
-
-	def saveLoginAs(self, userAccount, Username):	
-		# Assign the new logged in user
-		self.loggedInUser = userAccount
-		self.loggedInUser.username = Username
-
-		# Update the nav buttons now that the user is logged in
-		# so that they actually work and aren't disabled
-		self.sidebar.updateSidebar() 
-
-		# Redirect the user to the 'My Account' or the 'user account page'
-		self.openPage("userAccountPage") 
+		self.userSessionManager.checkForPrevUser()
 	
 	def enableSidebar(self):
 		self.sidebar.pack(side="left", fill="y")
@@ -282,16 +355,21 @@ class App(ctk.CTk):
 			return pageClass
 		except (ImportError, AttributeError) as e:
 			print(e)
-			return None;
+			return None
 
+	def getPageLazy(self, pageName):
+		if pageName not in self.loadedPages:
+			pageClass = self.getPage(pageName)
+			if pageClass:
+				self.loadedPages[pageName] = pageClass
+		return self.loadedPages.get(pageName, None)
 	
 	'''
 	- Loads and opens a page with pageName in the tkinter application
 	1. pageName: The name of the class for the page that's being opened
-	'''
+	'''  
 	def openPage(self, pageName, *args):
-		pageClass = self.getPage(pageName)
-		# If pageClass doesn't exist, then stop execution
+		pageClass = self.getPageLazy(pageName)
 		if not pageClass:
 			return
 		
@@ -300,66 +378,10 @@ class App(ctk.CTk):
 		if self.currentPage:
 			self.currentPage.destroy()
 		self.currentPage = pageClass(self, *args)
+  
 		# Pack the new page on the screen
 		self.currentPage.pack(fill="both", expand=True)
-
-	def applyTheme(self):
-		'''Applies color changes to the application'''
-		if (self.isDarkTheme):
-			ctk.set_appearance_mode("Dark")
-		else:
-			ctk.set_appearance_mode("Light")
-
-	def toggleTheme(self):
-		'''Toggles theme of the application and reloads the page to show the changes '''
-		self.isDarkTheme = not (self.isDarkTheme)
-		self.applyTheme()
-
-	def checkForPrevUser(self):
-		if os.path.exists('last_user.pkl'):
-			with open('last_user.pkl', 'rb') as f:
-				last_username = pickle.load(f) # Now you can use `last_username` to log in
-				last_User = self.session.query(User).filter_by(username=last_username).first()
-				if last_User:
-					self.saveLoginAs(last_User, last_username)
-		else:
-			# If no previous user found or the previosly logged in user logged out, direct them to the login page
-			self.openPage("userLoginPage")
 		
-	'''
-	- Log the current user out of the application.
-	'''
-	def confirmLogout(self):
-		response = messagebox.askquestion('Log out?', f'Are you sure you want to logout {self.loggedInUser.username}?')
-		if response == 'yes':
-			self.logoutUser()  # Calls the function for quitting the app
-		elif response == 'no':
-			pass
-		else:
-			messagebox.showwarning('error', 'Something went wrong!')
-
-	def logoutUser(self):
-		# loggedInUser is none because we are logging out the user
-		self.loggedInUser = None 
-		# Remove the login authentication token because we are logging out the user
-		os.remove('last_user.pkl')
-		
-		# Wipe currentStory and reset booleans for the new user. This is so the new user starts on a blank slate
-		self.unsavedStoryMessages = [] 
-		self.currentStory = None
-		self.isSavedStory = False
-		self.isRemixedStory = False
-
-		# Clear AI knowledge of any stories the user is currently writing, if any, which prevents the user from logging back in and getting unexpected output
-		# NOTE: More specifically when they login and 'continue' an unsaved story, it prevents AI from having knowledge of an interaction from another user or session.
-		self.storyGPT.chatHistory.clear()
-
-		# Redirect the user to the login page
-		self.openPage("userLoginPage")
-
-		# Update nav buttons so that user can't access the pages associated with them
-		self.sidebar.updateSidebar()
-
 # Make it so application can only be run from this file; 'python Main.py'
 if __name__ == "__main__":
 	app = App()
