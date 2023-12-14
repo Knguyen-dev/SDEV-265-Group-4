@@ -119,4 +119,4 @@ class userLoginPage(ctk.CTkFrame):
 		with open('last_user.pkl', 'wb') as f:
 			pickle.dump(username, f)
 
-		self.master.saveLoginAs(retrievedUser, username)
+		self.master.userSessionManager.saveLoginAs(retrievedUser, username)

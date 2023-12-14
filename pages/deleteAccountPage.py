@@ -83,7 +83,7 @@ class deleteAccountPage(ctk.CTkFrame):
 			self.master.session.delete(self.master.loggedInUser) 
 			self.master.session.commit() 
 			# We can safely do the logout process on the user now, since their account does not exist anymore
-			self.master.logoutUser() 
+			self.master.userSessionManager.logoutUser() 
 		else:
 			# Else, their username or password is wrong
 			self.formErrorMessage.configure(text="Username or password is incorrect!")

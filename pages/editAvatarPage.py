@@ -1,7 +1,9 @@
+from tkinter import messagebox
 import customtkinter as ctk
 import tkinter as tk
+from tkinter import filedialog  # Import filedialog
 from PIL import Image, ImageTk
-import os			
+import os		
 
 # Now when pathing, we are in a directory above. This lets us more easily 
 # access the "images" folder
@@ -33,6 +35,7 @@ class editAvatarPage(ctk.CTkFrame):
 		prevImageBtn = ctk.CTkButton(imageBtnsSections,  text="Previous", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.loadPreviousImage)
 		nextImageBtn = ctk.CTkButton(imageBtnsSections,  text="Next", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.loadNextImage)
 		selectImageBtn = ctk.CTkButton(imageBtnsSections,  text="Select", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.changeAvatar)
+		chooseFromFileBtn = ctk.CTkButton(imageBtnsSections, text="Choose from File", text_color=self.master.theme["btn_text_clr"], fg_color=self.master.theme["btn_clr"], hover_color=self.master.theme["hover_clr"], command=self.chooseImageFromFileSystem)
 
 		# Structure the widgets 
 		innerPageFrame.pack(expand=True)
@@ -45,6 +48,7 @@ class editAvatarPage(ctk.CTkFrame):
 		prevImageBtn.grid(row=0, column=0, padx=10)
 		selectImageBtn.grid(row=0, column=1, padx=10)
 		nextImageBtn.grid(row=0, column=2, padx=10)
+		chooseFromFileBtn.grid(row=0, column=3, padx=10)
 
 		# Load the current image onto the screen
 		self.loadCurrentImage()
@@ -54,15 +58,19 @@ class editAvatarPage(ctk.CTkFrame):
 		fileNames = os.listdir(self.imageFolderPath) 
 		return [fileName for fileName in fileNames]
 		
-	# Loads the current image onto the screen
+	# Loads the current image onto the screen  
 	def loadCurrentImage(self):
-		# Put new image on the label to display it
-		newImage = ImageTk.PhotoImage(Image.open(f"{self.imageFolderPath}{self.imageList[self.imageIndex]}").resize((300, 300))) 
-		self.imageLabel.configure(image=newImage)
-		self.imageLabel.image = newImage 
-
-		# Update the file name of the current image
-		self.currentImageFileName = self.imageList[self.imageIndex]
+		try:
+			imagePath = f"{self.imageFolderPath}{self.imageList[self.imageIndex]}"
+			newImage = ImageTk.PhotoImage(Image.open(imagePath).resize((300, 300)))
+			self.imageLabel.configure(image=newImage)
+			self.imageLabel.image = newImage
+   
+			# Update the file name of the current image
+			self.currentImageFileName = self.imageList[self.imageIndex]
+		except FileNotFoundError:
+			messagebox.showerror("Error", "The image file could not be found.")
+			# Handle the error, e.g., by loading a default image or removing the invalid entry
 
 	# Loads the next image
 	def loadNextImage(self):
@@ -78,6 +86,19 @@ class editAvatarPage(ctk.CTkFrame):
 			self.imageIndex = len(self.imageList) - 1
 		self.loadCurrentImage()
 
+	def chooseImageFromFileSystem(self):
+		file_path = filedialog.askopenfilename(title="Select an Image",
+											   filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;*.bmp")])
+		if file_path:
+			self.currentImageFileName = file_path
+			self.loadImageFromFile(file_path)
+
+	def loadImageFromFile(self, file_path):
+		newImage = ImageTk.PhotoImage(Image.open(file_path).resize((300, 300)))
+		self.imageLabel.configure(image=newImage)
+		self.imageLabel.image = newImage
+
+		self.changeAvatar()
 
 	# Changes the avatar of the currently logged in user
 	def changeAvatar(self):

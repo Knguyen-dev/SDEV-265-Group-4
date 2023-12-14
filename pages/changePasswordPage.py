@@ -129,4 +129,4 @@ class changePasswordPage(ctk.CTkFrame):
 		self.master.session.close() 
 
 		# After a password is changed we log out our user
-		self.master.logoutUser() 
+		self.master.userSessionManager.logoutUser() 
