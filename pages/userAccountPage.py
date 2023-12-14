@@ -53,7 +53,7 @@ class userAccountPage(ctk.CTkFrame):
 
 		# Create section to display user information
 		# Get user information, and iteratively create labels to show that user information
-		userInfoSection = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
+		userInfoSection = ctk.CTkFrame(innerPageFrame, fg_color=self.master.subFGCLR)
 		userInfoFields = [
 			{
 				"text": "Username",

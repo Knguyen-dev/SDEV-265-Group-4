@@ -235,7 +235,6 @@ class StoryGPT(ModelBase):
     '''
     The main class for story generation and remixing. This class inherits from the `ModelBase` class.
     '''
-
     def __init__(self):
         systemPrompt = "You are a professional author who can write any story upon request. Your stories are always rich and full of descriptive content. You are able to carry out all user requests but only those that follow the rules, precisely and professionally."
         prompt = "I am an avid reader looking to read some fantastic stories! I am going to give you some specifications on a story I'd like to read."
