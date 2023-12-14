@@ -41,6 +41,30 @@ class AIChatPage(ctk.CTkFrame):
 		self.msgbox_height=30
 		self.max_msgbox_height = 1200 # 12 line max view space
 
+		self.setup_ui()
+
+		'''
+		- Cases for the initial state:
+		1. User is continuing a saved story
+		2. Using is currently writing a remixed story, it's unsaved. If storyGenObj is detected with the constructor's logic then 
+			we're rendering the AI's first response to a user's remixed story, which would be the first message of the chat.
+		3. Using is continuing an unsaved story that isn't a remix.
+		'''
+		# If there have been any unsaved messages, render them 
+		if self.master.unsavedStoryMessages:
+			for messageObj in self.master.unsavedStoryMessages:
+				self.renderChatMessageObj(messageObj)
+
+		# if storyGenObj exists, then we have to process a generator that the AI returned
+		# NOTE: In this case, when storyGenObj exists here, that means it was set by the remixStoryPage, 
+		# and this generator contains a response for remixing a story
+		if self.master.storyGenObj:
+			self.processAIChat()
+
+		# call the function once to start the periodic check
+		self.check_length_and_resize()
+	
+	def setup_ui(self):
 		innerPageFrame = ctk.CTkFrame(self, fg_color=self.master.theme["sub_clr"])
 		innerPageFrame.pack(expand=True)
 		header = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
@@ -54,8 +78,13 @@ class AIChatPage(ctk.CTkFrame):
 		# Section with all of the input options the user has for the AIChatPage
 		chatInputSection = ctk.CTkFrame(innerPageFrame, fg_color="transparent")
 		self.chatEntry = ctk.CTkTextbox(chatInputSection, height=50, width=600, fg_color=self.master.theme["entry_clr"], text_color=self.master.theme["entry_text_clr"], font=("Helvetica", 16), wrap="word", activate_scrollbars=True)
-		openSaveStoryBtn_image = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, 'glass_save_btn.png')),
-				size=(50, 50))
+  
+		try:
+			openSaveStoryBtn_image = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, 'glass_save_btn.png')), size=(50, 50))
+		except IOError as e:
+			messagebox.showerror("Error", f"Failed to load image: {e}")
+			return
+
 		self.openSaveStoryBtn = ctk.CTkButton(chatInputSection, image=openSaveStoryBtn_image, height=10, width=20, text="Save Story", font=("Helvetica", 16, "bold"), text_color=self.master.theme["btn_text_clr"], fg_color='transparent', hover_color=self.master.theme["hover_clr"], command=lambda: self.master.openPage("saveStoryPage"))
 		
 		sendChatBtn_image = ctk.CTkImage(Image.open(os.path.join(self.master.image_path, 'glass_send_btn.png')),
@@ -72,15 +101,7 @@ class AIChatPage(ctk.CTkFrame):
 		self.chatEntry.grid(row=0, column=0, padx=10, pady=5)
 		self.sendChatBtn.grid(row=0, column=1, padx=5)
 		self.openSaveStoryBtn.grid(row=0, column=2, padx=5)
-
-		'''
-		- Cases for the initial state:
-		1. User is continuing a saved story
-		2. Using is currently writing a remixed story, it's unsaved. If storyGenObj is detected with the constructor's logic then 
-			we're rendering the AI's first response to a user's remixed story, which would be the first message of the chat.
-		3. Using is continuing an unsaved story that isn't a remix.
-		'''
-		
+  
 		if self.master.isSavedStory: 
 			# Render saved messages associated with the current story
 			for messageObj in self.master.currentStory.messages:
@@ -90,21 +111,7 @@ class AIChatPage(ctk.CTkFrame):
 			storyStateMessage.configure(text=f"Currently writing a remix based on '{self.master.currentStory.storyTitle}'!")
 		else:
 			storyStateMessage.configure(text=f"Currently continuing writing a new story!")
-
-		# If there have been any unsaved messages, render them 
-		if self.master.unsavedStoryMessages:
-			for messageObj in self.master.unsavedStoryMessages:
-				self.renderChatMessageObj(messageObj)
-
-		# if storyGenObj exists, then we have to process a generator that the AI returned
-		# NOTE: In this case, when storyGenObj exists here, that means it was set by the remixStoryPage, 
-		# and this generator contains a response for remixing a story
-		if self.master.storyGenObj:
-			self.processAIChat()
-
-		# call the function once to start the periodic check
-		self.check_length_and_resize()
-	
+ 
 	def renderChatMessageObj(self, messageObj):
 		'''
 		- Renders messageObj as chat messages on the screen
@@ -172,17 +179,18 @@ class AIChatPage(ctk.CTkFrame):
 		msgbox.grid(row=len(self.master.msgboxes), column=0, padx=5, pady=5, sticky="nsew")
 		self.master.msgboxes.append(msgbox)
 		return msgbox
-	
+
 	def expandEntryBox(self, msgLength):
-		num_chars = len(msgLength)  # The number of characters in the text box at hand
-		print('num_chars=', num_chars)
+		num_chars = len(msgLength) # The number of characters in the text box at hand
+  
 		# Calculate the number of lines at 100 characters per line of text onscreen
-		num_lines = num_chars // 100  # Use integer division to get the number of full lines
-		print('num_lines=', num_lines)
-		if num_chars % 100 > 0:  # If there are any remaining characters, they will form an additional line
+		num_lines = num_chars // 100 # Use integer division to get the number of full lines
+		if num_chars % 100 > 0: # If there are any remaining characters, they will form an additional line
 			num_lines += 1
+   
 		# Calculate the height
-		height = num_lines * 30  # Each line is 30 units high
+		height = num_lines * 30 # Each line is 30 units high
+  
 		# Now you can use `height` to set the height of your widget
 		return height
 
@@ -235,7 +243,7 @@ class AIChatPage(ctk.CTkFrame):
 			# Dynamically resize the height of the current msgbox
 			msgbox.update()
 			msgbox.configure(height=self.msgbox_height)
-			time.sleep(0.02)
+			self.update_idletasks()
 			# add the chunk onto the message object's text since we want to keep track of this message; then increment chunkIndex
 			messageObj.text += chunk
 			chunkIndex += 1

@@ -3,11 +3,12 @@ import importlib
 import datetime  
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from ai import StoryGPT 
+from ai import StoryGPT
 from PIL import Image 
 from tkinter import messagebox
 import pickle, os
 from classes.models import User
+
 
 '''
 + Header: Tkinter frame that represents the header of the application 
@@ -351,7 +352,7 @@ class App(ctk.CTk):
 
 		# Clear AI knowledge of any stories the user is currently writing, if any, which prevents the user from logging back in and getting unexpected output
 		# NOTE: More specifically when they login and 'continue' an unsaved story, it prevents AI from having knowledge of an interaction from another user or session.
-		self.storyGPT.clear()
+		self.storyGPT.chatHistory.clear()
 
 		# Redirect the user to the login page
 		self.openPage("userLoginPage")

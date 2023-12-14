@@ -6,6 +6,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# databases
+*.db
+
 # C extensions
 *.so
 
@@ -130,7 +133,7 @@ celerybeat.pid
 env/
 venv/
 ENV/
-SDEVEnv/
+booksmartenv/
 env.bak/
 venv.bak/
 
