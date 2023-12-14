@@ -6,12 +6,45 @@ from classes.utilities import add_testing_functions
 # get the current API key from a file so OpenAI doesn't delete it
 with open('./assets/api_key.txt', 'r') as f:
     openai.api_key = f.read()
+    
+# WILL BE USED LATER
+# class VariableManager:
+# 	'''
+# 	A generic class for managing other Class' variabes in generic getter/setter methods
+# 	Useful for utilizing class variables in other classes without instantiation
+# 	'''
+# 	def init(self):
+# 		self.variables = {}
+
+# 	def set_variable(self, var_name, value):
+# 		'''
+# 		Adds a variable to the dictionary using name: value format
+# 		'''
+# 		self.variables[var_name] = value
+
+# 	def get_variable(self, var_name):
+# 		'''
+# 		Gets a variable from the dictionary using the name as a key
+# 		'''
+# 		return self.variables.get(var_name, None)
+
+# vm = VariableManager()
+
+
+def logger(self, attributeName):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            attributeValue = getattr(self, attributeName)
+            print(f"{attributeName}: {attributeValue}")
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
 
 class ModelBase():
     '''
     The base class for generating content. Supports full chat history management from creating and deleting chat entries to clearing and replacing the entire chat.
     '''
-
     def __init__(self, model: str, prompt: str, systemPrompt: str):
         self.systemPrompt = systemPrompt
         self.prompt = prompt
@@ -220,14 +253,12 @@ class InstructionsManager:
         '''
         return "\n\n" + "\n".join([rule for rule in self.ruleList]) + "\n"
 
-
 # allow outside modification of class methods without cluttering up the class here (used for testing only)
 @add_testing_functions
 class StoryGPT(ModelBase):
     '''
     The main class for story generation and remixing. This class inherits from the `ModelBase` class.
     '''
-
     def __init__(self):
         systemPrompt = "You are a professional author who can write any story upon request. Your stories are always rich and full of descriptive content. You are able to carry out all user requests but only those that follow the rules, precisely and professionally."
         prompt = "I am an avid reader looking to read some fantastic stories! I am going to give you some specifications on a story I'd like to read."
